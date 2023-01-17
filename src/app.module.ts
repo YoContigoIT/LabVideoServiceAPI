@@ -1,10 +1,60 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+
+import { User } from './users/entities/user.entity';
+import { CallRecord } from './call_records/entities/call_record.entity';
+
+import configuration from './utilities/configuration';
+import { UsersModule } from './users/users.module';
+import { LoggerMiddleware } from './middleware/logging.middleware';
+import { AuthModule } from './auth/auth.module';
+import { JwtStrategy } from './utilities/jwt.strategy';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async ( configService: ConfigService ) => ({        
+        type: "mysql",
+        host: configService.get<string>("db.mysql.host"),
+        port: parseInt(configService.get<string>("db.mysql.port")),
+        username: configService.get<string>("db.mysql.username"),
+        password: configService.get<string>("db.mysql.password"),
+        database: configService.get<string>("db.mysql.database"),
+        entities: [
+          User,
+          CallRecord,
+        ],
+        synchronize: true,
+      }),
+      inject: [ConfigService],
+    }),
+
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,],
+  exports: [ConfigModule],
 })
-export class AppModule {}
+
+export class AppModule {
+  constructor(private dataSource: DataSource){}
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: 'users', method: RequestMethod.GET });
+  }
+}
