@@ -28,6 +28,18 @@ export class UsersService {
       return e;
     });
   }
+
+  async updateUser(uuid: string, updateUserDto: UpdateUserDto): Promise<any> {
+    console.log({where: { uuid }});
+    const userInfo = await this.usersRepository
+      .createQueryBuilder()
+      .update(User)
+      .set(updateUserDto)
+      .where('uuid = :uuid', { uuid })
+      .execute();
+
+    return userInfo;
+  }
   
   findAll() {
     return this.usersRepository.find();
@@ -37,11 +49,9 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(uuid: string) {
+    const deletedResponse = await this.usersRepository.softDelete(uuid)
+    
+    return deletedResponse;
   }
 }
