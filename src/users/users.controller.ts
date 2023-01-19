@@ -6,6 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { AuthJWTGuard } from 'src/auth/guard/auth.guard';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
+import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 
 @Controller('users')
 // @UseGuards(AuthJWTGuard)
@@ -15,15 +16,13 @@ export class UsersController {
   @Post()
   // @Authorization(['ADMIN'])
   async create(@Body() createUserDto: CreateUserDto): Promise<HttpResponse> {
-    const user = await this.usersService.create(createUserDto).catch(e => e);
+    const user = await this.usersService.create(createUserDto);
 
     if (user?.uuid) {
       return {
         status : HttpStatusResponse.SUCCESS
       }
     }
-
-    return user;
   }
 
   @Get()
@@ -41,7 +40,11 @@ export class UsersController {
     return this.usersService.updateUser(uuid, updateUserDto);
   }
 
-  // TODO: Return httpStatus()
+  @Patch('/password/:uuid')
+  async updatePassword(@Param('uuid') uuid: string, @Body() updatePasswordUserDto: UpdatePasswordUserDto) {
+    return this.usersService.updatePassword(uuid, updatePasswordUserDto);
+  }
+
   @Delete(':uuid')
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);
