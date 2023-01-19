@@ -31,9 +31,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get(':uuid')
+  findOne(@Param('uuid') uuid: string) {
+    return this.usersService.findOne(uuid);
   }
 
   @Patch(':uuid')
@@ -41,6 +41,7 @@ export class UsersController {
     return this.usersService.updateUser(uuid, updateUserDto);
   }
 
+  // TODO: Return httpStatus()
   @Delete(':uuid')
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);

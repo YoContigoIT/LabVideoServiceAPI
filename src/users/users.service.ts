@@ -30,7 +30,6 @@ export class UsersService {
   }
 
   async updateUser(uuid: string, updateUserDto: UpdateUserDto): Promise<any> {
-    console.log({where: { uuid }});
     const userInfo = await this.usersRepository
       .createQueryBuilder()
       .update(User)
@@ -45,8 +44,10 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(uuid: string) {
+    return this.usersRepository.findOne({
+      where: {uuid}
+    });
   }
 
   async remove(uuid: string) {

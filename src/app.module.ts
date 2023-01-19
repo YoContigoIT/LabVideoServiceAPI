@@ -15,6 +15,8 @@ import { AuthModule } from './auth/auth.module';
 import { JwtStrategy } from './utilities/jwt.strategy';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+import { VideoServiceModule } from './video-service/video-service.module';
+import { AgentsConnectionModule } from './agents-connection/agents-connection.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { AuthService } from './auth/auth.service';
 
     UsersModule,
     AuthModule,
+    VideoServiceModule,
+    AgentsConnectionModule,
   ],
   controllers: [AppController],
   providers: [AppService,],
