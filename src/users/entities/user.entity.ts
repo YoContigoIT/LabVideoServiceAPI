@@ -2,6 +2,7 @@ import { ValidateIf } from "class-validator";
 import { Role } from "src/auth/auth.interfaces";
 import { AgentsConnection } from "src/agents-connection/entities/agents-connection.entity";
 import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany } from "typeorm";
+import { Exclude, Expose } from "class-transformer";
 
 @Entity()
 export class User {
@@ -16,6 +17,7 @@ export class User {
     lastnames: string
 
     @Column({nullable: true})
+    @Exclude()
     password?: string
 
     @Column({unique:true, nullable: true})
@@ -26,4 +28,9 @@ export class User {
 
     @DeleteDateColumn()
     deleteAt: Date;
+
+    @Expose()
+    get fullName(): string {
+        return `${this.names} ${this.lastnames}`;
+    }
 }

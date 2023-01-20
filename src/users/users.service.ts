@@ -45,9 +45,6 @@ export class UsersService {
   async updatePassword(uuid: string, updatePasswordUserDto: UpdatePasswordUserDto): Promise<HttpResponse> {
     updatePasswordUserDto.password = await this.hashPassword(updatePasswordUserDto.password);
 
-    console.log(updatePasswordUserDto);
-    
-
     const response = await this.usersRepository
       .createQueryBuilder()
       .update(User)
