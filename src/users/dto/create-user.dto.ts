@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, ValidateIf } from "class-validator";
+import { Role } from "src/auth/auth.interfaces";
 
 export class CreateUserDto {
     @IsString()
@@ -9,10 +10,12 @@ export class CreateUserDto {
     @IsNotEmpty()
     lastnames: string;
 
+    @ValidateIf(o => o.role === Role.ADMIN)
     @IsString()
     @IsNotEmpty()
     password: string
 
+    @ValidateIf(o => o.role === Role.ADMIN)
     @IsEmail()
     @IsNotEmpty()
     email: string;
