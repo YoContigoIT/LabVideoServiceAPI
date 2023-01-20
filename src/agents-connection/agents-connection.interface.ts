@@ -8,6 +8,7 @@ export interface Room {
   name: string
   host: User
   users: User[]
+  available: boolean
 }
 
 export interface Guest {

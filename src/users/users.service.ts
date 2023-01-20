@@ -36,7 +36,7 @@ export class UsersService {
       .createQueryBuilder()
       .update(User)
       .set(updateUserDto)
-      .where('uuid = :uuid', { uuid })
+      .where('uuid =:uuid', { uuid })
       .execute();
 
       return this.parseAffeceRowToHttpResponse(response.affected);

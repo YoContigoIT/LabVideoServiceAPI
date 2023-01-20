@@ -8,17 +8,16 @@ import { DataSource } from 'typeorm';
 import { User } from './users/entities/user.entity';
 import { CallRecord } from './call_records/entities/call_record.entity';
 import { AgentsConnection } from './agents-connection/entities/agents-connection.entity';
+import { Guest } from './guests/entities/guest.entity';
 
 import configuration from './utilities/configuration';
 import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './middleware/logging.middleware';
 import { AuthModule } from './auth/auth.module';
-import { JwtStrategy } from './utilities/jwt.strategy';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { VideoServiceModule } from './video-service/video-service.module';
 import { AgentsConnectionModule } from './agents-connection/agents-connection.module';
 import { AgentsConnection2Module } from './agents-connection2/agents-connection2.module';
+import { GuestsModule } from './guests/guests.module';
 
 @Module({
   imports: [
@@ -40,6 +39,7 @@ import { AgentsConnection2Module } from './agents-connection2/agents-connection2
           User,
           CallRecord,
           AgentsConnection,
+          Guest,
         ],
         synchronize: true,
       }),
@@ -51,6 +51,7 @@ import { AgentsConnection2Module } from './agents-connection2/agents-connection2
     VideoServiceModule,
     AgentsConnectionModule,
     AgentsConnection2Module,
+    GuestsModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

@@ -24,7 +24,7 @@ export class AgentsConnectionService {
   async addRoom(roomName: string, host: RoomUser): Promise<void> {
     const room = await this.getRoomByName(roomName)
     if (room === -1) {
-      this.rooms.push({ name: roomName, host, users: [host] })
+      this.rooms.push({ name: roomName, host, users: [host], available: true })
     }
   }
 
