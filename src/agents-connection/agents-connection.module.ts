@@ -1,22 +1,15 @@
 import { Inject, Module } from '@nestjs/common';
 import { AgentsConnectionService } from './agents-connection.service';
 import { AgentsConnectionController } from './agents-connection.controller';
-import { EventsGateway } from 'src/common/gateways/events.gateway';
-import { ConfigService } from '@nestjs/config';
-// import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
-
-// const configService: ConfigService;
-// const config: SocketIoConfig = { url: configService.get<string>('') }
+import { AgentsConnectionGateway } from 'src/agents-connection/agents-connection.gateway';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AgentsConnection } from './entities/agents-connection.entity';
 
 @Module({
   imports: [
-    // [ConfigService],
-    // SocketIoModule.forRoot({
-    //   // url
-    // }),
-    // inject: [ConfigService],
+    TypeOrmModule.forFeature([AgentsConnection]),
   ],
   controllers: [AgentsConnectionController],
-  providers: [AgentsConnectionService, EventsGateway]
+  providers: [AgentsConnectionService, AgentsConnectionGateway]
 })
 export class AgentsConnectionModule {}

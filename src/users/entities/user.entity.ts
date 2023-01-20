@@ -1,7 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
+import { AgentsConnection } from "src/agents-connection/entities/agents-connection.entity";
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany } from "typeorm";
 
 @Entity()
 export class User {
+    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.uuid)
     @PrimaryGeneratedColumn("uuid")
     uuid: string
 
@@ -14,7 +16,7 @@ export class User {
     @Column()
     password: string
 
-    @Column({unique:true})
+    @Column({ unique:true })
     email: string
 
     @Column()

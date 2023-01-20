@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 
 import { User } from './users/entities/user.entity';
 import { CallRecord } from './call_records/entities/call_record.entity';
+import { AgentsConnection } from './agents-connection/entities/agents-connection.entity';
 
 import configuration from './utilities/configuration';
 import { UsersModule } from './users/users.module';
@@ -17,6 +18,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { VideoServiceModule } from './video-service/video-service.module';
 import { AgentsConnectionModule } from './agents-connection/agents-connection.module';
+import { AgentsConnection2Module } from './agents-connection2/agents-connection2.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { AgentsConnectionModule } from './agents-connection/agents-connection.mo
         entities: [
           User,
           CallRecord,
+          AgentsConnection,
         ],
         synchronize: true,
       }),
@@ -47,6 +50,7 @@ import { AgentsConnectionModule } from './agents-connection/agents-connection.mo
     AuthModule,
     VideoServiceModule,
     AgentsConnectionModule,
+    AgentsConnection2Module,
   ],
   controllers: [AppController],
   providers: [AppService,],

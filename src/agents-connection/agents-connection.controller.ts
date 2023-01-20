@@ -9,26 +9,26 @@ export class AgentsConnectionController {
 
   @Post(':uuid')
   connectAgent(@Param('uuid') uuid: string) {
-    return this.agentsConnectionService.connection(uuid);
+    // return this.agentsConnectionService.connection(uuid);
   }
 
-  @Get()
-  findAll() {
-    return this.agentsConnectionService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.agentsConnectionService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.agentsConnectionService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.agentsConnectionService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAgentsConnectionDto: UpdateAgentsConnectionDto) {
-    return this.agentsConnectionService.update(+id, updateAgentsConnectionDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAgentsConnectionDto: UpdateAgentsConnectionDto) {
+  //   return this.agentsConnectionService.update(+id, updateAgentsConnectionDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.agentsConnectionService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.agentsConnectionService.remove(+id);
+  // }
 }
