@@ -1,3 +1,5 @@
+import { Guest } from "src/guests-connection/guests-connection.interface"
+
 export interface User {
   uuid: string
   userName?: string
@@ -7,17 +9,6 @@ export interface User {
 export interface Room {
   name: string
   host: User
-  users: User[]
+  users: (User | Guest) []
   available: boolean
-}
-
-export interface Guest {
-  socketId: string
-  roomId?: string
-  priority: string
-  [key: string]: any
-}
-
-export interface PriorityLine {
-  [key: string]: Guest
 }

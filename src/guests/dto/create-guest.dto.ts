@@ -5,5 +5,5 @@ export class CreateGuestDto {
     name?: string
 
     @IsObject()
-    details?: any
+    details?: any    
 }

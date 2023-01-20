@@ -16,8 +16,9 @@ import { LoggerMiddleware } from './middleware/logging.middleware';
 import { AuthModule } from './auth/auth.module';
 import { VideoServiceModule } from './video-service/video-service.module';
 import { AgentsConnectionModule } from './agents-connection/agents-connection.module';
-import { AgentsConnection2Module } from './agents-connection2/agents-connection2.module';
 import { GuestsModule } from './guests/guests.module';
+import { GuestsConnectionModule } from './guests-connection/guests-connection.module';
+import { GuestsConnection } from './guests-connection/entities/guests-connection.entity';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GuestsModule } from './guests/guests.module';
           CallRecord,
           AgentsConnection,
           Guest,
+          GuestsConnection,
         ],
         synchronize: true,
       }),
@@ -50,8 +52,8 @@ import { GuestsModule } from './guests/guests.module';
     AuthModule,
     VideoServiceModule,
     AgentsConnectionModule,
-    AgentsConnection2Module,
     GuestsModule,
+    GuestsConnectionModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

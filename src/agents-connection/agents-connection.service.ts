@@ -14,11 +14,11 @@ import { v4 as uuidv4 } from 'uuid';
 export class AgentsConnectionService {
   rooms: Room[] = [];
   constructor(
-    @InjectRepository(AgentsConnection) private agentConnectionRepository: Repository<AgentsConnection>
+    @InjectRepository(AgentsConnection) private agentsConnectionRepository: Repository<AgentsConnection>
   ) {}
 
   connection(createAgentsConnectionDto: CreateAgentsConnectionDto) {
-    return this.agentConnectionRepository.save(createAgentsConnectionDto);
+    return this.agentsConnectionRepository.save(createAgentsConnectionDto);
   }
 
   async addRoom(roomName: string, host: RoomUser): Promise<void> {
