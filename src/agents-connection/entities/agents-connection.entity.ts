@@ -19,8 +19,8 @@ export class AgentsConnection {
     typeClientBrowser: string
 
     @ManyToOne(() => User, (user) => user.uuid)
-    @JoinColumn({ name: 'uuid' })
-    uuid: User
+    @JoinColumn({ name: 'userUUID' })
+    user: User
 
     @DeleteDateColumn()
     deleteAt: Date

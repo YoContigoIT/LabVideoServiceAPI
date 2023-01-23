@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { ClassSerializerInterceptor, Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Server } from 'socket.io';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { AgentsConnectionController } from './agents-connection.controller';
 import { Room, User as RoomUser } from './agents-connection.interface';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { UpdateAgentsConnectionDto } from './dto/update-agents-connection.dto';
 import { AgentsConnection } from './entities/agents-connection.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
 
 @Injectable()
 export class AgentsConnectionService {
@@ -58,7 +59,22 @@ export class AgentsConnectionService {
     return uuidv4();
   }
 
-  getConnectionAgent() {
-    
+  findAll(query: ListAgentsConnectionsDto) {
+
+    const where: FindOptionsWhere<AgentsConnection> = {};
+
+    if (query.uuid) {
+      where.user = {
+        uuid: query.uuid
+      };
+    }
+
+
+    return this.agentConnectionRepository.find({
+      relations: {
+        user: true
+      },
+      where
+    });
   }
 }

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { AgentsConnectionService } from './agents-connection.service';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { UpdateAgentsConnectionDto } from './dto/update-agents-connection.dto';
+import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
 
 @Controller('agentsconnection')
 export class AgentsConnectionController {
@@ -12,14 +13,14 @@ export class AgentsConnectionController {
     // return this.agentsConnectionService.connection(uuid);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.agentsConnectionService.findAll();
-  // }
+  @Get()
+  findAll(@Query() query: ListAgentsConnectionsDto) {
+    return this.agentsConnectionService.findAll(query);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
-  //   return this.agentsConnectionService.findOne(+id);
+    // return this.agentsConnectionService.findOne(+id);
   // }
 
   // @Patch(':id')

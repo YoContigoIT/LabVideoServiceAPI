@@ -23,7 +23,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const roomName = this.agentsConnectionService.getUuidv4();
     
     await this.agentsConnectionService.addUserToRoom(roomName, {
-      uuid: createAgentsConnectionDto.uuid as unknown as string,
+      uuid: createAgentsConnectionDto.user as unknown as string,
       socketId: createAgentsConnectionDto.socketId
     })
 
@@ -36,10 +36,5 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   async handleDisconnect(socket: Socket): Promise<void> {
     console.log(`Socket disconnected: ${socket.id}`)
-  }
-    
-  @SubscribeMessage('connect-victima')
-  async connectVictim() {
-    this.agentsConnectionService.getConnectionAgent();
   }
 }

@@ -6,7 +6,6 @@ import { Exclude, Expose } from "class-transformer";
 
 @Entity()
 export class User {
-    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.uuid)
     @PrimaryGeneratedColumn("uuid")
     uuid: string
 
@@ -28,6 +27,9 @@ export class User {
 
     @DeleteDateColumn()
     deleteAt: Date;
+
+    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.user)
+    agentsConnection: AgentsConnection[]
 
     @Expose()
     get fullName(): string {
