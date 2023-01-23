@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, PrimaryGeneratedColumn, Timestamp } from "typ
 
 export class CreateAgentsConnectionDto {
     @IsNotEmpty()
-    uuid: User;
+    user: User;
 
     @IsNotEmpty()
     socketId: string;
