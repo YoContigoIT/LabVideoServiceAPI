@@ -19,6 +19,7 @@ import { AgentsConnectionModule } from './agents-connection/agents-connection.mo
 import { GuestsModule } from './guests/guests.module';
 import { GuestsConnectionModule } from './guests-connection/guests-connection.module';
 import { GuestsConnection } from './guests-connection/entities/guests-connection.entity';
+import { AdminSocketsModule } from './admin-sockets/admin-sockets.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { GuestsConnection } from './guests-connection/entities/guests-connection
     AgentsConnectionModule,
     GuestsModule,
     GuestsConnectionModule,
+    AdminSocketsModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

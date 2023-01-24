@@ -6,8 +6,9 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from "bcrypt";
 import { Role } from 'src/auth/auth.interfaces';
-import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
+import { HttpResponse } from 'src/common/interfaces/http-responses.interface';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
+import { parseAffeceRowToHttpResponse } from 'src/utilities/functions';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +40,7 @@ export class UsersService {
       .where('uuid =:uuid', { uuid })
       .execute();
 
-      return this.parseAffeceRowToHttpResponse(response.affected);
+      return parseAffeceRowToHttpResponse(response.affected);
   }
 
   async updatePassword(uuid: string, updatePasswordUserDto: UpdatePasswordUserDto): Promise<HttpResponse> {
@@ -52,7 +53,7 @@ export class UsersService {
       .where('uuid = :uuid', { uuid })
       .execute();
 
-      return this.parseAffeceRowToHttpResponse(response.affected);
+      return parseAffeceRowToHttpResponse(response.affected);
   }
   
   findAll() {
@@ -68,19 +69,11 @@ export class UsersService {
   async remove(uuid: string) {
     const response = await this.usersRepository.softDelete(uuid);
 
-    return this.parseAffeceRowToHttpResponse(response.affected);
+    return parseAffeceRowToHttpResponse(response.affected);
   }
 
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
-  }
-
-  private parseAffeceRowToHttpResponse(affected: number) {
-    return affected === 1 ? {
-      status: HttpStatusResponse.SUCCESS
-    }: {
-      status: HttpStatusResponse.FAIL
-    } ;
   }
 }

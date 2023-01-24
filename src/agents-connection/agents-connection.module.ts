@@ -4,12 +4,17 @@ import { AgentsConnectionController } from './agents-connection.controller';
 import { AgentsConnectionGateway } from 'src/agents-connection/agents-connection.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AgentsConnection } from './entities/agents-connection.entity';
+import { AdminSocketsGateway } from 'src/admin-sockets/admin-sockets.gateway';
+import { AdminSocketsModule } from 'src/admin-sockets/admin-sockets.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AgentsConnection]),
+    UsersModule
   ],
   controllers: [AgentsConnectionController],
-  providers: [AgentsConnectionService, AgentsConnectionGateway]
+  providers: [AgentsConnectionService, AgentsConnectionGateway],
+  exports: [AgentsConnectionService]
 })
 export class AgentsConnectionModule {}

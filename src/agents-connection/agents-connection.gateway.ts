@@ -3,6 +3,8 @@ import { delay, from, interval, map, Observable } from "rxjs";
 import { Server, ServerOptions, Socket } from 'socket.io';
 import { AgentsConnectionService } from "./agents-connection.service";
 import { CreateAgentsConnectionDto } from "./dto/create-agents-connection.dto";
+import { HttpResponse } from "src/common/interfaces/http-responses.interface";
+import { UsersService } from "src/users/users.service";
 
 @WebSocketGateway({
     cors: {
@@ -14,27 +16,43 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   server: Server;
 
   constructor(
-    private agentsConnectionService: AgentsConnectionService
+    private agentsConnectionService: AgentsConnectionService,
+    private usersService: UsersService
   ) {}
   
   @SubscribeMessage('connect-agent')
   async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto) {
-    const joinRoom = this.server.in(createAgentsConnectionDto.socketId).socketsJoin('room');
-    const roomName = this.agentsConnectionService.getUuidv4();
+    const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
+    const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
+
+    const roomName = await this.agentsConnectionService.getUuidv4();
+    this.server.in(createAgentsConnectionDto.socketId).socketsJoin(roomName);
     
     await this.agentsConnectionService.addUserToRoom(roomName, {
-      uuid: createAgentsConnectionDto.user as unknown as string,
-      socketId: createAgentsConnectionDto.socketId
+      uuid: user.uuid,
+      socketId: createAgentsConnectionDto.socketId,
+      agentConnectionId: agentConnection.id,
+      userName: user.fullName
     })
 
-    return this.agentsConnectionService.connection(createAgentsConnectionDto);
+    return agentConnection;
   }
 
   async handleConnection(socket: Socket) {
-    console.log(`connected: ${socket.id}`);
+    
   }
 
-  async handleDisconnect(socket: Socket): Promise<void> {
-    console.log(`Socket disconnected: ${socket.id}`)
+  async handleDisconnect(socket: Socket): Promise<HttpResponse> {
+
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    if (!room) return;
+    
+    const removedRoom = this.agentsConnectionService.removeRoom(room.name);
+    console.log(removedRoom);
+
+    this.server.to(room.name).disconnectSockets();
+
+    return this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
+
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { AgentsConnectionService } from './agents-connection.service';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { UpdateAgentsConnectionDto } from './dto/update-agents-connection.dto';
@@ -14,6 +14,7 @@ export class AgentsConnectionController {
   }
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   findAll(@Query() query: ListAgentsConnectionsDto) {
     return this.agentsConnectionService.findAll(query);
   }
