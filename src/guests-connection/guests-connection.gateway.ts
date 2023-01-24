@@ -3,7 +3,11 @@ import { GuestsConnectionService } from './guests-connection.service';
 import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class GuestsConnectionGateway {
   constructor(
     private readonly guestsConnectionService: GuestsConnectionService
