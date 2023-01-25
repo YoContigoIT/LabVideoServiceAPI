@@ -6,9 +6,6 @@ export class CreateAgentsConnectionDto {
     @IsNotEmpty()
     user: User;
 
-    @IsNotEmpty()
-    socketId: string;
-
     @Column()
     ip?: string;
 

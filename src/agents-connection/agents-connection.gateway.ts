@@ -1,6 +1,5 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from "@nestjs/websockets"
-import { delay, from, interval, map, Observable } from "rxjs";
-import { Server, ServerOptions, Socket } from 'socket.io';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets"
+import { Server, Socket } from 'socket.io';
 import { AgentsConnectionService } from "./agents-connection.service";
 import { CreateAgentsConnectionDto } from "./dto/create-agents-connection.dto";
 import { HttpResponse } from "src/common/interfaces/http-responses.interface";
@@ -21,16 +20,16 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   ) {}
   
   @SubscribeMessage('connect-agent')
-  async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto) {
+  async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto, @ConnectedSocket() client: Socket) {
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
     const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
     const roomName = await this.agentsConnectionService.getUuidv4();
-    this.server.in(createAgentsConnectionDto.socketId).socketsJoin(roomName);
+    this.server.in(client.id).socketsJoin(roomName);
     
     await this.agentsConnectionService.addUserToRoom(roomName, {
       uuid: user.uuid,
-      socketId: createAgentsConnectionDto.socketId,
+      socketId: client.id,
       agentConnectionId: agentConnection.id,
       userName: user.fullName
     })
@@ -43,12 +42,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   async handleDisconnect(socket: Socket): Promise<HttpResponse> {
-
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
     
-    const removedRoom = this.agentsConnectionService.removeRoom(room.name);
-    console.log(removedRoom);
+    this.agentsConnectionService.removeRoom(room.name);
 
     this.server.to(room.name).disconnectSockets();
 

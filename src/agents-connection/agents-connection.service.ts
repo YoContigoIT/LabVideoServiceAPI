@@ -12,15 +12,15 @@ import { BehaviorSubject, Observable, take } from 'rxjs';
 
 @Injectable()
 export class AgentsConnectionService {
-  rooms: BehaviorSubject<Room[]> = new BehaviorSubject<Room[]>([]);
-  rooms$: Observable<Room[]> =  this.rooms.asObservable();
+  private _rooms: BehaviorSubject<Room[]> = new BehaviorSubject<Room[]>([]);
+  rooms$: Observable<Room[]> =  this._rooms.asObservable();
 
   constructor(
     @InjectRepository(AgentsConnection) private agentsConnectionRepository: Repository<AgentsConnection>,
   ) {}
 
-  agentConnection(createAgentsConnectionDto: CreateAgentsConnectionDto) {
-    return this.agentsConnectionRepository.save(createAgentsConnectionDto);
+  public get rooms() : Room[] {
+    return this._rooms.value;
   }
 
   async addRoom(roomName: string, host: RoomUser): Promise<void> {
@@ -38,11 +38,11 @@ export class AgentsConnectionService {
 
   getRoomHost(hostName: string) {
     const roomIndex = this.getRoomByName(hostName)
-    return this.rooms.value[roomIndex].host;
+    return this.rooms[roomIndex].host;
   }
 
   getRoomByName(roomName: string) {
-    return this.rooms.value.findIndex((room) => room?.name === roomName)
+    return this.rooms.findIndex((room) => room?.name === roomName)
   }
 
   addUserToRoom(roomName: any, user: RoomUser) {
@@ -60,16 +60,18 @@ export class AgentsConnectionService {
   }
 
   getRoomByHostSocket(socketId: string) {
-    return this.rooms.value.find((room) => room?.host.socketId === socketId);
+    console.log(this.rooms);
+    
+    return this.rooms.find((room) => room?.host.socketId === socketId);
   }
 
   removeRoom(roomName: string): Room | HttpResponse {
     const roomIndex = this.getRoomByName(roomName);
 
     if (roomIndex !== -1) {
-      const rooms = this.rooms.value;
+      const rooms = this.rooms;
       const removedRoom = rooms.splice(roomIndex, 1)[0];
-      this.rooms.next(rooms);
+      this._rooms.next(rooms);
       return removedRoom;
     }
 
@@ -79,16 +81,34 @@ export class AgentsConnectionService {
     }
   }
 
-  async getUuidv4(): Promise<any> {
-    return uuidv4();
-  }
-
   pushToRoom(room: Room) {
     this.rooms$.pipe(take(1)).subscribe(val => {
       const newArr = [...val, room];
-      this.rooms.next(newArr);
+      this._rooms.next(newArr);
     })
   }
+
+  async saveAgentDisconnection(id: string) {
+    const agentConnectionData = {
+      endTimeConnection: new Date()
+    }
+
+    const response = await this.agentsConnectionRepository
+      .createQueryBuilder()
+      .update(AgentsConnection)
+      .set(agentConnectionData)
+      .where('id = :id', { id })
+      .execute();
+
+    return parseAffeceRowToHttpResponse(response.affected);
+  }
+
+  // CRUD functions
+
+  agentConnection(createAgentsConnectionDto: CreateAgentsConnectionDto) {
+    return this.agentsConnectionRepository.save(createAgentsConnectionDto);
+  }
+
 
   findAll(query: ListAgentsConnectionsDto) {
 
@@ -108,19 +128,11 @@ export class AgentsConnectionService {
     });
   }
 
-  async saveAgentDisconnection(id: string) {
-    const agentConnectionData = {
-      endTimeConnection: new Date()
-    }
+  // Utilities
 
-    const response = await this.agentsConnectionRepository
-      .createQueryBuilder()
-      .update(AgentsConnection)
-      .set(agentConnectionData)
-      .where('id = :id', { id })
-      .execute();
-
-    return parseAffeceRowToHttpResponse(response.affected);
+  async getUuidv4(): Promise<any> {
+    return uuidv4();
   }
+  
   
 }
