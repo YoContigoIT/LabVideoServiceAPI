@@ -8,7 +8,7 @@ import { GuestsConnection } from './entities/guests-connection.entity';
 import { Repository } from 'typeorm';
 import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
 import { AgentsConnectionGateway } from 'src/agents-connection/agents-connection.gateway';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, take } from 'rxjs';
 
 @Injectable()
 export class GuestsConnectionService {
@@ -26,31 +26,55 @@ export class GuestsConnectionService {
   checkRoomsAvailability() {
     setInterval(() => {
       if(!this.priorityLine.length) return;
-      console.log('checksRooms');
 
-      this.agentsConnectionService.rooms.value.forEach((room) => {
+      const rooms = this.agentsConnectionService.rooms;
+
+      for (const room of rooms) {
         if(room.available) {
-          const guest = this.priorityLine.shift()
+          const guest = this.removeGuestFromPriorityLine(0);
+          if (!guest) break;
           room.users.push(guest);
           room.available = false;
-          this.agentsConnectionGateway.guestInRoom(room.host.socketId, guest);
+          this.agentsConnectionGateway.guestInRoom(room, guest);
         }
-        console.log(room.users);
-      })
+      }
 
-      console.log(this.priorityLine, 'priority');
+      this.agentsConnectionService.updateRoomsList(rooms);
       
-    }, 1000);
+    }, 3000);
+  }
+
+  pushToPriorityLine(guest: Guest) {
+    this.priorityLine$.pipe(take(1)).subscribe(val => {
+      const newArr = [...val, guest];
+      this._priorityLine.next(newArr);
+    })
   }
 
   create(createGuestsConnectionDto: CreateGuestsConnectionDto) {
     return this.guestConnectionRepository.save(createGuestsConnectionDto); 
   }
+
+  removeGuestFromPriorityLine(idx: number) {
+    const priorityLine = this.priorityLine;
+    const removedGuest = priorityLine.splice(idx, 1)[0];
+    this._priorityLine.next(priorityLine);
+    return removedGuest;
+  }
+
+  getGuestIdxBySocketId(socketId: string) {
+    return this.priorityLine.findIndex((guest) => guest.socketId === socketId );
+  }
+
+  getGuestBySocketId(socketId: string) {
+    return this.priorityLine.find((guest) => guest.socketId === socketId);
+  }
   
   // TODO: Manage priority rules
   addGuestToPriorityLine(guest: Guest): any {
-    return this.priorityLine.push(guest);
+    this.pushToPriorityLine(guest);
   }
+
 
   public get priorityLine() : Guest[] {
     return this._priorityLine.value;

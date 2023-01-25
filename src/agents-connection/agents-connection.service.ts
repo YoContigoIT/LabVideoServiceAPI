@@ -24,7 +24,7 @@ export class AgentsConnectionService {
   }
 
   async addRoom(roomName: string, host: RoomUser): Promise<void> {
-    const room = await this.getRoomByName(roomName)
+    const room = this.getRoomByName(roomName)
     if (room === -1) {
       this.pushToRoom({ 
         name: roomName,
@@ -59,9 +59,11 @@ export class AgentsConnectionService {
     }
   }
 
-  getRoomByHostSocket(socketId: string) {
-    console.log(this.rooms);
-    
+  updateRoomsList(rooms : Room[]) {
+    this._rooms.next(rooms);
+  }
+
+  getRoomByHostSocket(socketId: string) {    
     return this.rooms.find((room) => room?.host.socketId === socketId);
   }
 
@@ -101,6 +103,28 @@ export class AgentsConnectionService {
       .execute();
 
     return parseAffeceRowToHttpResponse(response.affected);
+  }
+
+  getRoomByGuestSocket(socketId: string) {
+    return this.rooms.find((room) => room.users.findIndex((user) => user.socketId === socketId) !== -1);
+  }
+
+  removeGuestFromRoomBySocket(socketId: string) {
+    const room = this.getRoomByGuestSocket(socketId);
+    if (!room) return;
+    const guestIdx = room.users.findIndex((user) => user.socketId === socketId);
+
+    const removedUser = room.users.splice(guestIdx, 1)[0];
+    room.available = true;
+
+    const roomIdx = this.getRoomByName(room.name);
+
+    const rooms = this.rooms;
+    rooms[roomIdx] = room;
+
+    this.updateRoomsList(rooms);
+
+    return removedUser;
   }
 
   // CRUD functions

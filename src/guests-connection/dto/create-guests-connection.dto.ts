@@ -6,9 +6,6 @@ export class CreateGuestsConnectionDto {
     @IsOptional()
     uuid: Guest
 
-    @IsNotEmpty()
-    socketId: string
-
     @IsOptional()
     ip: string;
 

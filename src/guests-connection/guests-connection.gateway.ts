@@ -1,25 +1,45 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayDisconnect, OnGatewayConnection, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
 import { GuestsConnectionService } from './guests-connection.service';
 import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
+import { Server, Socket } from 'socket.io';
+import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class GuestsConnectionGateway {
+export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer()
+  server: Server;
+
   constructor(
-    private readonly guestsConnectionService: GuestsConnectionService
+    private guestsConnectionService: GuestsConnectionService,
+    private agentsConnectionService: AgentsConnectionService
   ) {}
 
+  handleConnection(socket: Socket) {
+    // throw new Error('Method not implemented.');
+  }
+  handleDisconnect(socket: Socket) {
+    const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
+    if (guestIdx !== -1) { 
+      this.guestsConnectionService.removeGuestFromPriorityLine(guestIdx);
+      
+      // TODO: Updated call record
+      // TODO: Update guest connection
+    }
+    return this.agentsConnectionService.removeGuestFromRoomBySocket(socket.id);
+  }
+
   @SubscribeMessage('connect-guest')
-  async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto) {
+  async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
     const guestConnection = this.guestsConnectionService.create(createGuestsConnectionDto);
 
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
-      socketId: createGuestsConnectionDto.socketId,
+      socketId: client.id,
       priority: createGuestsConnectionDto.priority
     })
     

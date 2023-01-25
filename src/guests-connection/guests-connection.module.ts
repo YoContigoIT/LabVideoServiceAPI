@@ -11,6 +11,7 @@ import { AgentsConnectionModule } from 'src/agents-connection/agents-connection.
     TypeOrmModule.forFeature([GuestsConnection]),
     AgentsConnectionModule,
   ],
-  providers: [GuestsConnectionGateway, GuestsConnectionService]
+  providers: [GuestsConnectionGateway, GuestsConnectionService],
+  exports: [GuestsConnectionService]
 })
 export class GuestsConnectionModule {}
