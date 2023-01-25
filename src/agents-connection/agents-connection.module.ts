@@ -7,11 +7,13 @@ import { AgentsConnection } from './entities/agents-connection.entity';
 import { AdminSocketsGateway } from 'src/admin-sockets/admin-sockets.gateway';
 import { AdminSocketsModule } from 'src/admin-sockets/admin-sockets.module';
 import { UsersModule } from 'src/users/users.module';
+import { VideoServiceModule } from 'src/video-service/video-service.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AgentsConnection]),
-    UsersModule
+    UsersModule,
+    VideoServiceModule,
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],

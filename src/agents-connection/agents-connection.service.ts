@@ -63,7 +63,7 @@ export class AgentsConnectionService {
     this._rooms.next(rooms);
   }
 
-  getRoomByHostSocket(socketId: string) {    
+  getRoomByHostSocket(socketId: string) {
     return this.rooms.find((room) => room?.host.socketId === socketId);
   }
 
