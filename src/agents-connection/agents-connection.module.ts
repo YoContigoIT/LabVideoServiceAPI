@@ -15,6 +15,6 @@ import { UsersModule } from 'src/users/users.module';
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],
-  exports: [AgentsConnectionService]
+  exports: [AgentsConnectionService, AgentsConnectionGateway]
 })
 export class AgentsConnectionModule {}

@@ -15,14 +15,14 @@ export class GuestsConnectionGateway {
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto) {
-    console.log(createGuestsConnectionDto);
-    
+    const guestConnection = this.guestsConnectionService.create(createGuestsConnectionDto);
+
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
       socketId: createGuestsConnectionDto.socketId,
       priority: createGuestsConnectionDto.priority
     })
     
-    return this.guestsConnectionService.create(createGuestsConnectionDto);
+    return guestConnection;
   }
 }

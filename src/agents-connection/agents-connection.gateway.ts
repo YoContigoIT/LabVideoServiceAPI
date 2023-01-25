@@ -5,6 +5,7 @@ import { AgentsConnectionService } from "./agents-connection.service";
 import { CreateAgentsConnectionDto } from "./dto/create-agents-connection.dto";
 import { HttpResponse } from "src/common/interfaces/http-responses.interface";
 import { UsersService } from "src/users/users.service";
+import { Guest } from "src/guests-connection/guests-connection.interface";
 
 @WebSocketGateway({
     cors: {
@@ -38,6 +39,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     return agentConnection;
   }
 
+  guestInRoom(socketId: string, guest: Guest) {
+    this.server.in(socketId).emit('guest-connected', guest);
+  }
+
   async handleConnection(socket: Socket) {
     
   }
@@ -53,6 +58,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     this.server.to(room.name).disconnectSockets();
 
     return this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
+  }
 
+  @SubscribeMessage('guests-accepted')
+  async guestAccepted(@MessageBody() guestAcceptedDto: any) {
+      
   }
 }
