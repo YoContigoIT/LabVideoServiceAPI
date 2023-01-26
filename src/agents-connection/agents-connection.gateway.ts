@@ -69,6 +69,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
     const connection = await this.videoServiceService.createConnection(session, {});
 
+    console.log({ 'connection': connection });
+    
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
@@ -76,7 +78,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     sockets.forEach(async socket => {
       if(socket.id !== client.id) {
         const connection = await this.videoServiceService.createConnection(session, {});
-        console.log(connection, 'connection');
+        // console.log(connection, 'connection');
 
         socket.emit('video-ready', {
           token: connection.token,

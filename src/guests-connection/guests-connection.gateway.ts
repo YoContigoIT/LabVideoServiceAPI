@@ -4,6 +4,7 @@ import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
 import { Server, Socket } from 'socket.io';
 import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
+import { GuestsService } from 'src/guests/guests.service';
 
 @WebSocketGateway({
   cors: {
@@ -16,7 +17,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   constructor(
     private guestsConnectionService: GuestsConnectionService,
-    private agentsConnectionService: AgentsConnectionService
+    private agentsConnectionService: AgentsConnectionService,
+    private guestsService: GuestsService,
   ) {}
 
   handleConnection(socket: Socket) {
@@ -36,12 +38,14 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
     const guestConnection = this.guestsConnectionService.create(createGuestsConnectionDto);
+    const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as unknown as string);
 
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
       socketId: client.id,
       priority: createGuestsConnectionDto.priority,
-      queueAt: new Date()
+      queueAt: new Date(),
+      guest: guest,
     })
     
     return guestConnection;
