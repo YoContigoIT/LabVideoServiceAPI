@@ -2,6 +2,7 @@ export interface Guest {
     socketId: string
     roomId?: string
     priority: string
+    queueAt: Date
     [key: string]: any
 }
 

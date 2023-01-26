@@ -40,7 +40,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
       socketId: client.id,
-      priority: createGuestsConnectionDto.priority
+      priority: createGuestsConnectionDto.priority,
+      queueAt: new Date()
     })
     
     return guestConnection;

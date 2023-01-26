@@ -4,7 +4,6 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { Room, User as RoomUser } from './agents-connection.interface';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { AgentsConnection } from './entities/agents-connection.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { parseAffeceRowToHttpResponse } from 'src/utilities/functions';
@@ -152,11 +151,6 @@ export class AgentsConnectionService {
     });
   }
 
-  // Utilities
-
-  async getUuidv4(): Promise<any> {
-    return uuidv4();
-  }
-  
+  // Utilities  
   
 }

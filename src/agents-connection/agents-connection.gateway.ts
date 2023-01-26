@@ -6,6 +6,7 @@ import { HttpResponse } from "src/common/interfaces/http-responses.interface";
 import { UsersService } from "src/users/users.service";
 import { Guest } from "src/guests-connection/guests-connection.interface";
 import { Room } from "./agents-connection.interface";
+import { getUuidv4 } from "src/utilities/functions";
 import { VideoServiceController } from "src/video-service/video-service.controller";
 import { VideoServiceService } from "src/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/video-service/dto/create-video-service.dto";
@@ -45,7 +46,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
     const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
-    const roomName = await this.agentsConnectionService.getUuidv4();
+    const roomName = await getUuidv4();
     this.server.in(client.id).socketsJoin(roomName);
     
     await this.agentsConnectionService.addUserToRoom(roomName, {
