@@ -7,7 +7,6 @@ import { UsersService } from "src/users/users.service";
 import { Guest } from "src/guests-connection/guests-connection.interface";
 import { Room } from "./agents-connection.interface";
 import { getUuidv4 } from "src/utilities/functions";
-import { VideoServiceController } from "src/video-service/video-service.controller";
 import { VideoServiceService } from "src/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/video-service/dto/create-video-service.dto";
 
@@ -43,13 +42,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   
   @SubscribeMessage('connect-agent')
   async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto, @ConnectedSocket() client: Socket) {
+    createAgentsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
     const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
     const roomName = await getUuidv4();
     this.server.in(client.id).socketsJoin(roomName);
-    
-    await this.agentsConnectionService.addUserToRoom(roomName, {
+
+    this.agentsConnectionService.addUserToRoom(roomName, {
       uuid: user.uuid,
       socketId: client.id,
       agentConnectionId: agentConnection.id,
