@@ -8,12 +8,14 @@ import { AdminSocketsGateway } from 'src/admin-sockets/admin-sockets.gateway';
 import { AdminSocketsModule } from 'src/admin-sockets/admin-sockets.module';
 import { UsersModule } from 'src/users/users.module';
 import { VideoServiceModule } from 'src/video-service/video-service.module';
+import { CallRecordsModule } from 'src/call_records/call_records.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AgentsConnection]),
     UsersModule,
     VideoServiceModule,
+    CallRecordsModule
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],

@@ -1,8 +1,10 @@
+import { CallRecord } from "src/call_records/entities/call_record.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 
 @Entity()
 export class AgentsConnection {
+    @OneToMany(() => CallRecord, (callRecord) => callRecord.agentConnetionId)
     @PrimaryGeneratedColumn()
     id: string
 

@@ -1,22 +1,28 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { IsJSON } from "class-validator";
+import { AgentsConnection } from "src/agents-connection/entities/agents-connection.entity";
+import { GuestsConnection } from "src/guests-connection/entities/guests-connection.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class CallRecord {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    uuidAgent: string
+    @ManyToOne(() => AgentsConnection, (agentConnection) => agentConnection.id)
+    @JoinColumn({ name: 'agentConnectionId' })
+    agentConnetionId: AgentsConnection
 
-    @Column()
-    sessionName: string
+    @ManyToOne(() => GuestsConnection, (guestConnection) => guestConnection.id)
+    @JoinColumn({ name: 'guestConnectionId' })
+    guestConnectionId: GuestsConnection
+
+    @Column('json', { nullable: true })
+    @IsJSON()
+    details: any
 
     @CreateDateColumn()
     sessionStartedAt: Date
 
     @CreateDateColumn()
     sessionFinishedAt: Date
-
-    @Column()
-    ip: string
 }

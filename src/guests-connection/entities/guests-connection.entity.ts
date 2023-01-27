@@ -1,8 +1,10 @@
+import { CallRecord } from "src/call_records/entities/call_record.entity";
 import { Guest } from "src/guests/entities/guest.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class GuestsConnection {
+    @OneToMany(() => CallRecord, (callRecord) => callRecord.guestConnectionId)
     @PrimaryGeneratedColumn()
     id: string
 

@@ -10,7 +10,7 @@ export interface User {
 export interface Room {
   name: string
   host: User
-  users: (User | Guest) []
+  users: Guest[]
   available: boolean
   createdAt: Date
 }

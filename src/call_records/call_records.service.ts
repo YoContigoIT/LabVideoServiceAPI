@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCallRecordDto } from './dto/create-call_record.dto';
 import { UpdateCallRecordDto } from './dto/update-call_record.dto';
+import { CallRecord } from './entities/call_record.entity';
 
 @Injectable()
 export class CallRecordsService {
+  constructor(
+    @InjectRepository(CallRecord) private callRecordRepository: Repository<CallRecord>
+  ) {}
   create(createCallRecordDto: CreateCallRecordDto) {
-    return 'This action adds a new callRecord';
+    return this.callRecordRepository.save(createCallRecordDto);
   }
 
   findAll() {

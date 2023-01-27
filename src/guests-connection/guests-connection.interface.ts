@@ -5,6 +5,7 @@ export interface Guest {
     roomId?: string
     priority: string
     queueAt: Date
+    guestConnectionId: string
     guest: GuestUser
     [key: string]: any
 }

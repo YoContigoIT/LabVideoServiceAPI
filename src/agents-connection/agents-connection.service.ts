@@ -28,7 +28,7 @@ export class AgentsConnectionService {
       this.pushToRoom({ 
         name: roomName,
         host,
-        users: [host],
+        users: [],
         available: true,
         createdAt: new Date()
       })
@@ -46,16 +46,16 @@ export class AgentsConnectionService {
 
   addUserToRoom(roomName: any, user: RoomUser) {
     const roomIndex = this.getRoomByName(roomName)
+    this.addRoom(roomName, user)
     
-    if (roomIndex !== -1) {
-      this.rooms[roomIndex].users.push(user)
-      const host = this.getRoomHost(roomName)
-      if (host.uuid === user.uuid) {
-        this.rooms[roomIndex].host.socketId = user.socketId
-      }
-    } else {
-      this.addRoom(roomName, user)
-    }
+    // if (roomIndex !== -1) {
+    //   this.rooms[roomIndex].users.push(user)
+    //   const host = this.getRoomHost(roomName)
+    //   if (host.uuid === user.uuid) {
+    //     this.rooms[roomIndex].host.socketId = user.socketId
+    //   }
+    // } else {
+    // }
   }
 
   updateRoomsList(rooms : Room[]) {

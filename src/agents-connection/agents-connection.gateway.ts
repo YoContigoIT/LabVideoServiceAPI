@@ -9,6 +9,8 @@ import { Room } from "./agents-connection.interface";
 import { getUuidv4 } from "src/utilities/functions";
 import { VideoServiceService } from "src/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/video-service/dto/create-video-service.dto";
+import { CreateCallRecordDto } from "src/call_records/dto/create-call_record.dto";
+import { CallRecordsService } from "src/call_records/call_records.service";
 
 @WebSocketGateway({
     cors: {
@@ -23,6 +25,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private agentsConnectionService: AgentsConnectionService,
     private usersService: UsersService,
     private videoServiceService: VideoServiceService,
+    private callRecordService: CallRecordsService
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -69,9 +72,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
     const connection = await this.videoServiceService.createConnection(session, {});
 
-    console.log({ 'connection': connection });
-    
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+    
+    console.log({ 'room': JSON.stringify(room) });
+    this.callRecordService.create({
+      agentConnectionId : room.host.agentConnectionId as any,
+      guestConnectionId: room.users[0].guestConnectionId as any,
+      sessionStartedAt : new Date(),
+    });
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
 
@@ -86,6 +94,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
         })
       }
     });
+
 
     return {
       sessionId: session.sessionId,

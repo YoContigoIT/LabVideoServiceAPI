@@ -37,15 +37,18 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
-    const guestConnection = this.guestsConnectionService.create(createGuestsConnectionDto);
+    const guestConnection = await this.guestsConnectionService.create(createGuestsConnectionDto);
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as unknown as string);
 
+    
+    console.log({guestConnection});
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
       socketId: client.id,
       priority: createGuestsConnectionDto.priority,
       queueAt: new Date(),
       guest: guest,
+      guestConnectionId : guestConnection.id
     })
     
     return guestConnection;
