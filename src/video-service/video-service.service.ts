@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ConnectionProperties, OpenVidu, Session, SessionProperties } from 'openvidu-node-client';
+import { ConnectionProperties, OpenVidu, Recording, RecordingMode, Session, SessionProperties } from 'openvidu-node-client';
 import { session } from 'passport';
 import { CreateVideoServiceDto } from './dto/create-video-service.dto';
 import { UpdateVideoServiceDto } from './dto/update-video-service.dto';
@@ -14,7 +14,14 @@ export class VideoServiceService {
     private configService: ConfigService
   ) {
     this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'))
-    this.sessionProperties = {};
+    this.sessionProperties = {
+      recordingMode: RecordingMode.MANUAL, // RecordingMode.ALWAYS for automatic recording
+      defaultRecordingProperties: {
+        outputMode: Recording.OutputMode.COMPOSED,
+        resolution: "640x480",
+        frameRate: 24
+      }
+    };
     this.connectionProperties = {}
   }
 
@@ -34,6 +41,18 @@ export class VideoServiceService {
 
   getSessions() {
     return this.openVidu.activeSessions;
+  }
+
+  startRecording(sessionId) {
+    this.openVidu.startRecording(sessionId, {
+      name: "MY_RECORDING_NAME"
+    })
+      .then(response =>  console.log(response))
+      .catch(error => console.error(error));
+  }
+
+  stopRecording() {
+
   }
 
   findAll() {

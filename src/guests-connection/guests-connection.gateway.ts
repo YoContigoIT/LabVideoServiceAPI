@@ -40,8 +40,6 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const guestConnection = await this.guestsConnectionService.create(createGuestsConnectionDto);
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as unknown as string);
 
-    
-    console.log({guestConnection});
     await this.guestsConnectionService.addGuestToPriorityLine({
       uuid: createGuestsConnectionDto.uuid,
       socketId: client.id,
