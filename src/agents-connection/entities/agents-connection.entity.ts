@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToO
 
 @Entity()
 export class AgentsConnection {
-    @OneToMany(() => CallRecord, (callRecord) => callRecord.agentConnetionId)
+    @OneToMany(() => CallRecord, (callRecord) => callRecord.agentConnectionId)
     @PrimaryGeneratedColumn()
     id: string
 

@@ -8,7 +8,7 @@ import * as bcrypt from "bcrypt";
 import { Role } from 'src/auth/auth.interfaces';
 import { HttpResponse } from 'src/common/interfaces/http-responses.interface';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
-import { parseAffeceRowToHttpResponse } from 'src/utilities/functions';
+import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 
 @Injectable()
 export class UsersService {

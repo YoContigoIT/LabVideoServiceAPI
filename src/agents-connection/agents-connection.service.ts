@@ -6,7 +6,7 @@ import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { AgentsConnection } from './entities/agents-connection.entity';
 import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
-import { parseAffeceRowToHttpResponse } from 'src/utilities/functions';
+import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 import { BehaviorSubject, Observable, take } from 'rxjs';
 
 @Injectable()

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: video_service_api
+    image: video_service_api
+    build:
+      context: .
+      target: production
+      dockerfile: ./Dockerfile
+    command: npm run start
+    ports:
+      - 3000:3000
+    networks:
+      - video_service_network
+    restart: unless-stopped
+  mysql:
+    container_name: mysql
