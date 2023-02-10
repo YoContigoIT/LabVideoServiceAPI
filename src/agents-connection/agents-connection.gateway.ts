@@ -74,7 +74,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     
-    console.log({ 'room': JSON.stringify(room) });
     this.callRecordService.create({
       agentConnectionId : room.host.agentConnectionId as any,
       guestConnectionId: room.users[0].guestConnectionId as any,
