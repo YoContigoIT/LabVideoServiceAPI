@@ -23,6 +23,6 @@ export class CallRecord {
     @CreateDateColumn()
     sessionStartedAt: Date
 
-    @CreateDateColumn()
+    @Column({ type: "datetime" })
     sessionFinishedAt: Date
 }

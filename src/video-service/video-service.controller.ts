@@ -17,6 +17,8 @@ export class VideoServiceController {
       sessionId: session.sessionId,
       token: connection.token,
       connectionId: connection.connectionId,
+      session,
+      connection,
     }
   }
 

@@ -9,6 +9,7 @@ import { User } from './users/entities/user.entity';
 import { CallRecord } from './call_records/entities/call_record.entity';
 import { AgentsConnection } from './agents-connection/entities/agents-connection.entity';
 import { Guest } from './guests/entities/guest.entity';
+import { RecordingsMarkType } from './recordings-mark-type/entities/recordings-mark-type.entity';
 
 import configuration from './utilities/configuration';
 import { UsersModule } from './users/users.module';
@@ -20,6 +21,11 @@ import { GuestsModule } from './guests/guests.module';
 import { GuestsConnectionModule } from './guests-connection/guests-connection.module';
 import { GuestsConnection } from './guests-connection/entities/guests-connection.entity';
 import { AdminSocketsModule } from './admin-sockets/admin-sockets.module';
+import { RecordingsMarkTypeModule } from './recordings-mark-type/recordings-mark-type.module';
+import { RecordingMarkModule } from './recording-mark/recording-mark.module';
+import { RecordingsModule } from './recordings/recordings.module';
+import { RecordingMark } from './recording-mark/entities/recording-mark.entity';
+import { Recording } from './recordings/entities/recording.entity';
 
 console.log(configuration());
 
@@ -45,6 +51,9 @@ console.log(configuration());
           AgentsConnection,
           Guest,
           GuestsConnection,
+          RecordingsMarkType,
+          RecordingMark,
+          Recording
         ],
         synchronize: true,
       }),
@@ -58,6 +67,9 @@ console.log(configuration());
     GuestsModule,
     GuestsConnectionModule,
     AdminSocketsModule,
+    RecordingsMarkTypeModule,
+    RecordingMarkModule,
+    RecordingsModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

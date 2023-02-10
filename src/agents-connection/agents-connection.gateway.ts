@@ -71,13 +71,16 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async connectCall(@MessageBody() createVideoServiceDto: CreateVideoServiceDto, @ConnectedSocket() client: Socket) {
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
     const connection = await this.videoServiceService.createConnection(session, {});
-
+    console.log('start');
+    
+    console.log({ session, connection })
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     
     this.callRecordService.create({
       agentConnectionId : room.host.agentConnectionId as any,
       guestConnectionId: room.users[0].guestConnectionId as any,
       sessionStartedAt : new Date(),
+      sessionFinishedAt: null,
     });
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
@@ -93,7 +96,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
         })
       }
     });
-
 
     return {
       sessionId: session.sessionId,

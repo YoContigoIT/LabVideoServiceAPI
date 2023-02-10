@@ -1,35 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ConnectionProperties, OpenVidu, Recording, RecordingMode, Session, SessionProperties } from 'openvidu-node-client';
-import { session } from 'passport';
-import { CreateVideoServiceDto } from './dto/create-video-service.dto';
+import { ConnectionProperties, OpenVidu, Recording, RecordingLayout, RecordingMode, Session, SessionProperties } from 'openvidu-node-client';
+import { RecordingVideoServiceDto } from './dto/create-video-service.dto';
 import { UpdateVideoServiceDto } from './dto/update-video-service.dto';
+import { MarkProperties } from './video-service.interface';
 
 @Injectable()
 export class VideoServiceService {
   openVidu: OpenVidu;
   sessionProperties: SessionProperties;
   connectionProperties: ConnectionProperties;
+  marksProperties: MarkProperties;
   constructor(
     private configService: ConfigService
   ) {
     this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'))
     this.sessionProperties = {
-      recordingMode: RecordingMode.MANUAL, // RecordingMode.ALWAYS for automatic recording
+      recordingMode: RecordingMode.ALWAYS, // RecordingMode.ALWAYS for automatic recording or MANUAL
       defaultRecordingProperties: {
-        outputMode: Recording.OutputMode.COMPOSED,
-        resolution: "640x480",
-        frameRate: 24
+        outputMode: Recording.OutputMode.COMPOSED, // OutputMode COMPOSED_QUICK_START or COMPOSED
+        recordingLayout: RecordingLayout.BEST_FIT,
+        resolution: "1280x720",
+        frameRate: 30,
       }
     };
     this.connectionProperties = {}
+    this.marksProperties = {}
   }
 
-  createSession(sessionProperties: SessionProperties) {  
-    return this.openVidu.createSession({
+  async createSession(sessionProperties: SessionProperties) {
+    const createSession = await this.openVidu.createSession({
       ...this.sessionProperties,
       ...sessionProperties,
     });
+    console.log('createSession', createSession);
+    console.log('createSession_createdAt', createSession.createdAt);
+    return createSession;
   }
 
   createConnection(session: Session, connectionProperties: ConnectionProperties) {
@@ -43,16 +49,29 @@ export class VideoServiceService {
     return this.openVidu.activeSessions;
   }
 
-  startRecording(sessionId) {
-    this.openVidu.startRecording(sessionId, {
-      name: "MY_RECORDING_NAME"
+  async startRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
+    return await this.openVidu.startRecording(recordingVideoServiceDto.sessionId, {
+      // outputMode: Recording.OutputMode.INDIVIDUAL, // Every publisher stream is recorded in its own file
+      name: recordingVideoServiceDto.sessionId + '-' + recordingVideoServiceDto.socketId,
     })
-      .then(response =>  console.log(response))
+      .then(function (response) {
+        console.log('starRecording-return',response)
+        return response;
+      })
       .catch(error => console.error(error));
   }
 
-  stopRecording() {
+  async stopRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
+    return await this.openVidu.stopRecording(recordingVideoServiceDto.sessionId)
+    .then(function (response) {
+      console.log(recordingVideoServiceDto.sessionId, 'sessionId');
+      console.log(response)
+    })
+    .catch(error => console.error(error));
+  }
 
+  async marksRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
+    
   }
 
   findAll() {

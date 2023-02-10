@@ -1,7 +1,7 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { VideoServiceService } from "./video-service.service";
 import { Socket, Server } from 'socket.io';
-import { startRecordingVideoServiceDto } from "./dto/create-video-service.dto";
+import { RecordingVideoServiceDto } from "./dto/create-video-service.dto";
 
 @WebSocketGateway({
     cors: {
@@ -17,11 +17,19 @@ export class VideoServiceGateway {
     ) {}
 
     @SubscribeMessage('start-recording')
-    async startRecording(@MessageBody() startRecordingVideoServiceDto: startRecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
-        console.log('body');
-        
-        console.log({ client: client.id, data: startRecordingVideoServiceDto });
-        
-        return this.videoServiceService.startRecording(startRecordingVideoServiceDto.sessionId);
+    async startRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
+        const videoRecording = await this.videoServiceService.startRecording(recordingVideoServiceDto);
+        console.log('videoRecording-start', videoRecording);
+        return videoRecording;
+    }
+
+    @SubscribeMessage('stop-recording')
+    stopRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {        
+        return this.videoServiceService.stopRecording(recordingVideoServiceDto);
+    }
+
+    @SubscribeMessage("mark-recording")
+    marksRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
+        return this.videoServiceService.marksRecording(recordingVideoServiceDto);
     }
 }

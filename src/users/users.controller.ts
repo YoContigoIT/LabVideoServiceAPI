@@ -20,6 +20,7 @@ export class UsersController {
 
     if (user?.uuid) {
       return {
+        uuid: user.uuid,
         status : HttpStatusResponse.SUCCESS
       }
     }
