@@ -6,7 +6,7 @@ import { HttpResponse } from "src/common/interfaces/http-responses.interface";
 import { UsersService } from "src/users/users.service";
 import { Guest } from "src/guests-connection/guests-connection.interface";
 import { Room } from "./agents-connection.interface";
-import { getUuidv4 } from "src/utilities/functions";
+import { getUuidv4 } from "src/utilities/helpers";
 import { VideoServiceService } from "src/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/video-service/dto/create-video-service.dto";
 import { CreateCallRecordDto } from "src/call_records/dto/create-call_record.dto";

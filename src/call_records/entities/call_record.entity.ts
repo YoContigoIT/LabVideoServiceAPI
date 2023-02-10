@@ -10,7 +10,7 @@ export class CallRecord {
 
     @ManyToOne(() => AgentsConnection, (agentConnection) => agentConnection.id)
     @JoinColumn({ name: 'agentConnectionId' })
-    agentConnetionId: AgentsConnection
+    agentConnectionId: AgentsConnection
 
     @ManyToOne(() => GuestsConnection, (guestConnection) => guestConnection.id)
     @JoinColumn({ name: 'guestConnectionId' })

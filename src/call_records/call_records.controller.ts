@@ -1,34 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { CallRecordsService } from './call_records.service';
 import { CreateCallRecordDto } from './dto/create-call_record.dto';
 import { UpdateCallRecordDto } from './dto/update-call_record.dto';
+import { FindAllCallRecordDto } from './dto/find-all-call_record.dto';
+import { DashboardGraphCallRecordQueryDto } from './dto/dashboard-graph-call_record.dto';
 
 @Controller('call-records')
 export class CallRecordsController {
   constructor(private readonly callRecordsService: CallRecordsService) {}
 
-  @Post()
-  create(@Body() createCallRecordDto: CreateCallRecordDto) {
-    return this.callRecordsService.create(createCallRecordDto);
+  @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
+  findAll(@Query() query : FindAllCallRecordDto) {
+    return this.callRecordsService.findAll(query);
   }
 
-  @Get()
-  findAll() {
-    return this.callRecordsService.findAll();
+  @Get('/dashboard')
+  dashboardGraph(@Query() query : DashboardGraphCallRecordQueryDto) {
+    return this.callRecordsService.dashboardGraph(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.callRecordsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCallRecordDto: UpdateCallRecordDto) {
-    return this.callRecordsService.update(+id, updateCallRecordDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.callRecordsService.remove(+id);
   }
 }

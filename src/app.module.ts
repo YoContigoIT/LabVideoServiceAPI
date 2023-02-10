@@ -21,6 +21,8 @@ import { GuestsConnectionModule } from './guests-connection/guests-connection.mo
 import { GuestsConnection } from './guests-connection/entities/guests-connection.entity';
 import { AdminSocketsModule } from './admin-sockets/admin-sockets.module';
 
+console.log(configuration());
+
 @Module({
   imports: [
     ConfigModule.forRoot({
