@@ -12,8 +12,9 @@ export class CallRecordsService {
   constructor(
     @InjectRepository(CallRecord) private callRecordRepository: Repository<CallRecord>
   ) {}
-  create(createCallRecordDto: CreateCallRecordDto) {
-    return this.callRecordRepository.save(createCallRecordDto);
+  async create(createCallRecordDto: CreateCallRecordDto) {
+    const callRecordInfo = await this.callRecordRepository.save(createCallRecordDto);
+    return callRecordInfo;
   }
 
   findAll(query: FindAllCallRecordDto) {

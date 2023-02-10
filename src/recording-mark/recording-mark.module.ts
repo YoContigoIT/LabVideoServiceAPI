@@ -9,6 +9,7 @@ import { RecordingMark } from './entities/recording-mark.entity';
     TypeOrmModule.forFeature([RecordingMark]),
   ],
   controllers: [RecordingMarkController],
-  providers: [RecordingMarkService]
+  providers: [RecordingMarkService],
+  exports: [RecordingMarkService]
 })
 export class RecordingMarkModule {}

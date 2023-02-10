@@ -33,8 +33,6 @@ export class VideoServiceService {
       ...this.sessionProperties,
       ...sessionProperties,
     });
-    console.log('createSession', createSession);
-    console.log('createSession_createdAt', createSession.createdAt);
     return createSession;
   }
 

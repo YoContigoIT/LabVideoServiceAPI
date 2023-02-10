@@ -14,7 +14,4 @@ export class CreateCallRecordDto {
 
     @IsNotEmpty()
     sessionStartedAt: Date
-
-    @IsOptional()
-    sessionFinishedAt: Date
 }

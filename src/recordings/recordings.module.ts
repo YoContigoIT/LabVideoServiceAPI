@@ -9,6 +9,7 @@ import { Recording } from './entities/recording.entity';
     TypeOrmModule.forFeature([Recording]),
   ],
   controllers: [RecordingsController],
-  providers: [RecordingsService]
+  providers: [RecordingsService],
+  exports: [RecordingsService]
 })
 export class RecordingsModule {}

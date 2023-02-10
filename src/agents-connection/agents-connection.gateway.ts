@@ -11,6 +11,9 @@ import { VideoServiceService } from "src/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/video-service/dto/create-video-service.dto";
 import { CreateCallRecordDto } from "src/call_records/dto/create-call_record.dto";
 import { CallRecordsService } from "src/call_records/call_records.service";
+import { RecordingsService } from "src/recordings/recordings.service";
+import { RecordingMarkService } from "src/recording-mark/recording-mark.service";
+import { RecordingsMarkTypeSeeder } from "../seeder/recordingMarksType.seeder";
 
 @WebSocketGateway({
     cors: {
@@ -25,7 +28,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private agentsConnectionService: AgentsConnectionService,
     private usersService: UsersService,
     private videoServiceService: VideoServiceService,
-    private callRecordService: CallRecordsService
+    private callRecordService: CallRecordsService,
+    private recordingService: RecordingsService,
+    private recordingMarkService: RecordingMarkService,
+    private recordingMarksTypeSeeder: RecordingsMarkTypeSeeder,
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -76,12 +82,22 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     console.log({ session, connection })
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     
-    this.callRecordService.create({
+    const callRecordInfo = await this.callRecordService.create({
       agentConnectionId : room.host.agentConnectionId as any,
       guestConnectionId: room.users[0].guestConnectionId as any,
       sessionStartedAt : new Date(),
-      sessionFinishedAt: null,
     });
+    console.log(callRecordInfo, 'recordInfoz2');
+
+    const recordingInfo = await this.recordingService.create({ callRecordId: callRecordInfo.id.toString() });
+    console.log(recordingInfo, 'recordInfoz2');
+
+    const recordingMarkInfo = await this.recordingMarkService.create({ 
+      markTime: session.createdAt,
+      recordingsMarkType: 1,
+      recordingId: recordingInfo.id,
+    });
+
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
 
@@ -101,6 +117,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       sessionId: session.sessionId,
       token: connection.token,
       connectionId: connection.connectionId,
+      recodingId: recordingInfo.id,
     }
   }
 

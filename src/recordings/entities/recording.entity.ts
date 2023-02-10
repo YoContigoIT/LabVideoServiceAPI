@@ -1,16 +1,16 @@
 import { CallRecord } from "src/call_records/entities/call_record.entity";
-import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Recording {
     @PrimaryGeneratedColumn()
     id: string
 
-    @Column()
+    @Column({ nullable: true })
     uri: string
 
-    @OneToMany(() => CallRecord, (callRecord) => callRecord.id)
-    @Column({ name: "callRecordId" })
+    @ManyToOne(() => CallRecord, (callRecord) => callRecord.id)
+    @JoinColumn({ name: "callRecordId" })
     callRecordId: string
 
     @DeleteDateColumn()
