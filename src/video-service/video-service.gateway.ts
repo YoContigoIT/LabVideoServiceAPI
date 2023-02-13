@@ -2,6 +2,8 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { VideoServiceService } from "./video-service.service";
 import { Socket, Server } from 'socket.io';
 import { RecordingVideoServiceDto } from "./dto/create-video-service.dto";
+import { RecordingMarkService } from "src/recording-mark/recording-mark.service";
+import { CreateRecordingMarkDto } from "src/recording-mark/dto/create-recording-mark.dto";
 
 @WebSocketGateway({
     cors: {
@@ -14,6 +16,7 @@ export class VideoServiceGateway {
 
     constructor(
         private videoServiceService: VideoServiceService,
+        private recordingMarkService: RecordingMarkService
     ) {}
 
     @SubscribeMessage('start-recording')
@@ -29,7 +32,7 @@ export class VideoServiceGateway {
     }
 
     @SubscribeMessage("mark-recording")
-    marksRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
-        return this.videoServiceService.marksRecording(recordingVideoServiceDto);
+    marksRecording(@MessageBody() createRecordingMarkDto: CreateRecordingMarkDto) {
+        return this.recordingMarkService.create(createRecordingMarkDto);
     }
 }
