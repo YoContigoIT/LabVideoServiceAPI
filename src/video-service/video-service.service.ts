@@ -68,10 +68,6 @@ export class VideoServiceService {
     .catch(error => console.error(error));
   }
 
-  async marksRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
-    
-  }
-
   findAll() {
     return `This action returns all videoService`;
   }
