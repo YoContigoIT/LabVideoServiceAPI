@@ -26,8 +26,8 @@ import { RecordingMarkModule } from './recording-mark/recording-mark.module';
 import { RecordingsModule } from './recordings/recordings.module';
 import { RecordingMark } from './recording-mark/entities/recording-mark.entity';
 import { Recording } from './recordings/entities/recording.entity';
-
-console.log(configuration());
+import { SettingsModule } from './settings/settings.module';
+import { Setting } from './settings/entities/setting.entity';
 
 @Module({
   imports: [
@@ -53,7 +53,8 @@ console.log(configuration());
           GuestsConnection,
           RecordingsMarkType,
           RecordingMark,
-          Recording
+          Recording,
+          Setting,
         ],
         synchronize: true,
       }),
@@ -70,6 +71,7 @@ console.log(configuration());
     RecordingsMarkTypeModule,
     RecordingMarkModule,
     RecordingsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

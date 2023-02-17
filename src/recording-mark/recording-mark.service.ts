@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateRecordingMarkDto } from './dto/create-recording-mark.dto';
 import { UpdateRecordingMarkDto } from './dto/update-recording-mark.dto';
+import { RecordingMark } from './entities/recording-mark.entity';
 
 @Injectable()
 export class RecordingMarkService {
-  create(createRecordingMarkDto: CreateRecordingMarkDto) {
-    return 'This action adds a new recordingMark';
+  constructor (
+    @InjectRepository(RecordingMark) private recordingMarkRepository: Repository<RecordingMark>,
+  ) {}
+  
+  create(createRecordingMarkDto: CreateRecordingMarkDto) {    
+    return this.recordingMarkRepository.save(createRecordingMarkDto);
   }
 
   findAll() {

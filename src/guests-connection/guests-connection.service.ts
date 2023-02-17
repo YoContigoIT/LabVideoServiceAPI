@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
 import { AgentsConnectionGateway } from 'src/agents-connection/agents-connection.gateway';
 import { BehaviorSubject, Observable, take } from 'rxjs';
+import { Room } from 'src/agents-connection/agents-connection.interface';
 
 @Injectable()
 export class GuestsConnectionService {
@@ -26,10 +27,8 @@ export class GuestsConnectionService {
   checkRoomsAvailability() {
     setInterval(() => {
       if(!this.priorityLine.length) return;
-
-      const rooms = this.agentsConnectionService.rooms;
-
-      for (const room of rooms) {
+      
+      for (const room of this.agentsConnectionService.rooms) {
         if(room.available) {
           const guest = this.removeGuestFromPriorityLine(0);
           if (!guest) break;
@@ -39,8 +38,7 @@ export class GuestsConnectionService {
         }
       }
 
-      this.agentsConnectionService.updateRoomsList(rooms);
-      
+      this.agentsConnectionService.updateRoomsList(this.agentsConnectionService.rooms);
     }, 3000);
   }
 
@@ -75,6 +73,19 @@ export class GuestsConnectionService {
     this.pushToPriorityLine(guest);
   }
 
+  getRoomByGuestSocket(socketId: string) {
+    const room = this.agentsConnectionService.rooms.find(room => room.users.find(user => user.socketId === socketId));
+    return room;
+  }
+  
+  updateRoomGuest(room: Room) {
+    if (!room) return;
+  
+    room.users = [];
+    room.available = true;
+  
+    this.agentsConnectionService.updateRoom(room.name, room);
+  }
 
   public get priorityLine() : Guest[] {
     return this._priorityLine.value;

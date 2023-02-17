@@ -5,6 +5,7 @@ import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
 import { Server, Socket } from 'socket.io';
 import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
 import { GuestsService } from 'src/guests/guests.service';
+import { VideoServiceService } from 'src/video-service/video-service.service';
 
 @WebSocketGateway({
   cors: {
@@ -18,14 +19,23 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   constructor(
     private guestsConnectionService: GuestsConnectionService,
     private agentsConnectionService: AgentsConnectionService,
+    private videoServiceService: VideoServiceService,
     private guestsService: GuestsService,
   ) {}
 
   handleConnection(socket: Socket) {
     // throw new Error('Method not implemented.');
   }
-  handleDisconnect(socket: Socket) {
+  async handleDisconnect(socket: Socket) {
+    const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
+    this.guestsConnectionService.updateRoomGuest(room);
+    
+    if(!room) return;
+
+    await this.videoServiceService.getSessionById(room.sessionId).close();
+    
     const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
+    
     if (guestIdx !== -1) { 
       this.guestsConnectionService.removeGuestFromPriorityLine(guestIdx);
       

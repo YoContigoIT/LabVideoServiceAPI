@@ -13,4 +13,5 @@ export interface Room {
   users: Guest[]
   available: boolean
   createdAt: Date
+  sessionId?: string
 }

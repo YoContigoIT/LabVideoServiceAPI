@@ -4,29 +4,44 @@ import { UpdateRecordingsMarkTypeDto } from './dto/update-recordings-mark-type.d
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RecordingsMarkType } from './entities/recordings-mark-type.entity';
+import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 
 @Injectable()
 export class RecordingsMarkTypeService {
   constructor(
     @InjectRepository(RecordingsMarkType) private recordingsMarkTypeRepository: Repository<RecordingsMarkType>,
   ) {}
-  create(createRecordingsMarkTypeDto: CreateRecordingsMarkTypeDto) {
-    return 'This action adds a new recordingsMarkType';
+
+  create(createRecordingsMarkTypeDto: CreateRecordingsMarkTypeDto) {    
+    return this.recordingsMarkTypeRepository.save(createRecordingsMarkTypeDto);
   }
 
-  findAll() {
-    return `This action returns all recordingsMarkType`;
+  async findAll() {
+    const data = await this.recordingsMarkTypeRepository.find();
+    return data.filter(i => !i.type);
+  }
+  
+  findOne(id: string) {
+    return this.recordingsMarkTypeRepository.findOne({
+      where: {id}
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} recordingsMarkType`;
-  }
+  async update(id: string, updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto) {
+    const response = await this.recordingsMarkTypeRepository
+      .createQueryBuilder()
+      .update(RecordingsMarkType)
+      .set(updateRecordingsMarkTypeDto)
+      .where('id = :id', {id})
+      .execute();
 
-  update(id: number, updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto) {
-    return `This action updates a #${id} recordingsMarkType`;
-  }
+    return parseAffeceRowToHttpResponse(response.affected);
+  } 
 
-  remove(id: number) {
-    return `This action removes a #${id} recordingsMarkType`;
+  async remove(id: string) {
+    const response = await this.recordingsMarkTypeRepository.softDelete(id);
+
+    return parseAffeceRowToHttpResponse(response.affected);
   }
 }

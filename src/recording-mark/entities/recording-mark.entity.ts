@@ -7,12 +7,15 @@ export class RecordingMark {
     @PrimaryGeneratedColumn()
     id: string
 
-    @OneToOne(() => RecordingsMarkType, (recordingsMarkType) => recordingsMarkType.id)
-    @JoinColumn({ name: "recordingsMarkTypeId" })
-    typeId: string
+    @ManyToOne(() => RecordingsMarkType, (recordingMarkType) => recordingMarkType.id)
+    @JoinColumn({ name: "recordingMarkTypeId" })
+    recordingMarkTypeId: string
 
     @Column()
     markTime: string
+
+    @Column({ nullable: true })
+    messageText: string
 
     @ManyToOne(() => Recording, (recordings) => recordings.id)
     @JoinColumn({ name: "recordingId" })

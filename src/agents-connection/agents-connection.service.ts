@@ -47,15 +47,22 @@ export class AgentsConnectionService {
   addUserToRoom(roomName: any, user: RoomUser) {
     const roomIndex = this.getRoomByName(roomName)
     this.addRoom(roomName, user)
+  }
+
+  updateSessionIdOnRoom(sessionId: string, roomName: string) {
+    const roomIndex = this.getRoomByName(roomName);
+    if (roomIndex != -1) {
+      this.rooms[roomIndex].sessionId = sessionId;
+    }
+  }
+
+  updateRoom(roomName: string, room: Room) {
+    const idx = this.getRoomByName(roomName);
+    if (idx == -1) return;
     
-    // if (roomIndex !== -1) {
-    //   this.rooms[roomIndex].users.push(user)
-    //   const host = this.getRoomHost(roomName)
-    //   if (host.uuid === user.uuid) {
-    //     this.rooms[roomIndex].host.socketId = user.socketId
-    //   }
-    // } else {
-    // }
+    const rooms = this.rooms;
+    rooms[idx] = room;
+    this.updateRoomsList(rooms);
   }
 
   updateRoomsList(rooms : Room[]) {

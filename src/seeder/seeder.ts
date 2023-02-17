@@ -11,6 +11,8 @@ import { AgentsConnection } from "src/agents-connection/entities/agents-connecti
 import { CallRecord } from "src/call_records/entities/call_record.entity";
 import { User } from "src/users/entities/user.entity";
 import { Recording } from "src/recordings/entities/recording.entity";
+import { Setting } from "src/settings/entities/setting.entity";
+import { SettingsSeeder } from "./settings.seeder";
 
 seeder({
   imports: [
@@ -36,12 +38,13 @@ seeder({
           GuestsConnection,
           RecordingsMarkType,
           RecordingMark,
-          Recording
+          Recording,
+          Setting,
         ],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([RecordingsMarkType])
+    TypeOrmModule.forFeature([RecordingsMarkType, Setting])
   ],
-}).run([RecordingsMarkTypeSeeder]);
+}).run([RecordingsMarkTypeSeeder, SettingsSeeder]);

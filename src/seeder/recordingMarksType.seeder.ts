@@ -24,6 +24,11 @@ export class RecordingsMarkTypeSeeder implements Seeder {
   }
 
   async drop(): Promise<any> {
-    // return this.user.deleteMany({});
+    // return this.recordingsMarkTypeRepository
+      // .createQueryBuilder(`TRUNCATE ${RecordingsMarkType.recordings}`)
+      // .delete()
+      // .from(RecordingsMarkType)
+      // .where('RecordingsMarkType.id IN (:...ids)', { ids: RecordingsMarkType })
+      // .execute();
   }
 }

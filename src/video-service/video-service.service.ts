@@ -53,7 +53,6 @@ export class VideoServiceService {
       name: recordingVideoServiceDto.sessionId + '-' + recordingVideoServiceDto.socketId,
     })
       .then(function (response) {
-        console.log('starRecording-return',response)
         return response;
       })
       .catch(error => console.error(error));
@@ -62,10 +61,17 @@ export class VideoServiceService {
   async stopRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
     return await this.openVidu.stopRecording(recordingVideoServiceDto.sessionId)
     .then(function (response) {
-      console.log(recordingVideoServiceDto.sessionId, 'sessionId');
-      console.log(response)
+      // console.log(response);
+      return response;
     })
-    .catch(error => console.error(error));
+    .catch(function(error) {
+      // console.error(error)
+      return error;
+    });
+  }
+
+  getSessionById(sessionId: string) {
+    return this.openVidu.activeSessions.find((session) => session.sessionId === sessionId );
   }
 
   findAll() {

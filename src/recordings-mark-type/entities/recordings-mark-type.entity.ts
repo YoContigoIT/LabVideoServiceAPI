@@ -1,13 +1,13 @@
 import { RecordingMark } from "src/recording-mark/entities/recording-mark.entity";
-import { Column, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class RecordingsMarkType {
-    @OneToOne(() => RecordingMark, (recordingMark) => recordingMark.typeId)
+    @OneToMany(() => RecordingMark, (recordingMark) => recordingMark.recordingMarkTypeId)
     @PrimaryGeneratedColumn()
     id?: string
 
-    @Column()
+    @Column({ nullable: true })
     type: string
 
     @Column()

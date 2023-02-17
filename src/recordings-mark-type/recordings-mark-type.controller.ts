@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RecordingsMarkTypeService } from './recordings-mark-type.service';
 import { CreateRecordingsMarkTypeDto } from './dto/create-recordings-mark-type.dto';
 import { UpdateRecordingsMarkTypeDto } from './dto/update-recordings-mark-type.dto';
+import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 
 @Controller('recordings-mark-type')
 export class RecordingsMarkTypeController {
@@ -17,18 +18,33 @@ export class RecordingsMarkTypeController {
     return this.recordingsMarkTypeService.findAll();
   }
 
+  @Get('cleared')
+  async clearedMarks() {
+    //Te amo mitch
+
+    const marks = await this.recordingsMarkTypeService.findAll();
+
+    return marks.filter(i => parseInt(i.id) > 4);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.recordingsMarkTypeService.findOne(+id);
+    return this.recordingsMarkTypeService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto) {
-    return this.recordingsMarkTypeService.update(+id, updateRecordingsMarkTypeDto);
+    if(+id > 4)
+      return this.recordingsMarkTypeService.update(id, updateRecordingsMarkTypeDto);
+    else 
+      return HttpStatusResponse.FAIL;
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.recordingsMarkTypeService.remove(+id);
+    if(+id > 4)
+      return this.recordingsMarkTypeService.remove(id);
+    else
+      return HttpStatusResponse.FAIL;
   }
 }

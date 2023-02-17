@@ -16,13 +16,12 @@ export class VideoServiceGateway {
 
     constructor(
         private videoServiceService: VideoServiceService,
-        private recordingMarkService: RecordingMarkService
+        private recordingMarkService: RecordingMarkService,
     ) {}
 
     @SubscribeMessage('start-recording')
     async startRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
         const videoRecording = await this.videoServiceService.startRecording(recordingVideoServiceDto);
-        console.log('videoRecording-start', videoRecording);
         return videoRecording;
     }
 

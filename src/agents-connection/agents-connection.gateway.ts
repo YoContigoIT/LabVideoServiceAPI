@@ -31,7 +31,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private callRecordService: CallRecordsService,
     private recordingService: RecordingsService,
     private recordingMarkService: RecordingMarkService,
-    private recordingMarksTypeSeeder: RecordingsMarkTypeSeeder,
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -43,6 +42,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     if (!room) return;
     
     this.agentsConnectionService.removeRoom(room.name);
+
+    if (room.sessionId)
+        await this.videoServiceService.getSessionById(room.sessionId).close();
 
     this.server.to(room.name).disconnectSockets();
 
@@ -77,9 +79,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async connectCall(@MessageBody() createVideoServiceDto: CreateVideoServiceDto, @ConnectedSocket() client: Socket) {
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
     const connection = await this.videoServiceService.createConnection(session, {});
-    console.log('start');
     
-    console.log({ session, connection })
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     
     const callRecordInfo = await this.callRecordService.create({
@@ -87,16 +87,16 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       guestConnectionId: room.users[0].guestConnectionId as any,
       sessionStartedAt : new Date(),
     });
-    console.log(callRecordInfo, 'recordInfoz2');
 
     const recordingInfo = await this.recordingService.create({ callRecordId: callRecordInfo.id.toString() });
-    console.log(recordingInfo, 'recordInfoz2');
 
-    const recordingMarkInfo = await this.recordingMarkService.create({ 
-      markTime: session.createdAt,
-      recordingsMarkType: 1,
+    this.recordingMarkService.create({ 
+      markTime: '00:00:00',
+      recordingMarkTypeId: '1',
       recordingId: recordingInfo.id,
     });
+
+    
 
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
@@ -104,7 +104,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     sockets.forEach(async socket => {
       if(socket.id !== client.id) {
         const connection = await this.videoServiceService.createConnection(session, {});
-        // console.log(connection, 'connection');
 
         socket.emit('video-ready', {
           token: connection.token,
@@ -113,11 +112,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       }
     });
 
+    this.agentsConnectionService.updateSessionIdOnRoom(session.sessionId, room.name);
+    
+
     return {
       sessionId: session.sessionId,
       token: connection.token,
       connectionId: connection.connectionId,
-      recodingId: recordingInfo.id,
+      recordingId: recordingInfo.id,
     }
   }
 
