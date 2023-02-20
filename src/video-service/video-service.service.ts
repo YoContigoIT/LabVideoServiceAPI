@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConnectionProperties, OpenVidu, Recording, RecordingLayout, RecordingMode, Session, SessionProperties } from 'openvidu-node-client';
+import { SettingsService } from 'src/settings/settings.service';
 import { RecordingVideoServiceDto } from './dto/create-video-service.dto';
 import { UpdateVideoServiceDto } from './dto/update-video-service.dto';
 import { MarkProperties } from './video-service.interface';
@@ -12,23 +13,25 @@ export class VideoServiceService {
   connectionProperties: ConnectionProperties;
   marksProperties: MarkProperties;
   constructor(
-    private configService: ConfigService
+    private configService: ConfigService,
+    private settingsService: SettingsService
   ) {
     this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'))
-    this.sessionProperties = {
-      recordingMode: RecordingMode.ALWAYS, // RecordingMode.ALWAYS for automatic recording or MANUAL
-      defaultRecordingProperties: {
-        outputMode: Recording.OutputMode.COMPOSED, // OutputMode COMPOSED_QUICK_START or COMPOSED
-        recordingLayout: RecordingLayout.BEST_FIT,
-        resolution: "1280x720",
-        frameRate: 30,
-      }
-    };
     this.connectionProperties = {}
     this.marksProperties = {}
   }
 
   async createSession(sessionProperties: SessionProperties) {
+    const settings = await this.settingsService.getSettings()
+    this.sessionProperties = {
+      recordingMode: settings.openViduRecordingMode as RecordingMode, // RecordingMode.ALWAYS for automatic recording or MANUAL
+      defaultRecordingProperties: {
+        outputMode: Recording.OutputMode.COMPOSED, // OutputMode COMPOSED_QUICK_START or COMPOSED
+        recordingLayout: settings.openViduRecordingLayout as RecordingLayout,
+        resolution: `${settings.openViduRecordingWidth}x${settings.openViduRecordingHeight}`,
+        frameRate: settings.openViduRecordingFrameRate,
+      }
+    };
     const createSession = await this.openVidu.createSession({
       ...this.sessionProperties,
       ...sessionProperties,
