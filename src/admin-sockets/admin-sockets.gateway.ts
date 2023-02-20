@@ -2,8 +2,8 @@ import { ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect, SubscribeMes
 import { Server, Socket } from 'socket.io';
 
 import { AdminSocketsService } from './admin-sockets.service';
-import { AgentsConnectionService } from 'src/agents-connection/agents-connection.service';
-import { GuestsConnectionService } from 'src/guests-connection/guests-connection.service';
+import { AgentsConnectionService } from 'src/modules/agents-connection/agents-connection.service';
+import { GuestsConnectionService } from 'src/modules/guests-connection/guests-connection.service';
 import { combineLatest, distinctUntilChanged, forkJoin, last, map } from 'rxjs';
 
 

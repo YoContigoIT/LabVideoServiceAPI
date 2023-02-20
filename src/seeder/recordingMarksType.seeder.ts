@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Seeder, DataFactory } from "nestjs-seeder";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RecordingsMarkType } from '../recordings-mark-type/entities/recordings-mark-type.entity';
+import { RecordingsMarkType } from '../modules/recordings-mark-type/entities/recordings-mark-type.entity';
 
 @Injectable()
 export class RecordingsMarkTypeSeeder implements Seeder {

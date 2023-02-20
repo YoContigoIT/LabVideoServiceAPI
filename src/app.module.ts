@@ -5,29 +5,29 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
-import { User } from './users/entities/user.entity';
-import { CallRecord } from './call_records/entities/call_record.entity';
-import { AgentsConnection } from './agents-connection/entities/agents-connection.entity';
-import { Guest } from './guests/entities/guest.entity';
-import { RecordingsMarkType } from './recordings-mark-type/entities/recordings-mark-type.entity';
+import { User } from './modules/users/entities/user.entity';
+import { CallRecord } from './modules/call_records/entities/call_record.entity';
+import { AgentsConnection } from './modules/agents-connection/entities/agents-connection.entity';
+import { Guest } from './modules/guests/entities/guest.entity';
+import { RecordingsMarkType } from './modules/recordings-mark-type/entities/recordings-mark-type.entity';
 
 import configuration from './utilities/configuration';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './modules/users/users.module';
 import { LoggerMiddleware } from './middleware/logging.middleware';
-import { AuthModule } from './auth/auth.module';
-import { VideoServiceModule } from './video-service/video-service.module';
-import { AgentsConnectionModule } from './agents-connection/agents-connection.module';
-import { GuestsModule } from './guests/guests.module';
-import { GuestsConnectionModule } from './guests-connection/guests-connection.module';
-import { GuestsConnection } from './guests-connection/entities/guests-connection.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { VideoServiceModule } from './modules/video-service/video-service.module';
+import { AgentsConnectionModule } from './modules/agents-connection/agents-connection.module';
+import { GuestsModule } from './modules/guests/guests.module';
+import { GuestsConnectionModule } from './modules/guests-connection/guests-connection.module';
+import { GuestsConnection } from './modules/guests-connection/entities/guests-connection.entity';
 import { AdminSocketsModule } from './admin-sockets/admin-sockets.module';
-import { RecordingsMarkTypeModule } from './recordings-mark-type/recordings-mark-type.module';
-import { RecordingMarkModule } from './recording-mark/recording-mark.module';
-import { RecordingsModule } from './recordings/recordings.module';
-import { RecordingMark } from './recording-mark/entities/recording-mark.entity';
-import { Recording } from './recordings/entities/recording.entity';
-import { SettingsModule } from './settings/settings.module';
-import { Setting } from './settings/entities/setting.entity';
+import { RecordingsMarkTypeModule } from './modules/recordings-mark-type/recordings-mark-type.module';
+import { RecordingMarkModule } from './modules/recording-mark/recording-mark.module';
+import { RecordingsModule } from './modules/recordings/recordings.module';
+import { RecordingMark } from './modules/recording-mark/entities/recording-mark.entity';
+import { Recording } from './modules/recordings/entities/recording.entity';
+import { SettingsModule } from './modules/settings/settings.module';
+import { Setting } from './modules/settings/entities/setting.entity';
 
 @Module({
   imports: [

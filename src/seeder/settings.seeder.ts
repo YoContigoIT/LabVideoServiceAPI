@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Seeder } from "nestjs-seeder";
-import { Setting } from "src/settings/entities/setting.entity";
-import { SettingsService } from "src/settings/settings.service";
+import { Setting } from "src/modules/settings/entities/setting.entity";
+import { SettingsService } from "src/modules/settings/settings.service";
 import { Repository } from "typeorm";
 
 @Injectable()
