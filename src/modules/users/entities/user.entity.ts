@@ -28,8 +28,8 @@ export class User {
     @DeleteDateColumn()
     deleteAt: Date;
 
-    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.user)
-    agentsConnection: AgentsConnection[]
+    // @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.user)
+    // agentsConnection: AgentsConnection[]
 
     @Expose()
     get fullName(): string {

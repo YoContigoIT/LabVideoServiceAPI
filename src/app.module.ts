@@ -10,6 +10,13 @@ import { CallRecord } from './modules/call_records/entities/call_record.entity';
 import { AgentsConnection } from './modules/agents-connection/entities/agents-connection.entity';
 import { Guest } from './modules/guests/entities/guest.entity';
 import { RecordingsMarkType } from './modules/recordings-mark-type/entities/recordings-mark-type.entity';
+import { GuestsConnection } from './modules/guests-connection/entities/guests-connection.entity';
+import { RecordingMark } from './modules/recording-mark/entities/recording-mark.entity';
+import { Recording } from './modules/recordings/entities/recording.entity';
+import { Setting } from './modules/settings/entities/setting.entity';
+import { Agent } from './modules/agent/entities/agent.entity';
+import { Role } from './modules/roles/entities/role.entity';
+import { Language } from './modules/languages/entities/language.entity';
 
 import configuration from './utilities/configuration';
 import { UsersModule } from './modules/users/users.module';
@@ -19,15 +26,16 @@ import { VideoServiceModule } from './modules/video-service/video-service.module
 import { AgentsConnectionModule } from './modules/agents-connection/agents-connection.module';
 import { GuestsModule } from './modules/guests/guests.module';
 import { GuestsConnectionModule } from './modules/guests-connection/guests-connection.module';
-import { GuestsConnection } from './modules/guests-connection/entities/guests-connection.entity';
 import { AdminSocketsModule } from './admin-sockets/admin-sockets.module';
 import { RecordingsMarkTypeModule } from './modules/recordings-mark-type/recordings-mark-type.module';
 import { RecordingMarkModule } from './modules/recording-mark/recording-mark.module';
 import { RecordingsModule } from './modules/recordings/recordings.module';
-import { RecordingMark } from './modules/recording-mark/entities/recording-mark.entity';
-import { Recording } from './modules/recordings/entities/recording.entity';
 import { SettingsModule } from './modules/settings/settings.module';
-import { Setting } from './modules/settings/entities/setting.entity';
+import { AgentModule } from './modules/agent/agent.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { LanguagesModule } from './modules/languages/languages.module';
+import { AgentsLanguagesModule } from './modules/agents_languages/agents_languages.module';
+import { AgentsLanguage } from './modules/agents_languages/entities/agents_language.entity';
 
 @Module({
   imports: [
@@ -55,6 +63,10 @@ import { Setting } from './modules/settings/entities/setting.entity';
           RecordingMark,
           Recording,
           Setting,
+          Agent,
+          Role,
+          Language,
+          // AgentsLanguage
         ],
         synchronize: true,
       }),
@@ -72,6 +84,10 @@ import { Setting } from './modules/settings/entities/setting.entity';
     RecordingMarkModule,
     RecordingsModule,
     SettingsModule,
+    AgentModule,
+    RolesModule,
+    LanguagesModule,
+    AgentsLanguagesModule,
   ],
   controllers: [AppController],
   providers: [AppService,],
