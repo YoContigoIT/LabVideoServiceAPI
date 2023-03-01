@@ -16,13 +16,12 @@ export class VideoServiceService {
     private configService: ConfigService,
     private settingsService: SettingsService
   ) {
-    this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'))
-    this.connectionProperties = {}
+    this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'));
     this.marksProperties = {}
   }
 
   async createSession(sessionProperties: SessionProperties) {
-    const settings = await this.settingsService.getSettings()
+    const settings = await this.settingsService.getSettings();
     this.sessionProperties = {
       recordingMode: settings.openViduRecordingMode as RecordingMode, // RecordingMode.ALWAYS for automatic recording or MANUAL
       defaultRecordingProperties: {
@@ -39,10 +38,14 @@ export class VideoServiceService {
     return createSession;
   }
 
-  createConnection(session: Session, connectionProperties: ConnectionProperties) {
-    return session.createConnection({
+  async createConnection(session: Session, connectionProperties: ConnectionProperties) {
+    const settings = await this.settingsService.getSettings();
+    this.connectionProperties = {
+      record: settings.openViduRecord
+    }
+    return await session.createConnection({
       ...this.connectionProperties,
-      ...connectionProperties
+      ...connectionProperties,
     });
   }
 
@@ -63,18 +66,18 @@ export class VideoServiceService {
 
   async stopRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
     return await this.openVidu.stopRecording(recordingVideoServiceDto.sessionId)
-    .then(function (response) {
-      // console.log(response);
-      return response;
-    })
-    .catch(function(error) {
-      // console.error(error)
-      return error;
-    });
+      .then(function (response) {
+        // console.log(response);
+        return response;
+      })
+      .catch(function (error) {
+        // console.error(error)
+        return error;
+      });
   }
 
   getSessionById(sessionId: string) {
-    return this.openVidu.activeSessions.find((session) => session.sessionId === sessionId );
+    return this.openVidu.activeSessions.find((session) => session.sessionId === sessionId);
   }
 
   findAll() {

@@ -20,7 +20,8 @@ export class GuestsConnection {
     @Column()
     priority: string
 
-    @ManyToOne(() => Guest, (guest) => guest.uuid)
+    @ManyToOne(() => Guest, (guest) => guest.uuid,
+    { eager: true })
     @JoinColumn({ name: 'uuid' })
     uuid: Guest
 

@@ -32,7 +32,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     
     if(!room) return;
 
-    await this.videoServiceService.getSessionById(room.sessionId).close();
+    // TODO: if esta pendiente de contestar el agente y se desconecta el guest mandar evento de llamada cancelada o algo así.$
+    await this.videoServiceService.getSessionById(room.sessionId)?.close();
     
     const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
     

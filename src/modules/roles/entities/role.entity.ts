@@ -13,6 +13,12 @@ export class Role {
     @Column()
     description: string
 
+    @Column({ nullable: true })
+    upperLimitPriority?: number
+
+    @Column({ nullable: true })
+    lowerLimitPriority?: number
+
     @DeleteDateColumn()
     deleteAt: Date
 

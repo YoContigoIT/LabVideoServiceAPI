@@ -145,14 +145,14 @@ export class AgentsConnectionService {
     const where: FindOptionsWhere<AgentsConnection> = {};
 
     if (query.uuid) {
-      where.user = {
+      where.agent = {
         uuid: query.uuid
       };
     }
 
     return this.agentsConnectionRepository.find({
       relations: {
-        user: true
+        agent: true
       },
       where
     });

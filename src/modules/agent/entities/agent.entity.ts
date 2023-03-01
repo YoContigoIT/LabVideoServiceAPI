@@ -32,7 +32,7 @@ export class Agent {
     @DeleteDateColumn()
     deleteAt: Date;
 
-    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.user)
+    @OneToMany(() => AgentsConnection, (agentsConnection) => agentsConnection.agent)
     agentsConnection: AgentsConnection[];
 
     @ManyToMany(() => Language, (language) => language.agents,

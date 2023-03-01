@@ -27,5 +27,14 @@ export default class {
         host: string;
         port: number | string;
         secret: string;
+        recordingPath: string;
     };
+    aws: {
+        region: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+        s3: {
+            bucket: string;
+        }
+    }
 }

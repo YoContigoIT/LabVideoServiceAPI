@@ -9,9 +9,16 @@ export class Recording {
     @Column({ nullable: true })
     uri: string
 
-    @ManyToOne(() => CallRecord, (callRecord) => callRecord.id)
+    @Column({ nullable: true })
+    sessionId: string
+
+    @ManyToOne(() => CallRecord, (callRecord) => callRecord.id,
+    { eager: true })
     @JoinColumn({ name: "callRecordId" })
-    callRecordId: string
+    callRecordId: CallRecord
+
+    @Column({ nullable: true })
+    duration: number
 
     @DeleteDateColumn()
     deleteAt: Date

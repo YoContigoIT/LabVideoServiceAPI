@@ -1,3 +1,4 @@
+import { Agent } from "src/modules/agent/entities/agent.entity";
 import { CallRecord } from "src/modules/call_records/entities/call_record.entity";
 import { User } from "src/modules/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Timestamp } from "typeorm";
@@ -20,9 +21,10 @@ export class AgentsConnection {
     @Column({ nullable: true })
     typeClientBrowser: string
 
-    @ManyToOne(() => User, (user) => user.uuid)
-    @JoinColumn({ name: 'userUUID' })
-    user: User
+    @ManyToOne(() => Agent, (agent) => agent.uuid,
+    { eager: true })
+    @JoinColumn({ name: 'agentUUID' })
+    agent: Agent
 
     @DeleteDateColumn()
     deleteAt: Date

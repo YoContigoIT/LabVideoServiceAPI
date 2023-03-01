@@ -6,4 +6,9 @@ export class CreateRoleDto {
 
     @IsNotEmpty()
     description: string
+
+    upperLimitPriority?: number
+    
+    @IsNotEmpty()
+    lowerLimitPriority: number
 }

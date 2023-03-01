@@ -10,11 +10,13 @@ export class CallRecord {
     @OneToMany(() => Recording, (recording) => recording.callRecordId)
     id: number
 
-    @ManyToOne(() => AgentsConnection, (agentConnection) => agentConnection.id)
+    @ManyToOne(() => AgentsConnection, (agentConnection) => agentConnection.id,
+    { eager: true })
     @JoinColumn({ name: 'agentConnectionId' })
     agentConnectionId: AgentsConnection
 
-    @ManyToOne(() => GuestsConnection, (guestConnection) => guestConnection.id)
+    @ManyToOne(() => GuestsConnection, (guestConnection) => guestConnection.id,
+    { eager: true })
     @JoinColumn({ name: 'guestConnectionId' })
     guestConnectionId: GuestsConnection
 

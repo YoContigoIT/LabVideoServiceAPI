@@ -14,6 +14,8 @@ import { CallRecordsService } from "src/modules/call_records/call_records.servic
 import { RecordingsService } from "src/modules/recordings/recordings.service";
 import { RecordingMarkService } from "src/modules/recording-mark/recording-mark.service";
 import { RecordingsMarkTypeSeeder } from "../../seeder/recordingMarksType.seeder";
+import { AgentService } from "../agent/agent.service";
+import { CallRecord } from "../call_records/entities/call_record.entity";
 
 @WebSocketGateway({
     cors: {
@@ -31,6 +33,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private callRecordService: CallRecordsService,
     private recordingService: RecordingsService,
     private recordingMarkService: RecordingMarkService,
+    private agentsService: AgentService,
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -55,17 +58,19 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto, @ConnectedSocket() client: Socket) {
     createAgentsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
-    const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
+
+    const agent = await this.agentsService.findOne(createAgentsConnectionDto.agent as any);
+    // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
     const roomName = await getUuidv4();
     this.server.in(client.id).socketsJoin(roomName);
 
     this.agentsConnectionService.addUserToRoom(roomName, {
-      uuid: user.uuid,
+      uuid: agent.uuid,
       socketId: client.id,
       agentConnectionId: agentConnection.id,
-      userName: user.fullName
-    })
+      userName: agent.fullName
+    });
 
     return agentConnection;
   }
@@ -88,15 +93,15 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       sessionStartedAt : new Date(),
     });
 
-    const recordingInfo = await this.recordingService.create({ callRecordId: callRecordInfo.id.toString() });
+    const callRecordId = callRecordInfo.id as any as CallRecord;
+
+    const recordingInfo = await this.recordingService.create({ callRecordId: callRecordId, sessionId: session.sessionId });
 
     this.recordingMarkService.create({ 
       markTime: '00:00:00',
       recordingMarkTypeId: '1',
       recordingId: recordingInfo.id,
-    });
-
-    
+    });    
 
     if (!room) return;
     const sockets = await this.server.in(room.name).fetchSockets()    
@@ -123,8 +128,23 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     }
   }
 
-  @SubscribeMessage('guests-accepted')
-  async guestAccepted(@MessageBody() guestAcceptedDto: any) {
-      
+  @SubscribeMessage('toggle-video-guest')
+  async toggleVideoGuest(@MessageBody() toggleVideoGuestData, @ConnectedSocket() socket: Socket) {
+    console.log(toggleVideoGuestData);
+    
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    
+    room.users.forEach(user => {
+      this.server.in(room.name).to(user.socketId).emit('mute-video', {toggleVideo : toggleVideoGuestData});
+    })
+  }
+
+  @SubscribeMessage('toggle-audio-guest')
+  async toggleAudioGuest(@MessageBody() toggleAudioGuestData: any, @ConnectedSocket() socket: Socket) {
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    
+    room.users.forEach(user => {
+      this.server.in(room.name).to(user.socketId).emit('mute-audio', {toggleAudio: toggleAudioGuestData});
+    })
   }
 }

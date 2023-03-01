@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { RecordingsService } from './recordings.service';
 import { CreateRecordingDto } from './dto/create-recording.dto';
 import { UpdateRecordingDto } from './dto/update-recording.dto';
+import { GetRecordingsDto } from './dto/get-recordings.dto';
 
 @Controller('recordings')
 export class RecordingsController {
@@ -12,14 +13,16 @@ export class RecordingsController {
     return this.recordingsService.create(createRecordingDto);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    return this.recordingsService.findAll();
+  findAll(@Query() query: GetRecordingsDto) {
+    return this.recordingsService.findAll(query);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.recordingsService.findOne(+id);
+    return this.recordingsService.findOne(id);
   }
 
   @Patch(':id')

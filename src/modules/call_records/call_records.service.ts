@@ -39,7 +39,7 @@ export class CallRecordsService {
     return this.callRecordRepository.find({
       relations: {
         agentConnectionId: {
-          user: true
+          agent: true
         },
         guestConnectionId: {
           uuid: true

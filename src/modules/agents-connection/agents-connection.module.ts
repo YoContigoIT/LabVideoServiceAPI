@@ -12,6 +12,7 @@ import { VideoServiceModule } from 'src/modules/video-service/video-service.modu
 import { CallRecordsModule } from 'src/modules/call_records/call_records.module';
 import { RecordingsModule } from 'src/modules/recordings/recordings.module';
 import { RecordingMarkModule } from 'src/modules/recording-mark/recording-mark.module';
+import { AgentModule } from '../agent/agent.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RecordingMarkModule } from 'src/modules/recording-mark/recording-mark.m
     CallRecordsModule,
     RecordingsModule,
     RecordingMarkModule,
+    AgentModule,
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],

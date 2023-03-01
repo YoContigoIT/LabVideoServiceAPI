@@ -34,8 +34,8 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { AgentModule } from './modules/agent/agent.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { LanguagesModule } from './modules/languages/languages.module';
-import { AgentsLanguagesModule } from './modules/agents_languages/agents_languages.module';
-import { AgentsLanguage } from './modules/agents_languages/entities/agents_language.entity';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { AwsService } from './services/aws/aws.service';
 
 @Module({
   imports: [
@@ -66,7 +66,6 @@ import { AgentsLanguage } from './modules/agents_languages/entities/agents_langu
           Agent,
           Role,
           Language,
-          // AgentsLanguage
         ],
         synchronize: true,
       }),
@@ -87,10 +86,10 @@ import { AgentsLanguage } from './modules/agents_languages/entities/agents_langu
     AgentModule,
     RolesModule,
     LanguagesModule,
-    AgentsLanguagesModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
-  providers: [AppService,],
+  providers: [AppService, AwsService,],
   exports: [ConfigModule],
 })
 

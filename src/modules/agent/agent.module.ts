@@ -12,6 +12,7 @@ import { LanguagesModule } from '../languages/languages.module';
     LanguagesModule
   ],
   controllers: [AgentController],
-  providers: [AgentService]
+  providers: [AgentService],
+  exports: [AgentService],
 })
 export class AgentModule {}
