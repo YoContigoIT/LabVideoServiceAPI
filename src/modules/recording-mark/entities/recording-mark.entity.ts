@@ -7,7 +7,8 @@ export class RecordingMark {
     @PrimaryGeneratedColumn()
     id: string
 
-    @ManyToOne(() => RecordingsMarkType, (recordingMarkType) => recordingMarkType.id)
+    @ManyToOne(() => RecordingsMarkType, (recordingMarkType) => recordingMarkType.id,
+    {eager: true})
     @JoinColumn({ name: "recordingMarkTypeId" })
     recordingMarkTypeId: string
 

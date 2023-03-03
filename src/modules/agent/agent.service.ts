@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 import { Agent } from './entities/agent.entity';
 import { HttpResponse } from 'src/common/interfaces/http-responses.interface';
-import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 import { Language } from '../languages/entities/language.entity';
 import { LanguagesService } from '../languages/languages.service';
+import { GetAgentsDto } from './dto/get-agents.dto';
 
 @Injectable()
 export class AgentService {
@@ -63,12 +64,39 @@ export class AgentService {
   //     return parseAffeceRowToHttpResponse(response.affected);
   // }
 
-  findAll() {
-    return this.agentRepository.find({
+  async findAll(query: GetAgentsDto) {
+    let where = []
+    const take = query.pageSize || 10;
+    const page = query.pageIndex || 0;
+    const skip = page*take;
+
+    if(query.search) {
+      where.push({ names: Like(`%${query.search}%`) });
+      where.push({ email: Like(`%${query.search}%`) });
+    }
+
+    if(query.roleId) {
+      if(where.length) {
+        where = where.map((filter) => {
+          filter.role = { id: query.roleId }
+          return filter;
+        })
+      } else {
+        where.push({ role: { id: query.roleId } });
+      }
+    }
+    
+    const data = await this.agentRepository.findAndCount({
       relations: {
         role: true
-      }
+      },
+      // title: Like(`%${}%`),
+      take: query.paginate ? take : 0,
+      skip: query.paginate ? skip : 0,
+      where: where.length ? where : {}
     });
+
+    return paginatorResponse(data, page, take);
   }
 
   findOne(uuid: string) {

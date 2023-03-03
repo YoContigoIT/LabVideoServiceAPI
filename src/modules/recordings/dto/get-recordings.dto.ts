@@ -26,4 +26,10 @@ export class GetRecordingsDto {
 
     @IsOptional()
     guestConnectionId?: string
+
+    @IsOptional()
+    pageIndex?: number
+
+    @IsOptional()
+    pageSize?: number
 }

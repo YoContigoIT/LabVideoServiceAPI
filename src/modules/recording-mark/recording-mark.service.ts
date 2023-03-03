@@ -16,15 +16,6 @@ export class RecordingMarkService {
     return this.recordingMarkRepository.save(createRecordingMarkDto);
   }
 
-  // insertMarkTypeFinishVideoCall(updateRecordingMarkDto: UpdateRecordingMarkDto, duration: number) {
-  //   console.log('updateRecordingMarkDto', updateRecordingMarkDto);
-    
-  //   return this.recordingMarkRepository.save({
-  //     // mar
-  //     // updateRecordingMarkDto
-  //   });
-  // }
-
   seconsToString(duration: number): string {
     var hour = Math.floor(duration / 3600).toString();
     var houraux = (hour < '10') ? '0' + hour : + hour;

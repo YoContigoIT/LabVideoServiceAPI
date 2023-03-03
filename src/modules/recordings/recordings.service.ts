@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AwsService } from 'src/services/aws/aws.service';
+import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { CallRecord } from '../call_records/entities/call_record.entity';
 import { CreateRecordingDto } from './dto/create-recording.dto';
@@ -10,7 +12,8 @@ import { Recording } from './entities/recording.entity';
 @Injectable()
 export class RecordingsService {
   constructor(
-    @InjectRepository(Recording) private recordingRepository: Repository<Recording>
+    @InjectRepository(Recording) private recordingRepository: Repository<Recording>,
+    private readonly awsService: AwsService
   ) {}
   
   async create(createRecordingDto: CreateRecordingDto) {
@@ -18,9 +21,12 @@ export class RecordingsService {
     return recordingInfo;
   }
 
-  findAll(query: GetRecordingsDto) {
+  async findAll(query: GetRecordingsDto) {
     const where: FindOptionsWhere<Recording> = {}
-    
+    const take = query.pageSize || 10;
+    const page = query.pageIndex || 0;
+    const skip = page*take;
+
     if(query.id) {
       where.id = query.id;
     }
@@ -74,7 +80,7 @@ export class RecordingsService {
       }
     }
   
-    return this.recordingRepository.find({
+    const data = await this.recordingRepository.findAndCount({
       relations: {
         callRecordId: {
           agentConnectionId: {
@@ -85,14 +91,26 @@ export class RecordingsService {
           }
         }
       },
+      take,
+      skip,
       where
     });
+
+    return paginatorResponse(data, page, take);
   }
 
-  findOne(id: string) {
-    return this.recordingRepository.findOne({
-      where: { id }
+  async findOne(id: string) {
+    const recording = await this.recordingRepository.findOne({
+      where: { id },
+      relations: {
+        recordingMarks: true
+      }
     });
+
+    if(!recording.deleteAt){
+      recording.uri = await this.awsService.getSignedURL(recording.uri);
+    }
+    return recording;
   }
 
   findBySessionId(sessionId: string) {
@@ -116,7 +134,20 @@ export class RecordingsService {
     return `This....`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recording`;
+  async remove(id: string) {
+    const recording = await this.recordingRepository.findOne({
+      where: { id: id }
+    });
+
+
+    if(recording) {
+      const result = await this.awsService.deleteObject(recording.uri);
+
+      if(result.$metadata.httpStatusCode === 204) {
+        const response = await this.recordingRepository.softDelete(id);
+        
+        return parseAffeceRowToHttpResponse(response.affected);
+      }  
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { CallRecord } from "src/modules/call_records/entities/call_record.entity";
-import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { RecordingMark } from "src/modules/recording-mark/entities/recording-mark.entity";
+import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 
 @Entity()
 export class Recording {
@@ -16,6 +17,9 @@ export class Recording {
     { eager: true })
     @JoinColumn({ name: "callRecordId" })
     callRecordId: CallRecord
+
+    @OneToMany(() => RecordingMark, (recordinMark) => recordinMark.recordingId)
+    recordingMarks: RecordingMark[]
 
     @Column({ nullable: true })
     duration: number

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ClassSerializerInterceptor, UseInterceptors, Query } from '@nestjs/common';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
+import { GetRecordingsDto } from '../recordings/dto/get-recordings.dto';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
+import { GetAgentsDto } from './dto/get-agents.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 
 @Controller('agent')
@@ -23,8 +25,8 @@ export class AgentController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    return this.agentService.findAll();
+  findAll(@Query() query: GetAgentsDto) {
+    return this.agentService.findAll(query);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
