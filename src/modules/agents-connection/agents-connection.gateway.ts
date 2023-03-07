@@ -51,7 +51,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     this.server.to(room.name).disconnectSockets();
 
-    return this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
+    await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
+
+    await this.callRecordService.update(room.host.agentConnectionId);
   }
   
   @SubscribeMessage('connect-agent')
