@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AwsService } from 'src/services/aws/aws.service';
 import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
-import { Between, FindOptionsWhere, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CallRecord } from '../call_records/entities/call_record.entity';
 import { CreateRecordingDto } from './dto/create-recording.dto';
 import { GetRecordingsDto } from './dto/get-recordings.dto';
@@ -77,6 +77,14 @@ export class RecordingsService {
           query.fromDate,
           query.toDate || new Date()
         ),
+      }
+    }
+
+    if(query.search) {
+      where.callRecordId = {
+        guestConnectionId: {
+          folio: Like(`%${query.search}%`)
+        }
       }
     }
   

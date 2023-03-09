@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { GuestsService } from './guests.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
 import { Guest } from './entities/guest.entity';
+import { GetGuestsDto } from './dto/get-guest.dto';
 
 @Controller('guests')
 export class GuestsController {
@@ -14,8 +15,8 @@ export class GuestsController {
   }
 
   @Get()
-  findAll(): Promise<Guest[]> {
-    return this.guestsService.findAll();
+  findAll(@Query() query: GetGuestsDto) {
+    return this.guestsService.findAll(query);
   }
 
   @Get(':uuid')

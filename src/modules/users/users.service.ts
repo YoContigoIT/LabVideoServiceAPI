@@ -2,13 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from "bcrypt";
 import { Role } from 'src/modules/auth/auth.interfaces';
 import { HttpResponse } from 'src/common/interfaces/http-responses.interface';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
-import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import { GetUsersDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -56,8 +57,24 @@ export class UsersService {
       return parseAffeceRowToHttpResponse(response.affected);
   }
   
-  findAll() {
-    return this.usersRepository.find();
+  async findAll(query: GetUsersDto) {
+    let where = []
+    const take = query.pageSize || 10;
+    const page = query.pageIndex || 0;
+    const skip = page*take;
+
+    if(query.search) {
+      where.push({ names: Like(`%${query.search}%`) })
+      where.push({ email: Like(`%${query.search}%`) })
+    }
+
+    const data = await this.usersRepository.findAndCount({
+      take: query.paginate ? take : 0,
+      skip: query.paginate ? skip : 0,
+      where: where.length ? where : {}
+    });
+    
+    return paginatorResponse(data, page, take);
   }
 
   findOne(uuid: string) {

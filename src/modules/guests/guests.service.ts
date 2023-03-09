@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
 import { Guest } from './entities/guest.entity';
 import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { Language } from '../languages/entities/language.entity';
 import { LanguagesService } from '../languages/languages.service';
+import { GetGuestsDto } from './dto/get-guest.dto';
+import { paginatorResponse } from 'src/utilities/helpers';
 
 @Injectable()
 export class GuestsService {
@@ -27,8 +29,24 @@ export class GuestsService {
     return this.guestRepository.save(agent);
   }
 
-  findAll(): Promise<Guest[]> {
-    return this.guestRepository.find();
+  async findAll(query: GetGuestsDto) {
+    let where = []
+    const take = query.pageSize || 10;
+    const page = query.pageIndex || 0;
+    const skip = page*take;
+
+    if(query.search) {
+      where.push({ name: Like(`%${query.search}%`) });
+      where.push({ details: Like(`%${query.search}%`) });
+    }
+
+    const data = await this.guestRepository.findAndCount({
+      take: query.paginate ? take : 0,
+      skip: query.paginate ? skip : 0,
+      where: where.length ? where : {}
+    });
+
+    return paginatorResponse(data, page, take);
   }
 
   findOne(uuid: string): Promise<Guest> {

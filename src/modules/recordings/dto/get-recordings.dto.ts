@@ -22,6 +22,9 @@ export class GetRecordingsDto {
     callRecordId?: number
 
     @IsOptional()
+    search?: string;
+
+    @IsOptional()
     agentConnectionId?: string
 
     @IsOptional()

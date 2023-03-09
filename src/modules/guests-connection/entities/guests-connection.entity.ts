@@ -25,6 +25,9 @@ export class GuestsConnection {
     @JoinColumn({ name: 'uuid' })
     uuid: Guest
 
+    @Column({ nullable: true })
+    folio: string
+
     @DeleteDateColumn()
     deleteAt: Date
 }   

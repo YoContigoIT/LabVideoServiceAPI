@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Request, UseGuards, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Request, UseGuards, ClassSerializerInterceptor, UseInterceptors, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { AuthJWTGuard } from 'src/modules/auth/guard/auth.guard';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
+import { GetUsersDto } from './dto/get-user.dto';
 
 @Controller('users')
 // @UseGuards(AuthJWTGuard)
@@ -28,8 +29,8 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: GetUsersDto) {  
+    return this.usersService.findAll(query);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

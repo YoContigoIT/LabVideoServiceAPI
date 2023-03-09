@@ -15,4 +15,7 @@ export class CreateGuestsConnectionDto {
     @IsString()
     @IsNotEmpty()
     priority: string
+
+    @IsOptional()
+    folio: string
 }
