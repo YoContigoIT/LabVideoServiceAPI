@@ -1,13 +1,26 @@
-FROM node:18-alpine
+##############
+# PRODUCTION #
+##############
 
-WORKDIR /usr/src/app
+FROM node:18-alpine As PRODUCTION
+
+RUN npm install -g ts-node @nestjs/cli 
+
+WORKDIR /usr/src/api
 
 COPY package*.json ./
 
-RUN npm install
-
 COPY . .
 
-RUN npm run build
+RUN npm install
 
-CMD [ "npm", "run", "start:docker" ]
+ARG NODE_ENV=production
+
+# Domain name or ip where the API is running
+ENV HTTP_HOST_IP=localhost
+
+RUN npm run build 
+
+COPY ./src/utilities/env ./dist/env
+
+CMD [ "npm", "start" ]

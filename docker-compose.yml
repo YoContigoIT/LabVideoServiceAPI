@@ -14,5 +14,13 @@ services:
     networks:
       - video_service_network
     restart: unless-stopped
-  mysql:
-    container_name: mysql
+    volumes:
+      - .:/api
+  db:
+    image: mysql
+    container_name: mysql-video_service
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: service
+      MYSQL_USER: service
+      MYSQL_PASSWORD: password
