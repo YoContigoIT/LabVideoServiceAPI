@@ -7,6 +7,7 @@ import { AgentsConnectionService } from 'src/modules/agents-connection/agents-co
 import { AgentsConnectionModule } from 'src/modules/agents-connection/agents-connection.module';
 import { GuestsModule } from 'src/modules/guests/guests.module';
 import { VideoServiceModule } from 'src/modules/video-service/video-service.module';
+import { LanguagesModule } from '../languages/languages.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VideoServiceModule } from 'src/modules/video-service/video-service.modu
     AgentsConnectionModule,
     GuestsModule,
     VideoServiceModule,
+    LanguagesModule
   ],
   providers: [GuestsConnectionGateway, GuestsConnectionService],
   exports: [GuestsConnectionService]

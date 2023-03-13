@@ -1,4 +1,4 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets"
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets"
 import { Server, Socket } from 'socket.io';
 import { AgentsConnectionService } from "./agents-connection.service";
 import { CreateAgentsConnectionDto } from "./dto/create-agents-connection.dto";
@@ -47,7 +47,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     this.agentsConnectionService.removeRoom(room.name);
 
     if (room.sessionId)
-        await this.videoServiceService.getSessionById(room.sessionId).close();
+        await this.videoServiceService.getSessionById(room.sessionId)?.close();
 
     this.server.to(room.name).disconnectSockets();
 
@@ -59,9 +59,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('connect-agent')
   async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto, @ConnectedSocket() client: Socket) {
     createAgentsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
+    
+    const agent = await this.agentsService.findOne(createAgentsConnectionDto.agent as any);
+    if (!agent) throw new WsException('There is not any Agent with this UUID');
+
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
 
-    const agent = await this.agentsService.findOne(createAgentsConnectionDto.agent as any);
     // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
     const roomName = await getUuidv4();
@@ -71,7 +74,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       uuid: agent.uuid,
       socketId: client.id,
       agentConnectionId: agentConnection.id,
-      userName: agent.fullName
+      agent: agent
     });
 
     return agentConnection;
@@ -109,9 +112,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const sockets = await this.server.in(room.name).fetchSockets()    
 
     sockets.forEach(async socket => {
+      
       if(socket.id !== client.id) {
         const connection = await this.videoServiceService.createConnection(session, {});
-
+        
         socket.emit('video-ready', {
           token: connection.token,
           connectionId: connection.connectionId,

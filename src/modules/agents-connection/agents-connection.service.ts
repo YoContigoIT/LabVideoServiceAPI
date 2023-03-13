@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { Room, User as RoomUser } from './agents-connection.interface';
+import { Room, Agent as RoomAgents } from './agents-connection.interface';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { AgentsConnection } from './entities/agents-connection.entity';
 import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
@@ -22,7 +22,7 @@ export class AgentsConnectionService {
     return this._rooms.value;
   }
 
-  async addRoom(roomName: string, host: RoomUser): Promise<void> {
+  async addRoom(roomName: string, host: RoomAgents): Promise<void> {
     const room = this.getRoomByName(roomName)
     if (room === -1) {
       this.pushToRoom({ 
@@ -44,7 +44,7 @@ export class AgentsConnectionService {
     return this.rooms.findIndex((room) => room?.name === roomName)
   }
 
-  addUserToRoom(roomName: any, user: RoomUser) {
+  addUserToRoom(roomName: any, user: RoomAgents) {
     const roomIndex = this.getRoomByName(roomName)
     this.addRoom(roomName, user)
   }
