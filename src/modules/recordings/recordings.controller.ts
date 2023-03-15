@@ -32,8 +32,6 @@ export class RecordingsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    console.log('id',id);
-    
     return this.recordingsService.remove(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { GuestsConnectionService } from './guests-connection.service';
 import { GuestsConnectionGateway } from './guests-connection.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ import { LanguagesModule } from '../languages/languages.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([GuestsConnection]),
-    AgentsConnectionModule,
+    forwardRef(() => AgentsConnectionModule),
     GuestsModule,
     VideoServiceModule,
     LanguagesModule

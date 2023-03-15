@@ -16,6 +16,8 @@ import { RecordingMarkService } from "src/modules/recording-mark/recording-mark.
 import { RecordingsMarkTypeSeeder } from "../../seeder/recordingMarksType.seeder";
 import { AgentService } from "../agent/agent.service";
 import { CallRecord } from "../call_records/entities/call_record.entity";
+import { GuestsConnectionService } from "../guests-connection/guests-connection.service";
+import { forwardRef, Inject } from "@nestjs/common";
 
 @WebSocketGateway({
     cors: {
@@ -28,6 +30,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   constructor(
     private agentsConnectionService: AgentsConnectionService,
+    @Inject(forwardRef(() => GuestsConnectionService))
+    private guestsConnectionService: GuestsConnectionService,
     private usersService: UsersService,
     private videoServiceService: VideoServiceService,
     private callRecordService: CallRecordsService,
@@ -46,8 +50,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     
     this.agentsConnectionService.removeRoom(room.name);
 
-    if (room.sessionId)
-        await this.videoServiceService.getSessionById(room.sessionId)?.close();
+    if (room.sessionId){
+      const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+
+      if(OVSession.activeConnections.length) OVSession.close();
+      return;
+    }
 
     this.server.to(room.name).disconnectSockets();
 
@@ -89,7 +97,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async connectCall(@MessageBody() createVideoServiceDto: CreateVideoServiceDto, @ConnectedSocket() client: Socket) {
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
     const connection = await this.videoServiceService.createConnection(session, {});
-    
+
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     
     const callRecordInfo = await this.callRecordService.create({
@@ -112,7 +120,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const sockets = await this.server.in(room.name).fetchSockets()    
 
     sockets.forEach(async socket => {
-      
       if(socket.id !== client.id) {
         const connection = await this.videoServiceService.createConnection(session, {});
         
@@ -124,7 +131,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     });
 
     this.agentsConnectionService.updateSessionIdOnRoom(session.sessionId, room.name);
-    
 
     return {
       sessionId: session.sessionId,
@@ -134,10 +140,28 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     }
   }
 
+  @SubscribeMessage('refuse-call')
+  queueGuestReconnect(@MessageBody() body: { requeue?:boolean }, @ConnectedSocket() socket: Socket) {
+    console.log(body, 'body');
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    if (!room) return;
+
+    console.log('room-before', room);
+
+    const guest = room.users.splice(0,1)[0];
+    room.available = true;
+    this.agentsConnectionService.updateRoom(room.name, room);
+
+    if(body.requeue) {
+      const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
+      this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+    }
+
+    console.log('room-afer', room);
+  }
+
   @SubscribeMessage('toggle-video-guest')
   async toggleVideoGuest(@MessageBody() toggleVideoGuestData, @ConnectedSocket() socket: Socket) {
-    console.log(toggleVideoGuestData);
-    
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     
     room.users.forEach(user => {

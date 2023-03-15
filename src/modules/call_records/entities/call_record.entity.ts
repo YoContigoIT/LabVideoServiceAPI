@@ -2,12 +2,11 @@ import { IsJSON } from "class-validator";
 import { AgentsConnection } from "src/modules/agents-connection/entities/agents-connection.entity";
 import { GuestsConnection } from "src/modules/guests-connection/entities/guests-connection.entity";
 import { Recording } from "src/modules/recordings/entities/recording.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class CallRecord {
     @PrimaryGeneratedColumn()
-    @OneToMany(() => Recording, (recording) => recording.callRecordId)
     id: number
 
     @ManyToOne(() => AgentsConnection, (agentConnection) => agentConnection.id,
@@ -29,4 +28,7 @@ export class CallRecord {
 
     @Column({ nullable: true, type: "datetime" })
     sessionFinishedAt: Date
+
+    @OneToOne(() => Recording, (recording) => recording.callRecordId)
+    recording: Recording
 }

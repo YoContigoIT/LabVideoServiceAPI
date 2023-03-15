@@ -18,7 +18,7 @@ export class WebhooksController {
   async openvidu(@Body() eventData: OpenViduWebHookEvent, @Res() response: Response) {
     switch(eventData.event) {
       case OpenViduWebHookEventTypes.recordingStatusChanged:
-        console.log('=====================****===========================');
+        console.log('===========================****===========================');
         console.log(eventData);
         
         if(eventData.status === RecordingStatusChangedStatusTypes.ready) {

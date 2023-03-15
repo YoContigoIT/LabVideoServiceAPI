@@ -5,7 +5,6 @@ import { Column, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, Pri
 
 @Entity()
 export class Guest {
-    @OneToMany(() => GuestsConnection, (guestsConnection) => guestsConnection.uuid)
     @PrimaryGeneratedColumn('uuid')
     uuid: string
 
@@ -24,7 +23,10 @@ export class Guest {
     { cascade: ["insert", "update", "remove"], eager: true })
     @JoinTable({ name: "guest_languages" })
     languages?: Language[];
-
+    
     @DeleteDateColumn()
     deleteAt: Date
+    
+    @OneToMany(() => GuestsConnection, (guestsConnection) => guestsConnection.uuid)
+    guestConnections: GuestsConnection[]
 }

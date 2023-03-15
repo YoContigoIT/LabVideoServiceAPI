@@ -115,8 +115,13 @@ export class RecordingsService {
       }
     });
 
-    if(!recording.deleteAt){
-      recording.uri = await this.awsService.getSignedURL(recording.uri);
+    try {
+
+      if(!recording.deleteAt){
+        recording.uri = await this.awsService.getSignedURL(recording.uri);
+      }
+    } catch (err) {
+      console.warn(err);
     }
     return recording;
   }

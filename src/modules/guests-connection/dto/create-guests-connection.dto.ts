@@ -7,15 +7,27 @@ export class CreateGuestsConnectionDto {
     uuid: Guest
 
     @IsOptional()
-    ip: string;
+    ip?: string;
 
     @IsOptional()
     typeClientBrowser: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     priority: string
 
     @IsOptional()
+    latitude
+
+    @IsOptional()
+    longitude
+
+    @IsOptional()
+    altitude
+
+    @IsOptional()
     folio: string
+
+    @IsOptional()
+    endTimeConnection: Date
 }

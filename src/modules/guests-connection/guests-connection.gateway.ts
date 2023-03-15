@@ -1,4 +1,5 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayDisconnect, OnGatewayConnection, ConnectedSocket, WebSocketServer, WsException } from '@nestjs/websockets';
+import { forwardRef, Inject } from "@nestjs/common";
 import { GuestsConnectionService } from './guests-connection.service';
 import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
@@ -20,6 +21,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   constructor(
     private guestsConnectionService: GuestsConnectionService,
+    @Inject(forwardRef(() => AgentsConnectionService))
     private agentsConnectionService: AgentsConnectionService,
     private videoServiceService: VideoServiceService,
     private guestsService: GuestsService,
@@ -28,21 +30,27 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   handleConnection(socket: Socket) {
     // throw new Error('Method not implemented.');
   }
+
   async handleDisconnect(socket: Socket) {
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
+    
     if (room) {
       this.guestsConnectionService.updateRoomGuest(room);
       this.agentsConnectionService.removeGuestFromRoomBySocket(socket.id);
-      this.videoServiceService.getSessionById(room.sessionId)?.close();
+      const OVSession = this.videoServiceService.getSessionById(room.sessionId)
+      
+      if(!OVSession){
+        this.server.to(room.host.socketId).emit('aborted-call');
+        return;
+      }
 
+      if(OVSession.activeConnections.length) OVSession.close();
       return;
     }
 
     // TODO: if esta pendiente de contestar el agente y se desconecta el guest mandar evento de llamada cancelada o algo así.$
-
-    // TODO: Corregir error de cuando se desconecta la victima
-    const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
     
+    const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
     if (guestIdx !== -1) { 
       this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
     }
@@ -50,6 +58,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
+    createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
 
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as unknown as string);
     if (!guest) throw new WsException('There is not any Guest with this UUID');
@@ -66,5 +75,10 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     })
     
     return guestConnection;
+  }
+
+  @SubscribeMessage('disconnect-call')
+  updateGuestConnection(@MessageBody() id: string) {
+    return this.guestsConnectionService.updateGuestConnection(id);
   }
 }

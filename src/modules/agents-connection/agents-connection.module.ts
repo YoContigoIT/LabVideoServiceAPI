@@ -1,5 +1,5 @@
 
-import { Inject, Module } from '@nestjs/common';
+import { forwardRef, Inject, Module } from '@nestjs/common';
 import { AgentsConnectionService } from './agents-connection.service';
 import { AgentsConnectionController } from './agents-connection.controller';
 import { AgentsConnectionGateway } from 'src/modules/agents-connection/agents-connection.gateway';
@@ -13,6 +13,7 @@ import { CallRecordsModule } from 'src/modules/call_records/call_records.module'
 import { RecordingsModule } from 'src/modules/recordings/recordings.module';
 import { RecordingMarkModule } from 'src/modules/recording-mark/recording-mark.module';
 import { AgentModule } from '../agent/agent.module';
+import { GuestsConnectionModule } from '../guests-connection/guests-connection.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AgentModule } from '../agent/agent.module';
     RecordingsModule,
     RecordingMarkModule,
     AgentModule,
+    forwardRef(() => GuestsConnectionModule)
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],

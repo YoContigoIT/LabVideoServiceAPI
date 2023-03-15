@@ -51,6 +51,13 @@ export class GuestsService {
 
   findOne(uuid: string): Promise<Guest> {
     return this.guestRepository.findOne({
+      relations: {
+        guestConnections: { 
+          callRecord: {
+            recording: true
+          }
+        }
+      },
       where: {uuid}
     });
   }

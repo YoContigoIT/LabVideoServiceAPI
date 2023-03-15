@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { Guest } from './guests-connection.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { BehaviorSubject, Observable, take } from 'rxjs';
 import { Room } from 'src/modules/agents-connection/agents-connection.interface';
 import { LanguagesService } from '../languages/languages.service';
 import { Language } from '../languages/entities/language.entity';
+import { parseAffeceRowToHttpResponse, shuffleArray } from 'src/utilities/helpers';
 
 type PriorityLineList = {
   gender: string;
@@ -31,7 +32,9 @@ export class GuestsConnectionService {
 
   constructor(
     @InjectRepository(GuestsConnection) private guestConnectionRepository: Repository<GuestsConnection>,
+    @Inject(forwardRef(() => AgentsConnectionService))
     private agentsConnectionService: AgentsConnectionService,
+    @Inject(forwardRef(() => AgentsConnectionGateway))
     private agentsConnectionGateway: AgentsConnectionGateway,
     private languagesService: LanguagesService
   ) {
@@ -52,41 +55,43 @@ export class GuestsConnectionService {
         })
         
         this._priorityLine.next(list);
-        
       });
   }
   
   checkRoomsAvailability() {
-    setInterval(() => {
-      const availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);
 
-      console.log(this.priorityLine);
+    setInterval(() => {
+      let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
+      if (!availableRooms.length) return;
+      availableRooms = shuffleArray(availableRooms);
 
       for(let [index, line] of this.priorityLine.entries()) {
-        if (!line.priorityLine.value.length) return;
+        if (!line.priorityLine.value.length) break;
+
+        const guest = this.removeGuestFromAssertivePriorityLine(0, line.priorityLine);
+        if (!guest) break;
+        
         let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
-          && room.host.agent.languages[0].title === line.language) || (room.host.agent.sex === line.gender))
+          && room.host.agent.languages[0].title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
+          || (room.host.agent.sex === line.gender && room.host.agent.role.lowerLimitPriority >= +guest.priority))
           
-          if (!availableRoom) {
-            availableRoom = availableRooms[0];
-          }
+        if (!availableRoom) {
+          availableRoom = availableRooms[0];
+        }
 
-          const guest = this.removeGuestFromAssertivePriorityLine(0, line.priorityLine);
-          if (!guest) break;
+        availableRoom.users.push(guest);
+        availableRoom.available = false;
 
-          availableRoom.users.push(guest);
-          availableRoom.available = false;
-
-          const pl = this.priorityLine;
-          pl[index] = line;
-          this._priorityLine.next(pl);
-          this.agentsConnectionGateway.guestInRoom(availableRoom, guest);
+        const pl = this.priorityLine;
+        
+        pl[index] = line;
+        this._priorityLine.next(pl);
+        this.agentsConnectionGateway.guestInRoom(availableRoom, guest);
       }
-
+        
       this.agentsConnectionService.updateRoomsList(this.agentsConnectionService.rooms);
     }, 3000);
   }
-
 
   pushToAssertivePriorityLine(guest: Guest, priorityLine: BehaviorSubject<Guest[]>) {
     priorityLine.pipe(take(1)).subscribe(previusVal => {
@@ -96,13 +101,28 @@ export class GuestsConnectionService {
     })
   }
 
-  create(createGuestsConnectionDto: CreateGuestsConnectionDto) {
+  create(createGuestsConnectionDto: CreateGuestsConnectionDto) {    
     return this.guestConnectionRepository.save(createGuestsConnectionDto); 
   }
 
-  removeGuestFromAssertivePriorityLine(idx: number, priorityLine: BehaviorSubject<Guest[]>) {
+  async updateGuestConnection(id: string) {
+    const guestConnectionData = {
+      endTimeConnection: new Date()
+    }
+
+    const response = await this.guestConnectionRepository
+      .createQueryBuilder()
+      .update(GuestsConnection)
+      .set(guestConnectionData)
+      .where('id = :id', { id })
+      .execute();
+
+    return parseAffeceRowToHttpResponse(response.affected);
+  }
+
+  removeGuestFromAssertivePriorityLine(idx: number, priorityLine: BehaviorSubject<Guest[]>): Guest {
     const line = priorityLine.value;
-    const removedGuest = line.splice(idx, 0)[0];
+    const removedGuest = line.splice(idx, 1)[0];
     priorityLine.next(line);
     return removedGuest;
   }
@@ -110,7 +130,8 @@ export class GuestsConnectionService {
   getGuestIdxBySocketId(socketId: string) {
     for(let line of this.priorityLine) {
       const guest = line.priorityLine.value.findIndex((guest) => guest.socketId === socketId )
-      if (guest >= 0) return {guest, priorityLine: line.priorityLine};
+
+      if (guest >= 0) return { guest, priorityLine: line.priorityLine };
     }
 
     return -1;
@@ -126,13 +147,17 @@ export class GuestsConnectionService {
   
   // TODO: Manage priority rules
   addGuestToPriorityLine(guest: Guest): any {
-    const _$guest = guest.guest;
-
-    const priorityLine = this._priorityLine.value.find((list) => {
-      return _$guest.gender === list.gender && _$guest.languages[0].title === list.language;
-    });
+    const priorityLine = this.findProperPriorityList(guest);
 
     this.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+  }
+
+  findProperPriorityList(guest: Guest) {
+    const _$guest = guest.guest;
+    
+    return this._priorityLine.value.find((list) => {
+      return _$guest.gender === list.gender && _$guest.languages[0].title === list.language;
+    });
   }
 
   getRoomByGuestSocket(socketId: string) {

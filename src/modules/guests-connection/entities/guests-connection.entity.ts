@@ -1,10 +1,9 @@
 import { CallRecord } from "src/modules/call_records/entities/call_record.entity";
 import { Guest } from "src/modules/guests/entities/guest.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Double, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class GuestsConnection {
-    @OneToMany(() => CallRecord, (callRecord) => callRecord.guestConnectionId)
     @PrimaryGeneratedColumn()
     id: string
 
@@ -28,6 +27,21 @@ export class GuestsConnection {
     @Column({ nullable: true })
     folio: string
 
+    @Column({ type: 'double', nullable: true })
+    latitude
+    
+    @Column({ type: 'double', nullable: true })
+    longitude
+    
+    @Column({ type: 'double', nullable: true })
+    altitude
+
+    @OneToOne(() => CallRecord, (callRecord) => callRecord.guestConnectionId)
+    callRecord: CallRecord
+
+    @Column()
+    ip: string
+    
     @DeleteDateColumn()
     deleteAt: Date
 }   
