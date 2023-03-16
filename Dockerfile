@@ -2,7 +2,7 @@
 # PRODUCTION #
 ##############
 
-FROM node:18-alpine As PRODUCTION
+FROM --platform=linux/amd64 node:18 As PRODUCTION
 
 RUN npm install -g ts-node @nestjs/cli 
 
