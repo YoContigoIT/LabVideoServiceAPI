@@ -26,6 +26,7 @@ export class RecordingsService {
     const take = query.pageSize || 10;
     const page = query.pageIndex || 0;
     const skip = page*take;
+    let order = {};
 
     if(query.id) {
       where.id = query.id;
@@ -87,6 +88,24 @@ export class RecordingsService {
         }
       }
     }
+
+    if (query.active === 'folio') { 
+      order = {
+        callRecordId : {
+          guestConnectionId: {
+            folio: query.direction.toUpperCase()
+          }
+        }
+      }
+    }
+
+    if (query.active === 'time') { 
+      order = {
+        callRecordId : {
+          sessionStartedAt: query.direction.toUpperCase()
+        }
+      }
+    }
   
     const data = await this.recordingRepository.findAndCount({
       relations: {
@@ -101,7 +120,10 @@ export class RecordingsService {
       },
       take,
       skip,
-      where
+      where,
+      order: Object.keys(order).length ? order : {
+        [query.active]: query.direction?.toUpperCase()
+      }
     });
 
     return paginatorResponse(data, page, take);

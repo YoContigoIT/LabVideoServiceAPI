@@ -35,4 +35,10 @@ export class GetRecordingsDto {
 
     @IsOptional()
     pageSize?: number
+
+    @IsOptional()
+    direction?: string
+
+    @IsOptional()
+    active?: string
 }

@@ -4,13 +4,14 @@ import { Server, Socket } from 'socket.io';
 import { AdminSocketsService } from './admin-sockets.service';
 import { AgentsConnectionService } from 'src/modules/agents-connection/agents-connection.service';
 import { GuestsConnectionService } from 'src/modules/guests-connection/guests-connection.service';
-import { combineLatest, distinctUntilChanged, forkJoin, last, map } from 'rxjs';
+import { combineLatest, distinctUntilChanged, forkJoin, last, map, Subscription, take, takeUntil } from 'rxjs';
 
 
 @WebSocketGateway()
 export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   public server: Server;
+  dashboardConnection: Subscription;
 
   constructor(
     private adminSocketsService: AdminSocketsService,
@@ -20,9 +21,13 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   handleConnection(socket: Socket) {
+    console.log('connectiong');
+    
     // throw new Error('Method not implemented.');
   }
   handleDisconnect(socket: Socket) {
+    console.log('disconnectig')
+    this.dashboardConnection?.unsubscribe();
     // throw new Error('Method not implemented.');
   }
 
@@ -47,21 +52,28 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   @SubscribeMessage('register-to-dashboard-updates')
   registerToDashboardUpdates(@ConnectedSocket() client: Socket) {
 
-    combineLatest([
+    this.dashboardConnection = combineLatest([
       this.agentsConnectionsService.rooms$,
-      this.guestConnectionsService.priorityLine$
+      this.guestConnectionsService.priorityLine$,
+      ...this.guestConnectionsService.priorityLine.map(pl => pl.priorityLine.asObservable())
     ])
-      .pipe(map(data => {
+      .pipe(map(([rooms, mainPriorityLain, ..._]) => {
         return {
           rooms: {
-            active: data[0].length,
-            inCall: data[0].filter(room => !room.available).length,
-            free: data[0].filter(room => room.available).length
+            active: rooms.length,
+            inCall: rooms.filter(room => !room.available).length,
+            free: rooms.filter(room => room.available).length
           },
-          priorityLine: data[1].length,
+          priorityLine: mainPriorityLain.length,
+          
+          priorityLines: mainPriorityLain.map(pl => ({
+            gender: pl.gender,
+            language: pl.language,
+            length: pl.priorityLine.value.length
+          }))
         }
       }))
-      .subscribe(data => {        
+      .subscribe(data => {    
         client.emit('dashboard-update', data);
       })
   }
