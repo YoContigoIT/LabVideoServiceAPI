@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Request, UseGuards, ClassSerializerInterceptor, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Request, UseGuards, ClassSerializerInterceptor, UseInterceptors, Query, SetMetadata } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,14 +8,18 @@ import { AuthJWTGuard } from 'src/modules/auth/guard/auth.guard';
 import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { GetUsersDto } from './dto/get-user.dto';
+import { Roles } from 'src/utilities/decorators/roles.decorator';
+import { RoleGuard } from '../auth/guard/role.guard';
+import { Role } from '../auth/auth.interfaces';
 
+@UseGuards(AuthJWTGuard)
 @Controller('users')
-// @UseGuards(AuthJWTGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles(Role.ADMIN)
+  @UseGuards(RoleGuard)
   @Post()
-  // @Authorization(['ADMIN'])
   async create(@Body() createUserDto: CreateUserDto): Promise<HttpResponse> {
     const user = await this.usersService.create(createUserDto);
 
@@ -49,6 +53,8 @@ export class UsersController {
     return this.usersService.updatePassword(uuid, updatePasswordUserDto);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(RoleGuard)
   @Delete(':uuid')
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);

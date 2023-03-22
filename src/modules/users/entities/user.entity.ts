@@ -1,8 +1,9 @@
 import { ValidateIf } from "class-validator";
 import { Role } from "src/modules/auth/auth.interfaces";
 import { AgentsConnection } from "src/modules/agents-connection/entities/agents-connection.entity";
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Exclude, Expose } from "class-transformer";
+import { UserRole } from "src/modules/user-roles/entities/user-role.entity";
 
 @Entity()
 export class User {
@@ -22,8 +23,9 @@ export class User {
     @Column({unique:true, nullable: true})
     email?: string
 
-    @Column()
-    role: string
+    @ManyToOne(() => UserRole, (userRole) => userRole.id, { eager: true })
+    @JoinColumn({ name: 'roleId' })
+    role: UserRole
 
     @DeleteDateColumn()
     deleteAt: Date;

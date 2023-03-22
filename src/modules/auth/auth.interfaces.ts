@@ -24,6 +24,5 @@ export interface IAuthenticate {
 
 export enum Role {
     ADMIN = 'admin',
-    ADMIN_CLIENT = 'admin_client',
-    CLIENT = 'client'
+    MP = 'mp'
 }

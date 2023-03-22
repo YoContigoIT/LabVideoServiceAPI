@@ -25,11 +25,6 @@ export class RecordingsController {
     return this.recordingsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecordingDto: UpdateRecordingDto) {
-    return this.recordingsService.update(+id, updateRecordingDto);
-  }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.recordingsService.remove(id);

@@ -19,7 +19,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> { 
 
-    if(createUserDto.role === Role.ADMIN) {
+    if(createUserDto.role as any === Role.ADMIN) {
       createUserDto.password = await this.hashPassword(createUserDto.password);
     }
     

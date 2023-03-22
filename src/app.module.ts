@@ -36,6 +36,8 @@ import { RolesModule } from './modules/roles/roles.module';
 import { LanguagesModule } from './modules/languages/languages.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { AwsService } from './services/aws/aws.service';
+import { UserRolesModule } from './modules/user-roles/user-roles.module';
+import { UserRole } from './modules/user-roles/entities/user-role.entity';
 
 @Module({
   imports: [
@@ -66,6 +68,7 @@ import { AwsService } from './services/aws/aws.service';
           Agent,
           Role,
           Language,
+          UserRole,
         ],
         synchronize: true,
       }),
@@ -87,6 +90,7 @@ import { AwsService } from './services/aws/aws.service';
     RolesModule,
     LanguagesModule,
     WebhooksModule,
+    UserRolesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService,],

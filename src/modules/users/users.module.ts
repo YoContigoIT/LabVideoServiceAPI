@@ -5,13 +5,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtStrategy } from 'src/utilities/jwt.strategy';
 import { AuthService } from 'src/modules/auth/auth.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    AuthModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy, AuthService],
+  providers: [UsersService, AuthService],
   exports: [UsersService]
 })
 export class UsersModule {}
