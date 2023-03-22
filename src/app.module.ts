@@ -38,6 +38,7 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { AwsService } from './services/aws/aws.service';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserRole } from './modules/user-roles/entities/user-role.entity';
+import { ApiKeyModule } from './modules/api-key/api-key.module';
 
 @Module({
   imports: [
@@ -74,7 +75,6 @@ import { UserRole } from './modules/user-roles/entities/user-role.entity';
       }),
       inject: [ConfigService],
     }),
-
     UsersModule,
     AuthModule,
     VideoServiceModule,
@@ -91,6 +91,7 @@ import { UserRole } from './modules/user-roles/entities/user-role.entity';
     LanguagesModule,
     WebhooksModule,
     UserRolesModule,
+    ApiKeyModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService,],

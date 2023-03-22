@@ -18,4 +18,8 @@ export class AuthService {
 
     return userInfo;
   }
+
+  validateApiKey(apiKey: string){
+    return true;
+  }
 }
