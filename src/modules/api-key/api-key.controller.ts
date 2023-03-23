@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { ApiKeyService } from './api-key.service';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import { UpdateApiKeyDto } from './dto/update-api-key.dto';
@@ -17,8 +17,14 @@ export class ApiKeyController {
     return this.apiKeyService.getPublicKey(clientId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.apiKeyService.remove(+id);
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get()
+  findAll() {
+    return this.apiKeyService.findAll();
+  }
+
+  @Delete(':clientId')
+  remove(@Param('clientId') clientId: string) {
+    return this.apiKeyService.removeByClientId(clientId);
   }
 }
