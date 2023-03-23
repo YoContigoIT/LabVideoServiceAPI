@@ -8,11 +8,13 @@ import { AuthService } from 'src/modules/auth/auth.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
+import { ApiKeyModule } from '../api-key/api-key.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     AuthModule,
+    ApiKeyModule
   ],
   controllers: [UsersController],
   providers: [UsersService, AuthService],

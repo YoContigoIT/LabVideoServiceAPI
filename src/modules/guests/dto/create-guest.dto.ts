@@ -2,6 +2,8 @@ import { IsArray, IsJSON, IsNotEmpty, IsObject, IsString } from "class-validator
 import { Language } from "src/modules/languages/entities/language.entity";
 
 export class CreateGuestDto {
+
+    @IsNotEmpty()
     @IsString()
     name?: string
 
@@ -12,5 +14,6 @@ export class CreateGuestDto {
     gender?: string
 
     @IsNotEmpty()
+    @IsArray()
     languages?: Language[]
 }

@@ -12,19 +12,9 @@ export class ApiKeyController {
     return this.apiKeyService.create(createApiKeyDto);
   }
 
-  @Get()
-  findAll() {
-    return this.apiKeyService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.apiKeyService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateApiKeyDto: UpdateApiKeyDto) {
-    return this.apiKeyService.update(+id, updateApiKeyDto);
+  @Get('public/:clientId')
+  findOne(@Param('clientId') clientId: string) {
+    return this.apiKeyService.getPublicKey(clientId);
   }
 
   @Delete(':id')

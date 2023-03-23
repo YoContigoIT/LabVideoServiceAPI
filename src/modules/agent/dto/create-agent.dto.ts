@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, ValidateIf } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, IsArray } from "class-validator";
 import { Language } from "src/modules/languages/entities/language.entity";
 import { Role } from "src/modules/roles/entities/role.entity";
 
@@ -11,11 +11,6 @@ export class CreateAgentDto {
     @IsNotEmpty()
     lastnames: string;
 
-    // @ValidateIf(o => o.role === Role.ADMIN)
-    // @IsString()
-    // @IsNotEmpty()
-    // password: string
-
     @IsEmail()
     @IsNotEmpty()
     email: string;
@@ -27,5 +22,6 @@ export class CreateAgentDto {
     role: Role
 
     @IsNotEmpty()
+    @IsArray()
     languages?: Language[]
 }

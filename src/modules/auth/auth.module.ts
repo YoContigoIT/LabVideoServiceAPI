@@ -6,7 +6,11 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { JwtStrategy } from 'src/utilities/jwt.strategy';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ApiKey } from '../api-key/entities/api-key.entity';
+import { ApiKeyModule } from '../api-key/api-key.module';
 import { AuthJWTGuard } from './guard/auth.guard';
+import { RoleGuard } from './guard/role.guard';
+import { ApiKeyGuard } from './guard/apikey.guard';
 
 @Module({
   imports: [
@@ -20,9 +24,10 @@ import { AuthJWTGuard } from './guard/auth.guard';
       }),
       inject: [ConfigService]
     }),
+    ApiKeyModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, ConfigService],
-  exports: [JwtModule]
+  providers: [AuthService, JwtStrategy, ConfigService, AuthJWTGuard, RoleGuard, ApiKeyGuard],
+  exports: [JwtModule, ApiKeyModule]
 })
 export class AuthModule {}

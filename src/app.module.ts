@@ -39,6 +39,7 @@ import { AwsService } from './services/aws/aws.service';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserRole } from './modules/user-roles/entities/user-role.entity';
 import { ApiKeyModule } from './modules/api-key/api-key.module';
+import { ApiKey } from './modules/api-key/entities/api-key.entity';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { ApiKeyModule } from './modules/api-key/api-key.module';
           Role,
           Language,
           UserRole,
+          ApiKey,
         ],
         synchronize: true,
       }),

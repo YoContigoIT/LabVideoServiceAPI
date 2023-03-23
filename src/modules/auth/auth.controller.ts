@@ -4,11 +4,9 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import * as bcrypt from 'bcrypt';
-import { AuthJWTGuard } from 'src/modules/auth/guard/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
-// @UseGuards(AuthJWTGuard)
 export class AuthController {
   constructor(
     private authService: AuthService,

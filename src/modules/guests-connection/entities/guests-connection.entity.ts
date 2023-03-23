@@ -1,3 +1,4 @@
+import { IsJSON } from "class-validator";
 import { CallRecord } from "src/modules/call_records/entities/call_record.entity";
 import { Guest } from "src/modules/guests/entities/guest.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Double, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -44,4 +45,8 @@ export class GuestsConnection {
     
     @DeleteDateColumn()
     deleteAt: Date
+
+    @Column('json', { nullable: true })
+    @IsJSON()
+    details?: any
 }   
