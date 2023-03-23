@@ -1,7 +1,7 @@
 import { ValidateIf } from "class-validator";
 import { Role } from "src/modules/auth/auth.interfaces";
 import { AgentsConnection } from "src/modules/agents-connection/entities/agents-connection.entity";
-import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, DeleteDateColumn, OneToOne, OneToMany, ManyToOne, JoinColumn, JoinTable, EntityManager } from "typeorm";
 import { Exclude, Expose } from "class-transformer";
 import { UserRole } from "src/modules/user-roles/entities/user-role.entity";
 
@@ -25,7 +25,7 @@ export class User {
 
     @ManyToOne(() => UserRole, (userRole) => userRole.id, { eager: true })
     @JoinColumn({ name: 'roleId' })
-    role: UserRole
+    roleId: UserRole
 
     @DeleteDateColumn()
     deleteAt: Date;

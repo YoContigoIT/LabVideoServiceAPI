@@ -6,16 +6,20 @@ import { User } from "src/modules/users/entities/user.entity";
 
 @Injectable()
 export class RootUserSeeder implements Seeder {
-    constructor(
-        @InjectRepository(User) private userRepository: Repository<User>
-    ) {}
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>
+  ) {}
+
+  async drop(): Promise<any> {
+    await this.userRepository.query(`DELETE FROM user WHERE names='Administrator'`);
+  }
 
   async seed(): Promise<any> {
     const rootUser: Partial<User> = {
         names: "Administrator",
         lastnames: "Root",
         email: "admin@videoservice.com",
-        role: 1 as any,
+        roleId: 1 as any,
         password: "$2b$10$gxSKCI9iGkHy.Sx.SpPp..8554wEDUfMSsrO3xoDAzBNZyw4i0rtS"
     };
 
@@ -24,8 +28,4 @@ export class RootUserSeeder implements Seeder {
     return this.userRepository.insert(user);
   }
 
-  async drop(): Promise<any> {
-    this.userRepository.createQueryBuilder()
-        .delete().where("email = admin@videoservice.com").execute()
-  }
 }

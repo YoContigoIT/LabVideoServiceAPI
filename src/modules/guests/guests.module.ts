@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guest } from './entities/guest.entity';
 import { LanguagesModule } from '../languages/languages.module';
 import { AuthModule } from '../auth/auth.module';
+import { ApiKeyGuard } from '../auth/guard/apikey.guard';
+import { AuthJWTGuard } from '../auth/guard/auth.guard';
+import { RoleGuard } from '../auth/guard/role.guard';
 
 @Module({
   imports: [
@@ -13,7 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   controllers: [GuestsController],
-  providers: [GuestsService],
+  providers: [GuestsService, RoleGuard, AuthJWTGuard, ApiKeyGuard],
   exports: [GuestsService],
 })
 export class GuestsModule {}

@@ -11,6 +11,10 @@ export class SettingsSeeder implements Seeder {
         @InjectRepository(Setting) private settingRepository: Repository<Setting>,
     ) {}
 
+    async drop(): Promise<any> {
+        return await this.settingRepository.query(`TRUNCATE setting`)
+    }
+
     async seed(): Promise<any> {
         const setting: Setting = {
             id: '1',
@@ -24,10 +28,5 @@ export class SettingsSeeder implements Seeder {
 
         const settingI = this.settingRepository.create(setting);
         return this.settingRepository.insert(settingI);
-    }
-
-    async drop(): Promise<any> {
-        const rows = await this.settingRepository.find();
-        // this.settingRepository.r(rows);
     }
 }

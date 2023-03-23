@@ -16,6 +16,6 @@ export class UserRole {
     @DeleteDateColumn()
     deleteAt: Date
 
-    @OneToMany(() => User, (user) => user.role)
+    @OneToMany(() => User, (user) => user.roleId)
     users: User[]
 }

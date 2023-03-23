@@ -1,5 +1,4 @@
 import { seeder } from "nestjs-seeder";
-import { RecordingsMarkTypeSeeder } from "./recordingMarksType.seeder";
 import { RecordingsMarkType } from '../modules/recordings-mark-type/entities/recordings-mark-type.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -15,6 +14,8 @@ import { Setting } from "src/modules/settings/entities/setting.entity";
 import { SettingsSeeder } from "./settings.seeder";
 import { LanguagesSeeder } from "./languages.seeder";
 import { Language } from "src/modules/languages/entities/language.entity";
+import { RecordingsMarkTypeSeeder } from "./recordingMarksType.seeder";
+import { RootUserSeeder } from "./rootUser.seeder";
 
 seeder({
   imports: [
@@ -22,6 +23,8 @@ seeder({
       load: [configuration],
       isGlobal: true,
     }),
+
+    TypeOrmModule.forFeature([RecordingMark, RecordingsMarkType, User]),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -34,19 +37,19 @@ seeder({
         database: configService.get<string>("db.mysql.database"),
         entities: [
           User,
-          CallRecord,
-          AgentsConnection,
-          Guest,
-          GuestsConnection,
+          // CallRecord,
+          // AgentsConnection,
+          // Guest,
+          // GuestsConnection,
           RecordingsMarkType,
-          RecordingMark,
-          Recording,
+          // RecordingMark,
+          // Recording,
           Setting,
         ],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([RecordingsMarkType, Setting])
+    TypeOrmModule.forFeature([Setting])
   ],
-}).run([RecordingsMarkTypeSeeder, SettingsSeeder]);
+}).run([SettingsSeeder, RecordingsMarkTypeSeeder, RootUserSeeder]);

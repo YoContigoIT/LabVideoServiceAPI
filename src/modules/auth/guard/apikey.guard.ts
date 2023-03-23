@@ -14,9 +14,17 @@ export class ApiKeyGuard implements CanActivate {
    async canActivate(context: ExecutionContext) {
         const keyTypes = this.reflector.get<string[]>('keyTypes', context.getHandler());
         
-        const req = context.switchToHttp().getRequest();
-        const key = req.headers['x-api-key'] ?? req.query.api_key;
-        if(!key) return false;
+        let key: string;
+
+        if (context.getType() === 'http') {
+            const req = context.switchToHttp().getRequest();
+            key = req.headers['x-api-key'] ?? req.query.api_key;
+            if(!key) return false;
+        } else if (context.getType() === 'ws') {
+            const client = context.switchToWs().getClient();
+            key = client.handshake.headers['x-api-key'];
+            if(!key) return false;
+        }
 
         let apiKey: ApiKey;
         try {
@@ -29,7 +37,7 @@ export class ApiKeyGuard implements CanActivate {
             return false;
         }
 
-        if (!keyTypes.length || keyTypes.includes(apiKey.type)) {
+        if (!keyTypes?.length || keyTypes.includes(apiKey.type)) {
             return true;
         }
 

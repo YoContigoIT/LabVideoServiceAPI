@@ -1,6 +1,6 @@
 import { RecordingsMarkType } from "src/modules/recordings-mark-type/entities/recordings-mark-type.entity";
 import { Recording } from "src/modules/recordings/entities/recording.entity";
-import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, JoinTable } from "typeorm";
 
 @Entity()
 export class RecordingMark {
@@ -8,7 +8,7 @@ export class RecordingMark {
     id: string
 
     @ManyToOne(() => RecordingsMarkType, (recordingMarkType) => recordingMarkType.id,
-    {eager: true})
+    { eager: true })
     @JoinColumn({ name: "recordingMarkTypeId" })
     recordingMarkTypeId: string
 

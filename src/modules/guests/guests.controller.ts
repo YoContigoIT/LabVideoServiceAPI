@@ -5,11 +5,13 @@ import { UpdateGuestDto } from './dto/update-guest.dto';
 import { Guest } from './entities/guest.entity';
 import { GetGuestsDto } from './dto/get-guest.dto';
 import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
-import { ApiKeyGuard } from '../auth/guard/apikey.guard';
-import { ApiKey } from '../auth/auth.interfaces';
+import { ApiKey, Role } from '../auth/auth.interfaces';
+import { Roles } from 'src/utilities/decorators/roles.decorator';
+import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
 
-@ApiKeyType(ApiKey.PUBLIC)
-@UseGuards(ApiKeyGuard)
+@ApiKeyType(ApiKey.SECRET)
+@Roles(Role.ADMIN)
+@UseGuards(MultipleAuthorizeGuard)
 @Controller('guests')
 export class GuestsController {
   constructor(private readonly guestsService: GuestsService) {}
