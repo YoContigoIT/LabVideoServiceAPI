@@ -28,7 +28,11 @@ export class ApiKeyService {
   }
 
   findAll() {
-    return this.apiKeyrepository.find();
+    return this.apiKeyrepository.find({
+      where: {
+        type: 'public'
+      }
+    });
   }
 
   findOne(apikey: string) {
@@ -37,6 +41,15 @@ export class ApiKeyService {
 
   async remove(id: number) {
     return this.apiKeyrepository.softDelete(id);
+  }
+
+  async removeByClientId(clientId: string) {
+    const apiKeys = await this.apiKeyrepository.find({where : { clientId }});
+    apiKeys.forEach(async key => {
+      await this.remove(key.id);
+    });
+
+    return { success: true };
   }
 
   async generatePublicKey(createApiKeyDto) {

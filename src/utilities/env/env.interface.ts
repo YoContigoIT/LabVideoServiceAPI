@@ -31,8 +31,6 @@ export default class {
     };
     aws: {
         region: string;
-        accessKeyId: string;
-        secretAccessKey: string;
         s3: {
             bucket: string;
         }
