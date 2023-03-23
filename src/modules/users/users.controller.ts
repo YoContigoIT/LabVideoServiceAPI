@@ -12,13 +12,12 @@ import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { RoleGuard } from '../auth/guard/role.guard';
 import { Role } from '../auth/auth.interfaces';
 
-@UseGuards(AuthJWTGuard)
+@Roles(Role.ADMIN)
+@UseGuards(AuthJWTGuard, RoleGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Roles(Role.ADMIN)
-  @UseGuards(RoleGuard)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<HttpResponse> {
     const user = await this.usersService.create(createUserDto);
@@ -53,8 +52,6 @@ export class UsersController {
     return this.usersService.updatePassword(uuid, updatePasswordUserDto);
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(RoleGuard)
   @Delete(':uuid')
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);

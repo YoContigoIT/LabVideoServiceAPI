@@ -1,11 +1,16 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AwsService } from 'src/services/aws/aws.service';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
+import { ApiKey, Role } from '../auth/auth.interfaces';
+import { ApiKeyGuard } from '../auth/guard/apikey.guard';
 import { RecordingMarkService } from '../recording-mark/recording-mark.service';
 import { RecordingsService } from '../recordings/recordings.service';
 import { OpenViduWebHookEvent, OpenViduWebHookEventTypes, RecordingStatusChangedStatusTypes } from './webhooks.interface';
 import { WebhooksService } from './webhooks.service';
 
+@ApiKeyType(ApiKey.PUBLIC)
+@UseGuards(ApiKeyGuard)
 @Controller('webhooks')
 export class WebhooksController {
   constructor(

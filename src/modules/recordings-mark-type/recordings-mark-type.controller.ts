@@ -1,9 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { RecordingsMarkTypeService } from './recordings-mark-type.service';
 import { CreateRecordingsMarkTypeDto } from './dto/create-recordings-mark-type.dto';
 import { UpdateRecordingsMarkTypeDto } from './dto/update-recordings-mark-type.dto';
 import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
+import { Roles } from 'src/utilities/decorators/roles.decorator';
+import { AuthJWTGuard } from '../auth/guard/auth.guard';
+import { RoleGuard } from '../auth/guard/role.guard';
+import { Role } from '../auth/auth.interfaces';
 
+@Roles(Role.ADMIN)
+@UseGuards(AuthJWTGuard, RoleGuard)
 @Controller('recordings-mark-type')
 export class RecordingsMarkTypeController {
   constructor(private readonly recordingsMarkTypeService: RecordingsMarkTypeService) {}

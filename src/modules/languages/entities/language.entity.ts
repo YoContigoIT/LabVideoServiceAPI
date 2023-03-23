@@ -12,11 +12,11 @@ export class Language {
     title: string
 
     @ManyToMany(() => Agent, (agent) => agent.languages, {})
-    agents: Agent[]
+    agents?: Agent[]
 
     @ManyToMany(() => Guest, (guest) => guest.languages, {})
-    guests: Guest[]
+    guests?: Guest[]
 
     @DeleteDateColumn()
-    deleteAt: Date
+    deleteAt?: Date
 }

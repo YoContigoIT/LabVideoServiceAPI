@@ -4,7 +4,13 @@ import { Socket, Server } from 'socket.io';
 import { RecordingVideoServiceDto } from "./dto/create-video-service.dto";
 import { RecordingMarkService } from "src/modules/recording-mark/recording-mark.service";
 import { CreateRecordingMarkDto } from "src/modules/recording-mark/dto/create-recording-mark.dto";
+import { ApiKeyType } from "src/utilities/decorators/apiKeyType.decorator";
+import { UseGuards } from "@nestjs/common";
+import { ApiKeyGuard } from "../auth/guard/apikey.guard";
+import { ApiKey } from "../auth/auth.interfaces";
 
+@ApiKeyType(ApiKey.PUBLIC)
+@UseGuards(ApiKeyGuard)
 @WebSocketGateway({
     cors: {
         origin: '*',

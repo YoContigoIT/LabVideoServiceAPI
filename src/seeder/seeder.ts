@@ -13,6 +13,8 @@ import { User } from "src/modules/users/entities/user.entity";
 import { Recording } from "src/modules/recordings/entities/recording.entity";
 import { Setting } from "src/modules/settings/entities/setting.entity";
 import { SettingsSeeder } from "./settings.seeder";
+import { LanguagesSeeder } from "./languages.seeder";
+import { Language } from "src/modules/languages/entities/language.entity";
 
 seeder({
   imports: [

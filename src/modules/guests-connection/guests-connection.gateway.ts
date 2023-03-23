@@ -1,5 +1,5 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayDisconnect, OnGatewayConnection, ConnectedSocket, WebSocketServer, WsException } from '@nestjs/websockets';
-import { forwardRef, Inject } from "@nestjs/common";
+import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { GuestsConnectionService } from './guests-connection.service';
 import { CreateGuestsConnectionDto } from './dto/create-guests-connection.dto';
 import { UpdateGuestsConnectionDto } from './dto/update-guests-connection.dto';
@@ -9,7 +9,12 @@ import { GuestsService } from 'src/modules/guests/guests.service';
 import { VideoServiceService } from 'src/modules/video-service/video-service.service';
 import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { Guest } from '../guests/entities/guest.entity';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
+import { ApiKeyGuard } from '../auth/guard/apikey.guard';
+import { ApiKey } from '../auth/auth.interfaces';
 
+@ApiKeyType(ApiKey.PUBLIC)
+@UseGuards(ApiKeyGuard)
 @WebSocketGateway({
   cors: {
     origin: '*',

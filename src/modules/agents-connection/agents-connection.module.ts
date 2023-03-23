@@ -14,6 +14,10 @@ import { RecordingsModule } from 'src/modules/recordings/recordings.module';
 import { RecordingMarkModule } from 'src/modules/recording-mark/recording-mark.module';
 import { AgentModule } from '../agent/agent.module';
 import { GuestsConnectionModule } from '../guests-connection/guests-connection.module';
+import { RoleGuard } from '../auth/guard/role.guard';
+import { AuthJWTGuard } from '../auth/guard/auth.guard';
+import { ApiKeyGuard } from '../auth/guard/apikey.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +28,7 @@ import { GuestsConnectionModule } from '../guests-connection/guests-connection.m
     RecordingsModule,
     RecordingMarkModule,
     AgentModule,
+    AuthModule,
     forwardRef(() => GuestsConnectionModule)
   ],
   controllers: [AgentsConnectionController],

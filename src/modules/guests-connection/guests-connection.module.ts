@@ -8,6 +8,7 @@ import { AgentsConnectionModule } from 'src/modules/agents-connection/agents-con
 import { GuestsModule } from 'src/modules/guests/guests.module';
 import { VideoServiceModule } from 'src/modules/video-service/video-service.module';
 import { LanguagesModule } from '../languages/languages.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { LanguagesModule } from '../languages/languages.module';
     forwardRef(() => AgentsConnectionModule),
     GuestsModule,
     VideoServiceModule,
-    LanguagesModule
+    LanguagesModule,
+    AuthModule,
   ],
   providers: [GuestsConnectionGateway, GuestsConnectionService],
   exports: [GuestsConnectionService]
