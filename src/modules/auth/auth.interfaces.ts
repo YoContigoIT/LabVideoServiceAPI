@@ -26,3 +26,8 @@ export enum Role {
     ADMIN = 'admin',
     MP = 'mp'
 }
+
+export enum ApiKey {
+    SECRET = 'secret',
+    PUBLIC = 'public'
+}

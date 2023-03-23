@@ -42,6 +42,8 @@ export class GuestsConnectionService {
 
       this.languagesService.findAll()
       .then((languages) => {
+        console.log(languages);
+        
         this.languages = languages;
         let list = [];
         this.languages.forEach(language => {

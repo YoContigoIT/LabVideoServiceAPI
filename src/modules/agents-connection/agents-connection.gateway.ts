@@ -17,8 +17,13 @@ import { RecordingsMarkTypeSeeder } from "../../seeder/recordingMarksType.seeder
 import { AgentService } from "../agent/agent.service";
 import { CallRecord } from "../call_records/entities/call_record.entity";
 import { GuestsConnectionService } from "../guests-connection/guests-connection.service";
-import { forwardRef, Inject } from "@nestjs/common";
+import { forwardRef, Inject, UseGuards } from "@nestjs/common";
+import { ApiKeyType } from "src/utilities/decorators/apiKeyType.decorator";
+import { ApiKeyGuard } from "../auth/guard/apikey.guard";
+import { ApiKey } from "../auth/auth.interfaces";
 
+@ApiKeyType(ApiKey.PUBLIC)
+@UseGuards(ApiKeyGuard)
 @WebSocketGateway({
     cors: {
       origin: '*',

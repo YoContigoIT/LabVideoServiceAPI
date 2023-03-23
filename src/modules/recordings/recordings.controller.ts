@@ -1,9 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 import { RecordingsService } from './recordings.service';
 import { CreateRecordingDto } from './dto/create-recording.dto';
 import { UpdateRecordingDto } from './dto/update-recording.dto';
 import { GetRecordingsDto } from './dto/get-recordings.dto';
+import { Roles } from 'src/utilities/decorators/roles.decorator';
+import { AuthJWTGuard } from '../auth/guard/auth.guard';
+import { RoleGuard } from '../auth/guard/role.guard';
+import { Role } from '../auth/auth.interfaces';
 
+@Roles(Role.ADMIN)
+@UseGuards(AuthJWTGuard, RoleGuard)
 @Controller('recordings')
 export class RecordingsController {
   constructor(private readonly recordingsService: RecordingsService) {}

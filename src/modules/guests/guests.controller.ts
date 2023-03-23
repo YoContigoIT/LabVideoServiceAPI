@@ -1,10 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { GuestsService } from './guests.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
 import { Guest } from './entities/guest.entity';
 import { GetGuestsDto } from './dto/get-guest.dto';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
+import { ApiKeyGuard } from '../auth/guard/apikey.guard';
+import { ApiKey } from '../auth/auth.interfaces';
 
+@ApiKeyType(ApiKey.PUBLIC)
+@UseGuards(ApiKeyGuard)
 @Controller('guests')
 export class GuestsController {
   constructor(private readonly guestsService: GuestsService) {}
