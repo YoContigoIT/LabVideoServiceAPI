@@ -21,12 +21,12 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   handleConnection(socket: Socket) {
-    console.log('connectiong');
+    // console.log('connectiong');
     
     // throw new Error('Method not implemented.');
   }
   handleDisconnect(socket: Socket) {
-    console.log('disconnectig')
+    // console.log('disconnectig')
     this.dashboardConnection?.unsubscribe();
     // throw new Error('Method not implemented.');
   }

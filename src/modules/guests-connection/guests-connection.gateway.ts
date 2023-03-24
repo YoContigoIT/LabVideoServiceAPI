@@ -76,7 +76,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       priority: createGuestsConnectionDto.priority,
       queueAt: new Date(),
       guest: guest,
-      guestConnectionId : guestConnection.id
+      guestConnectionId : guestConnection.id,
+      details: guestConnection.details
     })
     
     return guestConnection;

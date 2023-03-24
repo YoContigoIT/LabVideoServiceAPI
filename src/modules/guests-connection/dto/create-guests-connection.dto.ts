@@ -30,4 +30,7 @@ export class CreateGuestsConnectionDto {
 
     @IsOptional()
     endTimeConnection: Date
+
+    @IsOptional()
+    details: JSON
 }

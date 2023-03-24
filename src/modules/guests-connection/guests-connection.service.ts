@@ -42,7 +42,7 @@ export class GuestsConnectionService {
 
       this.languagesService.findAll()
       .then((languages) => {
-        console.log(languages);
+        // console.log(languages);
         
         this.languages = languages;
         let list = [];
@@ -74,7 +74,7 @@ export class GuestsConnectionService {
         if (!guest) break;
         
         let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
-          && room.host.agent.languages[0].title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
+          && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
           || (room.host.agent.sex === line.gender && room.host.agent.role.lowerLimitPriority >= +guest.priority))
           
         if (!availableRoom) {
@@ -158,7 +158,7 @@ export class GuestsConnectionService {
     const _$guest = guest.guest;
     
     return this._priorityLine.value.find((list) => {
-      return _$guest.gender === list.gender && _$guest.languages[0].title === list.language;
+      return _$guest.gender === list.gender && _$guest.languages[0]?.title === list.language;
     });
   }
 

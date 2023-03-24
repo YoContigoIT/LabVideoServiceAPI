@@ -7,6 +7,7 @@ export interface Guest {
     queueAt: Date
     guestConnectionId: string
     guest: GuestUser
+    details?: any
     [key: string]: any
 }
 
