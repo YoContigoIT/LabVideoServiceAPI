@@ -40,24 +40,21 @@ export class GuestsConnectionService {
   ) {
       this.checkRoomsAvailability();
 
-      this.languagesService.findAll()
-      .then((languages) => {
-        // console.log(languages);
-        
-        this.languages = languages;
-        let list = [];
-        this.languages.forEach(language => {
-          this.genders.forEach(gender => {
-            list.push({
-              gender,
-              language: language.title,
-              priorityLine: new BehaviorSubject<Guest[]>([])
-            })
-          })
-        })
-        
-        this._priorityLine.next(list);
-      });
+      // this.languagesService.findAll()
+      // .then((languages) => {
+      //   this.languages = languages;
+      //   let list = [];
+      //   this.languages.forEach(language => {
+      //     this.genders.forEach(gender => {
+      //       list.push({
+      //         gender,
+      //         language: language.title,
+      //         priorityLine: new BehaviorSubject<Guest[]>([])
+      //       })
+      //     })
+      //   })
+      // this._priorityLine.next([]);
+      // });
   }
   
   checkRoomsAvailability() {
@@ -70,7 +67,7 @@ export class GuestsConnectionService {
       for(let [index, line] of this.priorityLine.entries()) {
         if (!line.priorityLine.value.length) break;
 
-        const guest = this.removeGuestFromAssertivePriorityLine(0, line.priorityLine);
+        const guest = this.removeGuestFromAssertivePriorityLine(0, line);
         if (!guest) break;
         
         let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
@@ -122,10 +119,21 @@ export class GuestsConnectionService {
     return parseAffeceRowToHttpResponse(response.affected);
   }
 
-  removeGuestFromAssertivePriorityLine(idx: number, priorityLine: BehaviorSubject<Guest[]>): Guest {
-    const line = priorityLine.value;
+  removeGuestFromAssertivePriorityLine(idx: number, priorityLine: PriorityLineList): Guest {
+    const line = priorityLine.priorityLine.value;
     const removedGuest = line.splice(idx, 1)[0];
-    priorityLine.next(line);
+    
+    if(line.length === 0) {
+      const listIndex = this._priorityLine.value.findIndex((list) => priorityLine.gender === list.gender && priorityLine.language === list.language)
+      if(listIndex !== -1) {
+        const mainPL = this._priorityLine.value;
+        mainPL.splice(listIndex, 1);
+        this._priorityLine.next(mainPL);
+      }
+    } else {
+      priorityLine.priorityLine.next(line);
+    }
+
     return removedGuest;
   }
 
@@ -133,7 +141,7 @@ export class GuestsConnectionService {
     for(let line of this.priorityLine) {
       const guest = line.priorityLine.value.findIndex((guest) => guest.socketId === socketId )
 
-      if (guest >= 0) return { guest, priorityLine: line.priorityLine };
+      if (guest >= 0) return { guest, priorityLine: line };
     }
 
     return -1;
@@ -157,9 +165,21 @@ export class GuestsConnectionService {
   findProperPriorityList(guest: Guest) {
     const _$guest = guest.guest;
     
-    return this._priorityLine.value.find((list) => {
+    let priorityLine = this._priorityLine.value.find((list) => {
       return _$guest.gender === list.gender && _$guest.languages[0]?.title === list.language;
     });
+
+    if(priorityLine) return priorityLine;
+
+    priorityLine = {
+      gender: _$guest.gender,
+      language: _$guest.languages[0]?.title,
+      priorityLine: new BehaviorSubject<Guest[]>([])
+    }
+
+    this._priorityLine.next([...this._priorityLine.value, priorityLine]);
+
+    return priorityLine;
   }
 
   getRoomByGuestSocket(socketId: string) {
