@@ -147,11 +147,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('refuse-call')
   queueGuestReconnect(@MessageBody() body: { requeue?:boolean }, @ConnectedSocket() socket: Socket) {
-    // console.log(body, 'body');
+
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
-
-    // console.log('room-before', room);
 
     const guest = room.users.splice(0,1)[0];
     room.available = true;
@@ -161,8 +159,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
       this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
     }
-
-    // console.log('room-afer', room);
   }
 
   @SubscribeMessage('toggle-video-guest')

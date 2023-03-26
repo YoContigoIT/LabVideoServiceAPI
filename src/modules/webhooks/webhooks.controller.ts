@@ -9,7 +9,7 @@ import { RecordingsService } from '../recordings/recordings.service';
 import { OpenViduWebHookEvent, OpenViduWebHookEventTypes, RecordingStatusChangedStatusTypes } from './webhooks.interface';
 import { WebhooksService } from './webhooks.service';
 
-@ApiKeyType(ApiKey.PUBLIC)
+@ApiKeyType(ApiKey.SECRET)
 @UseGuards(ApiKeyGuard)
 @Controller('webhooks')
 export class WebhooksController {
