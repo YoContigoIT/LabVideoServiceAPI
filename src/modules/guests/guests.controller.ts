@@ -26,8 +26,10 @@ export class GuestsController {
   }
 
   @Get()
-  findAll(@Query() query: GetGuestsDto) {
-    this.awsService.exectPutObjectCommandInEC2Instance('ses_TRAGN386LE', 'ses_TRAGN386LE_test_test');
+  async findAll(@Query() query: GetGuestsDto) {
+    const listBuckets = await this.awsService.listBucketObjects();
+    console.log(listBuckets);
+    
     return this.guestsService.findAll(query);
   }
 

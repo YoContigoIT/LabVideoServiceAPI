@@ -81,7 +81,7 @@ export class AwsService {
                 // StartAfter: "STRING_VALUE",
                 // RequestPayer: "requester",
                 // ExpectedBucketOwner: "STRING_VALUE",
-            };
+            };            
 
             return await this.s3Client.send(new ListObjectsV2Command(input))
         } catch (err) {

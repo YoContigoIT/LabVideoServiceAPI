@@ -8,7 +8,7 @@ export default class {
             username: string;
             password: string;
             host: string;
-            port: number;
+            port: number | string;
             database: string;
         };
     };
@@ -28,6 +28,14 @@ export default class {
         port: number | string;
         secret: string;
         recordingPath: string;
+
+        ssh: {
+            host:string;
+            port: string | number;
+            username: string;
+            passphrase: string;
+            secretKeyDir: string;
+        }
     };
     aws: {
         region: string;

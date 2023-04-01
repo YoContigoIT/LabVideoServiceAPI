@@ -31,6 +31,6 @@ export default {
     openVidu: {
         host: process.env.OPEN_VIDU_HOST || "http://localhost",
         port: process.env.OPEN_VIDU_PORT || 4443,
-        secret: process.env.OPEN_VIDU_SECRET || ''
+        secret: process.env.OPEN_VIDU_SECRET || '',
     }
 } as enviroment;
