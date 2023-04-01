@@ -65,7 +65,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
     createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
 
-    const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as unknown as string);
+    const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
     if (!guest) throw new WsException('There is not any Guest with this UUID');
     
     const guestConnection = await this.guestsConnectionService.create(createGuestsConnectionDto);
@@ -75,12 +75,13 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       socketId: client.id,
       priority: createGuestsConnectionDto.priority,
       queueAt: new Date(),
-      guest: guest,
+      guest,
       guestConnectionId : guestConnection.id,
-      details: guestConnection.details
+      details: guestConnection.details,
+      guestConnection
     })
     
-    return guestConnection;
+    return { guestConnection, guest };
   }
 
   @SubscribeMessage('disconnect-call')

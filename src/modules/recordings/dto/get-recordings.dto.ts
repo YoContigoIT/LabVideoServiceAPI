@@ -40,5 +40,8 @@ export class GetRecordingsDto {
     direction?: string
 
     @IsOptional()
+    folio?: string
+
+    @IsOptional()
     active?: string
 }

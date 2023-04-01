@@ -16,7 +16,9 @@ import { Role } from '../auth/auth.interfaces';
 @UseGuards(AuthJWTGuard, RoleGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService
+  ) {}
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<HttpResponse> {

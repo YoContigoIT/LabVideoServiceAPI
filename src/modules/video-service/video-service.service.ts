@@ -67,7 +67,6 @@ export class VideoServiceService {
   async stopRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
     return await this.openVidu.stopRecording(recordingVideoServiceDto.sessionId)
       .then(function (response) {
-        // console.log(response);
         return response;
       })
       .catch(function (error) {

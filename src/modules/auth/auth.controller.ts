@@ -33,7 +33,7 @@ export class AuthController {
         }
     }
 
-    const payload = { displayname: userInfo.names + ' ' + userInfo.lastnames, email: userInfo.email, uuid: userInfo.uuid, role: userInfo.roleId.title };
+    const payload = { displayname: userInfo.names + ' ' + userInfo.lastnames, email: userInfo.email, uuid: userInfo.uuid, role: userInfo.roleId?.title  };
     const jwt = this.jwtService.sign(payload);
 
     return {

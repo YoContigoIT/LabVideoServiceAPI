@@ -16,12 +16,14 @@ export class WebhooksService {
     async uploadVideoToS3(sessionId : string, fileName: string) {
         const s3Key: string = `${fileName}_${Date.now()}`
         
-        const path = `${this.configService.get('openVidu.recordingPath')}/${fileName}/${fileName}.mp4`
+        // const path = `${this.configService.get('openVidu.recordingPath')}/${fileName}/${fileName}.mp4`
     
-        const fileStream = createReadStream(path);
-        console.log(s3Key, 'uploadVideoToS3-s3Keycc');
+        // const fileStream = createReadStream(path);
+        // console.log(s3Key, 'uploadVideoToS3-s3Keycc');
         
-        await this.awsService.sendObjectToS3(s3Key, fileStream);
+        // await this.awsService.sendObjectToS3(s3Key, fileStream);
+
+        await this.awsService.exectPutObjectCommandInEC2Instance(fileName, s3Key);
 
         this.recordingsService.updateURI(sessionId, { s3Key });
     }

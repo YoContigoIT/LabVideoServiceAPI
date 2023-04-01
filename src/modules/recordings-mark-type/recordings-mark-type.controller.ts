@@ -6,10 +6,13 @@ import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interfa
 import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
 import { RoleGuard } from '../auth/guard/role.guard';
-import { Role } from '../auth/auth.interfaces';
+import { ApiKey, Role } from '../auth/auth.interfaces';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
+import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
 
+@ApiKeyType(ApiKey.PUBLIC)
 @Roles(Role.ADMIN)
-@UseGuards(AuthJWTGuard, RoleGuard)
+@UseGuards(MultipleAuthorizeGuard)
 @Controller('recordings-mark-type')
 export class RecordingsMarkTypeController {
   constructor(private readonly recordingsMarkTypeService: RecordingsMarkTypeService) {}

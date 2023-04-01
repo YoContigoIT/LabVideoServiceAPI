@@ -17,26 +17,32 @@ export class WebhooksController {
     private readonly webhooksService: WebhooksService,
     private readonly recordingsService: RecordingsService,
     private readonly recordingsMarkService: RecordingMarkService,
+    private awsService: AwsService,
   ) {}
 
   @Post('/openvidu')
   async openvidu(@Body() eventData: OpenViduWebHookEvent, @Res() response: Response) {
     switch(eventData.event) {
       case OpenViduWebHookEventTypes.recordingStatusChanged:
-        console.log('===========================****===========================');
-        console.log(eventData);
+        // console.log('===========================****===========================');
+        // console.log(eventData);
         
-        if(eventData.status === RecordingStatusChangedStatusTypes.ready) {
-          this.webhooksService.uploadVideoToS3(eventData.sessionId, eventData.name);
-          
-          const recordingInfo = await this.recordingsService.insertDuration(eventData.sessionId,{ duration: eventData.duration } )
-          const seconds = this.recordingsMarkService.seconsToString(eventData.duration);
-          
-          this.recordingsMarkService.create({
-            markTime: seconds,
-            recordingMarkTypeId: '2',
-            recordingId: recordingInfo.id,
-          });
+        if(eventData.status === RecordingStatusChangedStatusTypes.ready) {  
+          try {
+            
+            this.webhooksService.uploadVideoToS3(eventData.sessionId, eventData.name);
+            
+            const recordingInfo = await this.recordingsService.insertDuration(eventData.sessionId,{ duration: eventData.duration } )
+            const seconds = this.recordingsMarkService.seconsToString(eventData.duration);
+            
+            this.recordingsMarkService.create({
+              markTime: seconds,
+              recordingMarkTypeId: '2',
+              recordingId: recordingInfo.id,
+            });
+          } catch (err) {
+            console.log(err);
+          }
         }
 
         return response.status(HttpStatus.OK).send(eventData);

@@ -58,7 +58,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     if (room.sessionId){
       const OVSession = this.videoServiceService.getSessionById(room.sessionId);
 
-      if(OVSession.activeConnections.length) OVSession.close();
+      if(OVSession?.connections.length) OVSession.close();
       return;
     }
 
@@ -87,10 +87,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       uuid: agent.uuid,
       socketId: client.id,
       agentConnectionId: agentConnection.id,
-      agent: agent
+      agent
     });
 
-    return agentConnection;
+    return { agentConnection, agent };
   }
 
   guestInRoom(room: Room, guest: Guest) {
@@ -131,6 +131,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
         socket.emit('video-ready', {
           token: connection.token,
           connectionId: connection.connectionId,
+          agent: {
+            name: room.host.agent.fullName,
+            role: room.host.agent.role.title
+          }
         })
       }
     });
@@ -178,4 +182,24 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       this.server.in(room.name).to(user.socketId).emit('mute-audio', {toggleAudio: toggleAudioGuestData});
     })
   }
+
+  @SubscribeMessage('close-video-call')
+  closeVideoCall(@ConnectedSocket() client: Socket) {
+    const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+
+    if (room.sessionId){
+      const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+      if(OVSession?.connections.length) OVSession.close();
+    }
+
+    const guest = room.users.splice(0,1)[0];
+    room.sessionId = undefined;
+    room.available = true;
+    this.agentsConnectionService.updateRoom(room.name, room);
+
+    this.server.in(room.name).to(guest.socketId).emit('disconnect-guest', 'disconnect from server');
+
+    return room;
+  }
+
 }

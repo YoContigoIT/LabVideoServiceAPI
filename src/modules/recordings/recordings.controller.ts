@@ -6,10 +6,13 @@ import { GetRecordingsDto } from './dto/get-recordings.dto';
 import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
 import { RoleGuard } from '../auth/guard/role.guard';
-import { Role } from '../auth/auth.interfaces';
+import { ApiKey, Role } from '../auth/auth.interfaces';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
+import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
 
+@ApiKeyType(ApiKey.PUBLIC)
 @Roles(Role.ADMIN)
-@UseGuards(AuthJWTGuard, RoleGuard)
+@UseGuards(MultipleAuthorizeGuard)
 @Controller('recordings')
 export class RecordingsController {
   constructor(private readonly recordingsService: RecordingsService) {}
@@ -23,6 +26,12 @@ export class RecordingsController {
   @Get()
   findAll(@Query() query: GetRecordingsDto) {
     return this.recordingsService.findAll(query);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/folio/:folio')
+  findAllByFolio(@Param('folio') folio: string) {
+    return this.recordingsService.findAllByFolio(folio);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

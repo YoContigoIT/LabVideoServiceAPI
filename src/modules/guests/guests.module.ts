@@ -8,6 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ApiKeyGuard } from '../auth/guard/apikey.guard';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
 import { RoleGuard } from '../auth/guard/role.guard';
+import { AwsService } from 'src/services/aws/aws.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { RoleGuard } from '../auth/guard/role.guard';
     AuthModule,
   ],
   controllers: [GuestsController],
-  providers: [GuestsService, RoleGuard, AuthJWTGuard, ApiKeyGuard],
+  providers: [GuestsService, RoleGuard, AuthJWTGuard, ApiKeyGuard, AwsService],
   exports: [GuestsService],
 })
 export class GuestsModule {}

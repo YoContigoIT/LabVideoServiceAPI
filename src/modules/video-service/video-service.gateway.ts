@@ -5,10 +5,10 @@ import { RecordingVideoServiceDto } from "./dto/create-video-service.dto";
 import { RecordingMarkService } from "src/modules/recording-mark/recording-mark.service";
 import { CreateRecordingMarkDto } from "src/modules/recording-mark/dto/create-recording-mark.dto";
 import { ApiKeyType } from "src/utilities/decorators/apiKeyType.decorator";
-import { UseGuards } from "@nestjs/common";
+import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { ApiKeyGuard } from "../auth/guard/apikey.guard";
 import { ApiKey } from "../auth/auth.interfaces";
-
+import { AgentsConnectionService } from '../agents-connection/agents-connection.service';
 @ApiKeyType(ApiKey.PUBLIC)
 @UseGuards(ApiKeyGuard)
 @WebSocketGateway({
@@ -23,6 +23,8 @@ export class VideoServiceGateway {
     constructor(
         private videoServiceService: VideoServiceService,
         private recordingMarkService: RecordingMarkService,
+        @Inject(forwardRef(() => AgentsConnectionService))
+        private agentsConnectionService: AgentsConnectionService
     ) {}
 
     @SubscribeMessage('start-recording')
@@ -30,14 +32,25 @@ export class VideoServiceGateway {
         const videoRecording = await this.videoServiceService.startRecording(recordingVideoServiceDto);
         return videoRecording;
     }
-
+    
     @SubscribeMessage('stop-recording')
     stopRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {        
         return this.videoServiceService.stopRecording(recordingVideoServiceDto);
     }
-
+    
     @SubscribeMessage("mark-recording")
-    marksRecording(@MessageBody() createRecordingMarkDto: CreateRecordingMarkDto) {
+    marksRecording(@MessageBody() createRecordingMarkDto: CreateRecordingMarkDto, @ConnectedSocket() client: Socket) {
+        
+        const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+        if (createRecordingMarkDto.recordingMarkTypeId === '3') {
+            // Start recording MARK type
+            this.server.in(room.name).emit('recording-status', { isRecording: true});
+
+        } else if (createRecordingMarkDto.recordingMarkTypeId === '4') {
+            // Stop recording MARK type
+            this.server.in(room.name).emit('recording-status', { isRecording: false });
+        }
+        
         return this.recordingMarkService.create(createRecordingMarkDto);
     }
 }

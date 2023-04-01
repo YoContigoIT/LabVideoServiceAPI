@@ -8,13 +8,17 @@ import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
 import { ApiKey, Role } from '../auth/auth.interfaces';
 import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
+import { AwsService } from 'src/services/aws/aws.service';
 
 @ApiKeyType(ApiKey.SECRET)
 @Roles(Role.ADMIN)
 @UseGuards(MultipleAuthorizeGuard)
 @Controller('guests')
 export class GuestsController {
-  constructor(private readonly guestsService: GuestsService) {}
+  constructor(
+    private readonly guestsService: GuestsService,
+    private awsService: AwsService,
+  ) {}
 
   @Post()
   create(@Body() createGuestDto: CreateGuestDto): Promise<CreateGuestDto> {
@@ -23,6 +27,7 @@ export class GuestsController {
 
   @Get()
   findAll(@Query() query: GetGuestsDto) {
+    this.awsService.exectPutObjectCommandInEC2Instance('ses_TRAGN386LE', 'ses_TRAGN386LE_test_test');
     return this.guestsService.findAll(query);
   }
 

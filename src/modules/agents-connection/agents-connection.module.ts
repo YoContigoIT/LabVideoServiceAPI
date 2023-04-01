@@ -23,13 +23,13 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([AgentsConnection]),
     UsersModule,
-    VideoServiceModule,
     CallRecordsModule,
     RecordingsModule,
     RecordingMarkModule,
     AgentModule,
     AuthModule,
-    forwardRef(() => GuestsConnectionModule)
+    forwardRef(() => GuestsConnectionModule),
+    forwardRef(() => VideoServiceModule),
   ],
   controllers: [AgentsConnectionController],
   providers: [AgentsConnectionService, AgentsConnectionGateway],

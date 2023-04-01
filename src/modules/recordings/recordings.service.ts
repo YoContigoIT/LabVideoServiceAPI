@@ -130,6 +130,51 @@ export class RecordingsService {
     return paginatorResponse(data, page, take);
   }
 
+  async findAllByFolio(folio: string) {
+    const where: FindOptionsWhere<Recording> = {}
+
+
+    where.callRecordId = {
+      guestConnectionId: {
+        folio: Like(`%${folio}%`)
+      }
+    }
+  
+    const data = await this.recordingRepository.find({
+      relations: {
+        callRecordId: {
+          agentConnectionId: {
+            agent: true
+          },
+          guestConnectionId: {
+            // guest: true
+          }
+        }
+      },
+      where
+    });
+
+    const _data = [];
+
+    for(let recording of data) {
+      try {
+        console.log(recording);
+  
+        if(!recording.deleteAt){
+          recording['url'] = await this.awsService.getSignedURL(`${recording.uri}.mp4`);
+        }
+      } catch (err) {
+        
+        console.warn(err);
+      } finally {
+        _data.push(recording)
+      }
+
+    }
+
+    return _data;
+  }
+
   async findOne(id: string) {
     const recording = await this.recordingRepository.findOne({
       where: { id },
@@ -141,7 +186,7 @@ export class RecordingsService {
     try {
 
       if(!recording.deleteAt){
-        recording.uri = await this.awsService.getSignedURL(recording.uri);
+        recording.uri = await this.awsService.getSignedURL(`${recording.uri}.mp4`);
       }
     } catch (err) {
       console.warn(err);

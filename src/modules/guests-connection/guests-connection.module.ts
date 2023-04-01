@@ -15,7 +15,7 @@ import { AuthModule } from '../auth/auth.module';
     TypeOrmModule.forFeature([GuestsConnection]),
     forwardRef(() => AgentsConnectionModule),
     GuestsModule,
-    VideoServiceModule,
+    forwardRef(() => VideoServiceModule),
     LanguagesModule,
     AuthModule,
   ],
