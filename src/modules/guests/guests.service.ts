@@ -65,13 +65,16 @@ export class GuestsService {
   async updateGuest(uuid: string, updateGuestDto: UpdateGuestDto) {
     let agent = await this.guestRepository.findOne({ where: {uuid}});  
     
-    const languages: Language[] = [];
-    for(let language of updateGuestDto.languages) { 
-      languages.push(await this.languagesService.findOne(language.toString()))
+    if (updateGuestDto.languages) {
+
+      const languages: Language[] = [];
+      for(let language of updateGuestDto.languages) { 
+        languages.push(await this.languagesService.findOne(language.toString()))
+      }
+ 
+      agent.languages = languages;
+      delete updateGuestDto.languages;
     }
-    
-    agent.languages = languages;
-    delete updateGuestDto.languages;
     const response = await this.guestRepository.save({...agent, ...updateGuestDto})
 
     return this.parseAffeceRowToHttpResponse(response.uuid ? 1 : 0);

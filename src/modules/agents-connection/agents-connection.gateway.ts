@@ -21,6 +21,7 @@ import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { ApiKeyType } from "src/utilities/decorators/apiKeyType.decorator";
 import { ApiKeyGuard } from "../auth/guard/apikey.guard";
 import { ApiKey } from "../auth/auth.interfaces";
+import { RefuseCallDto } from "./dto/refuse-call.dto";
 
 @ApiKeyType(ApiKey.PUBLIC)
 @UseGuards(ApiKeyGuard)
@@ -150,7 +151,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   @SubscribeMessage('refuse-call')
-  queueGuestReconnect(@MessageBody() body: { requeue?:boolean }, @ConnectedSocket() socket: Socket) {
+  queueGuestReconnect(@MessageBody() body: RefuseCallDto, @ConnectedSocket() socket: Socket) {
 
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
@@ -159,10 +160,15 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
 
-    if(body.requeue) {
-      const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
-      this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+    console.log(body);
+    
+
+    const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
+    this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+    if(body?.requeue) {
     }
+
+    return { success: true };
   }
 
   @SubscribeMessage('toggle-video-guest')

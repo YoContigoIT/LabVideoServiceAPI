@@ -39,13 +39,15 @@ export class AgentService {
   async updateAgent(uuid: string, updateAgentDto: UpdateAgentDto) {
     let agent = await this.agentRepository.findOne({ where: {uuid}});  
     
-    const languages: Language[] = [];
-    for(let language of updateAgentDto.languages) { 
-      languages.push(await this.languagesService.findOne(language.toString()))
+    if (updateAgentDto.languages) {
+
+      const languages: Language[] = [];
+      for(let language of updateAgentDto.languages) { 
+        languages.push(await this.languagesService.findOne(language.toString()))
+      } 
+      agent.languages = languages;
+      delete updateAgentDto.languages;
     }
-    
-    agent.languages = languages;
-    delete updateAgentDto.languages;
     const response = await this.agentRepository.save({...agent, ...updateAgentDto})
       
     return parseAffeceRowToHttpResponse(response.uuid ? 1 : 0);
