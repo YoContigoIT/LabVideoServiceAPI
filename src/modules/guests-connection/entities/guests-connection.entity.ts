@@ -15,7 +15,7 @@ export class GuestsConnection {
     endTimeConnection: Date
 
     @Column({ nullable: true })
-    answer: string
+    answer: Date
 
     @Column()
     priority: string

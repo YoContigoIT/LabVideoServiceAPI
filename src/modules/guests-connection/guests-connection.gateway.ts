@@ -49,7 +49,13 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
         return;
       }
 
-      if(OVSession.activeConnections.length) OVSession.close();
+      if(OVSession.activeConnections.length) {
+        OVSession.close()
+        if (room.users[0].guestConnectionId) {
+          this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, { endTimeConnection: new Date()})
+        }
+
+      };
       return;
     }
 
@@ -86,6 +92,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('disconnect-call')
   updateGuestConnection(@MessageBody() id: string) {
-    return this.guestsConnectionService.updateGuestConnection(id);
+    return this.guestsConnectionService.updateGuestConnection(id, {
+      endTimeConnection: new Date()
+    });
   }
 }

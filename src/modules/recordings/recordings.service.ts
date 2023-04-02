@@ -158,7 +158,6 @@ export class RecordingsService {
 
     for(let recording of data) {
       try {
-        console.log(recording);
   
         if(!recording.deleteAt){
           recording['url'] = await this.awsService.getSignedURL(`${recording.uri}.mp4`);

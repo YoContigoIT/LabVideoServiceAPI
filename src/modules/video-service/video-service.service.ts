@@ -79,7 +79,7 @@ export class VideoServiceService {
     try {
       return this.openVidu.activeSessions.find((session) => session.sessionId === sessionId);
     } catch (error) {
-      console.log(error);
+      console.warn(error);
     }
   }
 

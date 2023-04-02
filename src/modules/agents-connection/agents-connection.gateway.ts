@@ -60,6 +60,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       const OVSession = this.videoServiceService.getSessionById(room.sessionId);
 
       if(OVSession?.connections.length) OVSession.close();
+
+      if (room.users.length) {
+        this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
+          endTimeConnection: new Date()
+        });
+        const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
+        if(callRecordId) this.callRecordService.update(callRecordId.id);
+      }
       return;
     }
 
@@ -67,7 +75,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
-    await this.callRecordService.update(room.host.agentConnectionId);
   }
   
   @SubscribeMessage('connect-agent')
@@ -105,6 +112,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const connection = await this.videoServiceService.createConnection(session, {});
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+
+    if (room.users.length) {
+      this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
+        answer: new Date()
+      });
+    }
     
     const callRecordInfo = await this.callRecordService.create({
       agentConnectionId : room.host.agentConnectionId as any,
@@ -159,10 +172,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const guest = room.users.splice(0,1)[0];
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
-
-    console.log(body);
     
-
     const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
     this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
     if(body?.requeue) {
@@ -190,8 +200,17 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   @SubscribeMessage('close-video-call')
-  closeVideoCall(@ConnectedSocket() client: Socket) {
+  async closeVideoCall(@ConnectedSocket() client: Socket) {
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+
+    if(room.users.length) {
+      this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
+        endTimeConnection: new Date()
+      });
+      const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
+      if(callRecordId) this.callRecordService.update(callRecordId.id);
+    }
+
 
     if (room.sessionId){
       const OVSession = this.videoServiceService.getSessionById(room.sessionId);

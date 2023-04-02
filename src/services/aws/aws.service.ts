@@ -85,7 +85,7 @@ export class AwsService {
 
             return await this.s3Client.send(new ListObjectsV2Command(input))
         } catch (err) {
-            console.log(err);
+            console.warn(err);
         }
     }
 
@@ -94,17 +94,17 @@ export class AwsService {
         try {
             const connection = new Client();
             connection.on('ready', () => {
-                console.log('Connection :: ready');
+                // console.log('Connection :: ready');
                 connection.shell((err, stream) => {
                     if (err) throw err;
                     
                     stream
                     .on('close', () => {
-                      console.log('Connection :: close');
+                    //   console.log('Connection :: close');
                       connection.end();
                     })
                     .on('data', (data) => {
-                      console.log('OUTPUT: ' + data);
+                    //   console.log('OUTPUT: ' + data);
                     });
                     
                     stream.end(
@@ -122,7 +122,7 @@ export class AwsService {
                 privateKey: readFileSync(`certs/${this.configService.get<string>('openVidu.ssh.secretKeyDir')}`),
             })
         } catch (err) {
-            console.log(err);
+            console.warn(err);
         }
     }
 }

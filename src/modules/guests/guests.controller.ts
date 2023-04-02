@@ -27,9 +27,6 @@ export class GuestsController {
 
   @Get()
   async findAll(@Query() query: GetGuestsDto) {
-    const listBuckets = await this.awsService.listBucketObjects();
-    console.log(listBuckets);
-    
     return this.guestsService.findAll(query);
   }
 

@@ -66,7 +66,7 @@ export class CallRecordsService {
     return `This action returns a #${id} callRecord`;
   }
 
-  async update(id: string) {
+  async update(id: number) {
     const callRecordData = {
       sessionFinishedAt: new Date()
     }
@@ -83,5 +83,15 @@ export class CallRecordsService {
 
   remove(id: number) {
     return `This action removes a #${id} callRecord`;
+  }
+
+  findCallRecordByGuestConnectionId(id: string) {
+    return this.callRecordRepository.findOne({
+      where: {
+        guestConnectionId: {
+          id
+        }
+      }
+    })
   }
 }

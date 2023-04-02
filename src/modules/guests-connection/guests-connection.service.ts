@@ -104,19 +104,13 @@ export class GuestsConnectionService {
     return this.guestConnectionRepository.save(createGuestsConnectionDto); 
   }
 
-  async updateGuestConnection(id: string) {
-    const guestConnectionData = {
-      endTimeConnection: new Date()
-    }
-
-    const response = await this.guestConnectionRepository
+  updateGuestConnection(id: string, guestConnectionData: Partial<GuestsConnection>) {
+    return this.guestConnectionRepository
       .createQueryBuilder()
       .update(GuestsConnection)
       .set(guestConnectionData)
       .where('id = :id', { id })
       .execute();
-
-    return parseAffeceRowToHttpResponse(response.affected);
   }
 
   removeGuestFromAssertivePriorityLine(idx: number, priorityLine: PriorityLineList): Guest {

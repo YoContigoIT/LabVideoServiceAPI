@@ -41,7 +41,7 @@ export class WebhooksController {
               recordingId: recordingInfo.id,
             });
           } catch (err) {
-            console.log(err);
+            console.warn(err);
           }
         }
 

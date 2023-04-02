@@ -4,8 +4,6 @@ import { CreateRecordingsMarkTypeDto } from './dto/create-recordings-mark-type.d
 import { UpdateRecordingsMarkTypeDto } from './dto/update-recordings-mark-type.dto';
 import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 import { Roles } from 'src/utilities/decorators/roles.decorator';
-import { AuthJWTGuard } from '../auth/guard/auth.guard';
-import { RoleGuard } from '../auth/guard/role.guard';
 import { ApiKey, Role } from '../auth/auth.interfaces';
 import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
 import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
