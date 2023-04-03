@@ -31,7 +31,7 @@ export class AwsService {
 
         try {            
             const data = await this.s3Client.send(new PutObjectCommand(uploadParams));
-            console.log('AWS S3 Success', data);
+            // console.log('AWS S3 Success', data);
 
             return data;
         } catch (err) {

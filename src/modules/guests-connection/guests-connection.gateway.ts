@@ -37,9 +37,20 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   async handleDisconnect(socket: Socket) {
+    console.count("GUEST handleDisconnect");
+
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
-    
+
     if (room) {
+      this.server.to(room.host.socketId).emit('guest-disconnected');
+    } else {
+      const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
+      if (guestIdx !== -1) { 
+        this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
+      }
+    }
+    
+    if (false) {
       this.guestsConnectionService.updateRoomGuest(room);
       this.agentsConnectionService.removeGuestFromRoomBySocket(socket.id);
       const OVSession = this.videoServiceService.getSessionById(room.sessionId)
@@ -58,22 +69,43 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       };
       return;
     }
-
-    // TODO: if esta pendiente de contestar el agente y se desconecta el guest mandar evento de llamada cancelada o algo así.$
-    
-    const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
-    if (guestIdx !== -1) { 
-      this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
-    }
   }
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
-    createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
-
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
     if (!guest) throw new WsException('There is not any Guest with this UUID');
-    
+
+    if (createGuestsConnectionDto.sessionId) {
+
+      const session = this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
+
+      if(session) {
+        try {
+          console.log(session)
+          const connection = await this.videoServiceService.createConnection(session.session, {});
+          console.log("Video-ready", connection.token);
+          const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
+          
+          client.emit('video-ready', {
+            token: connection.token,
+            connectionId: connection.connectionId,
+            sessionId: session.session.sessionId,
+            agent: {
+              name: session.room.host.agent.fullName,
+              role: session.room.host.agent.role.title
+            }
+          });
+          
+          return { guest, guestConnection };
+        } catch (err) {
+          console.warn(err);
+        }
+      }
+    }
+
+    createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
+
     const guestConnection = await this.guestsConnectionService.create(createGuestsConnectionDto);
 
     await this.guestsConnectionService.addGuestToPriorityLine({

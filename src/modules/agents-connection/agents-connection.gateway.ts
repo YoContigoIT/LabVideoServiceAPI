@@ -9,11 +9,9 @@ import { Room } from "./agents-connection.interface";
 import { getUuidv4 } from "src/utilities/helpers";
 import { VideoServiceService } from "src/modules/video-service/video-service.service";
 import { CreateVideoServiceDto } from "src/modules/video-service/dto/create-video-service.dto";
-import { CreateCallRecordDto } from "src/modules/call_records/dto/create-call_record.dto";
 import { CallRecordsService } from "src/modules/call_records/call_records.service";
 import { RecordingsService } from "src/modules/recordings/recordings.service";
 import { RecordingMarkService } from "src/modules/recording-mark/recording-mark.service";
-import { RecordingsMarkTypeSeeder } from "../../seeder/recordingMarksType.seeder";
 import { AgentService } from "../agent/agent.service";
 import { CallRecord } from "../call_records/entities/call_record.entity";
 import { GuestsConnectionService } from "../guests-connection/guests-connection.service";
@@ -38,7 +36,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private agentsConnectionService: AgentsConnectionService,
     @Inject(forwardRef(() => GuestsConnectionService))
     private guestsConnectionService: GuestsConnectionService,
-    private usersService: UsersService,
     private videoServiceService: VideoServiceService,
     private callRecordService: CallRecordsService,
     private recordingService: RecordingsService,
@@ -136,22 +133,23 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     });    
 
     if (!room) return;
-    const sockets = await this.server.in(room.name).fetchSockets()    
 
-    sockets.forEach(async socket => {
-      if(socket.id !== client.id) {
+    room.users?.forEach(async user => {
         const connection = await this.videoServiceService.createConnection(session, {});
         
-        socket.emit('video-ready', {
+        this.server.to(user.socketId).emit('video-ready', {
           token: connection.token,
           connectionId: connection.connectionId,
+          sessionId: session.sessionId,
           agent: {
             name: room.host.agent.fullName,
             role: room.host.agent.role.title
           }
-        })
+        });
+
+        this.guestsConnectionService.updateGuestConnection(user.guestConnectionId, { sessionId: session.sessionId });
       }
-    });
+    );
 
     this.agentsConnectionService.updateSessionIdOnRoom(session.sessionId, room.name);
 
@@ -173,9 +171,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
     
-    const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
-    this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+    
     if(body?.requeue) {
+      const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
+      this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
+    } else {
+      this.server.to(guest.socketId).emit('disconnect-guest', { reason: 'CALL_REFUSED'});
     }
 
     return { success: true };
@@ -203,7 +204,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async closeVideoCall(@ConnectedSocket() client: Socket) {
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
 
-    if(room.users.length) {
+    if (!room) return room;    
+
+    if(room.users?.length) {
       this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
         endTimeConnection: new Date()
       });
@@ -217,13 +220,13 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       if(OVSession?.connections.length) OVSession.close();
     }
 
-    const guest = room.users.splice(0,1)[0];
+    room.users?.forEach(user => {
+      this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
+    })
+    room.users = [];
     room.sessionId = undefined;
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
-
-    this.server.in(room.name).to(guest.socketId).emit('disconnect-guest', 'disconnect from server');
-
     return room;
   }
 

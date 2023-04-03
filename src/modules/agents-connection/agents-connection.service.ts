@@ -52,7 +52,10 @@ export class AgentsConnectionService {
   updateSessionIdOnRoom(sessionId: string, roomName: string) {
     const roomIndex = this.getRoomByName(roomName);
     if (roomIndex != -1) {
-      this.rooms[roomIndex].sessionId = sessionId;
+      const room = this.rooms[roomIndex];
+      room.sessionId = sessionId;
+
+      this.updateRoom(room.name, room);
     }
   }
 
@@ -160,4 +163,7 @@ export class AgentsConnectionService {
 
   // Utilities  
   
+  findRoomBySessionId(sessionId: string) {
+    return this.rooms.find(room => room.sessionId === sessionId);
+  }
 }

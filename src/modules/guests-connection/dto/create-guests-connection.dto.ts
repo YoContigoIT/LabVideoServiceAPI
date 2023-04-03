@@ -33,4 +33,7 @@ export class CreateGuestsConnectionDto {
 
     @IsOptional()
     details: JSON
+
+    @IsOptional()
+    sessionId?: string;
 }

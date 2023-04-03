@@ -11,6 +11,7 @@ import { Room } from 'src/modules/agents-connection/agents-connection.interface'
 import { LanguagesService } from '../languages/languages.service';
 import { Language } from '../languages/entities/language.entity';
 import { parseAffeceRowToHttpResponse, shuffleArray } from 'src/utilities/helpers';
+import { VideoServiceService } from '../video-service/video-service.service';
 
 type PriorityLineList = {
   gender: string;
@@ -36,7 +37,7 @@ export class GuestsConnectionService {
     private agentsConnectionService: AgentsConnectionService,
     @Inject(forwardRef(() => AgentsConnectionGateway))
     private agentsConnectionGateway: AgentsConnectionGateway,
-    private languagesService: LanguagesService
+    private videoService: VideoServiceService,
   ) {
       this.checkRoomsAvailability();
 
@@ -193,4 +194,18 @@ export class GuestsConnectionService {
     return this._priorityLine.value;
   }
   
+  getSessionToReconnect(sessionId: string) {
+    const room = this.agentsConnectionService.findRoomBySessionId(sessionId);
+    if (!room) return false;
+
+    return {session : this.videoService.getSessionById(sessionId), room };
+  }
+
+  findGuestConnectionBySessionId(sessionId: string) {
+    return this.guestConnectionRepository.findOne({
+      where: {
+        sessionId
+      }
+    })
+  }
 }

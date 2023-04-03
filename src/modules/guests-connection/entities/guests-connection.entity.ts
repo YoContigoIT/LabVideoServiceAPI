@@ -49,4 +49,7 @@ export class GuestsConnection {
     @Column('json', { nullable: true })
     @IsJSON()
     details?: any
+
+    @Column({ nullable: true})
+    sessionId?: string
 }   

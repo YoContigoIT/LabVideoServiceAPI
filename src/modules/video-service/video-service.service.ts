@@ -82,20 +82,4 @@ export class VideoServiceService {
       console.warn(error);
     }
   }
-
-  findAll() {
-    return `This action returns all videoService`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} videoService`;
-  }
-
-  update(id: number, updateVideoServiceDto: UpdateVideoServiceDto) {
-    return `This action updates a #${id} videoService`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} videoService`;
-  }
 }
