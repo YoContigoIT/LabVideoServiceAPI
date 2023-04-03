@@ -37,7 +37,6 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   async handleDisconnect(socket: Socket) {
-    console.count("GUEST handleDisconnect");
 
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
 
@@ -82,24 +81,34 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
       if(session) {
         try {
-          console.log(session)
           const connection = await this.videoServiceService.createConnection(session.session, {});
-          console.log("Video-ready", connection.token);
           const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
+
+          const room = this.agentsConnectionService.findRoomBySessionId(createGuestsConnectionDto.sessionId);
           
-          client.emit('video-ready', {
-            token: connection.token,
-            connectionId: connection.connectionId,
-            sessionId: session.session.sessionId,
-            agent: {
-              name: session.room.host.agent.fullName,
-              role: session.room.host.agent.role.title
-            }
-          });
+          const user = room.users?.findIndex(user => user.guest.uuid === (createGuestsConnectionDto.uuid as any));
+
           
-          return { guest, guestConnection };
+          if (user != -1) {
+            
+            client.emit('video-ready', {
+              token: connection.token,
+              connectionId: connection.connectionId,
+              sessionId: session.session.sessionId,
+              agent: {
+                name: session.room.host.agent.fullName,
+                role: session.room.host.agent.role.title
+              }
+            });
+
+            room.users[user].socketId = client.id;
+
+
+            this.agentsConnectionService.updateRoom(room.name, room);
+            return { guest, guestConnection };
+          }
         } catch (err) {
-          console.warn(err);
+          // console.warn(err);
         }
       }
     }

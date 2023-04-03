@@ -162,7 +162,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   @SubscribeMessage('refuse-call')
-  queueGuestReconnect(@MessageBody() body: RefuseCallDto, @ConnectedSocket() socket: Socket) {
+  queueGuestReconnect(@MessageBody() refuseCallDto: RefuseCallDto, @ConnectedSocket() socket: Socket) {
 
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
@@ -171,8 +171,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
     
+    console.log({refuseCallDto});
     
-    if(body?.requeue) {
+    if(refuseCallDto?.requeue) {
       const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
       this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
     } else {
@@ -189,6 +190,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.users.forEach(user => {
       this.server.in(room.name).to(user.socketId).emit('mute-video', {toggleVideo : toggleVideoGuestData});
     })
+
+    return toggleVideoGuestData;
   }
 
   @SubscribeMessage('toggle-audio-guest')
@@ -198,6 +201,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.users.forEach(user => {
       this.server.in(room.name).to(user.socketId).emit('mute-audio', {toggleAudio: toggleAudioGuestData});
     })
+
+    return toggleAudioGuestData;
   }
 
   @SubscribeMessage('close-video-call')
