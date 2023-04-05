@@ -8,7 +8,6 @@ export class AppController {
 
   @Get()
   initialPage(@Res() response: Response, @Req() request: Request) {
-    console.log(request.headers['user-agent']);
     if(request.headers['user-agent'] === "ELB-HealthChecker/2.0") {
       return response.status(HttpStatus.OK).send('Video Service API OK!');
     }

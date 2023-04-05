@@ -109,6 +109,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('connect-call')
   async connectCall(@MessageBody() createVideoServiceDto: CreateVideoServiceDto, @ConnectedSocket() client: Socket) {
     const session = await this.videoServiceService.createSession(createVideoServiceDto);
+    
     const connection = await this.videoServiceService.createConnection(session, {});
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
@@ -210,7 +211,10 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('close-video-call')
   async closeVideoCall(@ConnectedSocket() client: Socket) {
+    console.log("ENTRANDO A close-video-call")
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
+    console.log('ROOM', room);
+    
 
     if (!room) return room;    
 
@@ -225,9 +229,13 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     if (room.sessionId){
       const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+      console.log(OVSession, 'OV');
+      
       if(OVSession?.connections.length) OVSession.close();
     }
 
+    console.log('ROOM USERS ---->', room.users);
+    
     room.users?.forEach(user => {
       this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })

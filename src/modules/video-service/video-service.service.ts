@@ -31,10 +31,17 @@ export class VideoServiceService {
         frameRate: settings.openViduRecordingFrameRate,
       }
     };
-    const createSession = await this.openVidu.createSession({
-      ...this.sessionProperties,
-      ...sessionProperties,
-    });
+
+    let createSession;
+    try {
+
+      createSession = await this.openVidu.createSession({
+        ...this.sessionProperties,
+        ...sessionProperties,
+      });
+    } catch (error) {      
+      console.warn(error);
+    }
     return createSession;
   }
 
@@ -43,10 +50,15 @@ export class VideoServiceService {
     this.connectionProperties = {
       record: settings.openViduRecord
     }
-    return await session.createConnection({
-      ...this.connectionProperties,
-      ...connectionProperties,
-    });
+
+    try {
+      return await session.createConnection({
+        ...this.connectionProperties,
+        ...connectionProperties,
+      });
+    } catch (error) {
+      return null;
+    }
   }
 
   getSessions() {

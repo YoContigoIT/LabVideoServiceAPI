@@ -66,9 +66,12 @@ export class GuestsConnectionService {
       availableRooms = shuffleArray(availableRooms);
 
       console.log('availableRooms', availableRooms);
+
+      
       
       
       for(let [index, line] of this.priorityLine.entries()) {
+        console.log(line.priorityLine.value);
         if (!line.priorityLine.value.length) break;
 
         const guest = this.removeGuestFromAssertivePriorityLine(0, line);

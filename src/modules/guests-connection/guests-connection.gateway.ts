@@ -75,6 +75,9 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
     if (!guest) throw new WsException('There is not any Guest with this UUID');    
 
+    console.log(createGuestsConnectionDto);
+    
+
     if (createGuestsConnectionDto.sessionId) {
 
       const session = this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
