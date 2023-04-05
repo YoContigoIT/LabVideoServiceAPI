@@ -4,6 +4,8 @@
 
 FROM --platform=linux/amd64 node:18-alpine As PRODUCTION
 
+RUN apk add dumb-init
+
 RUN npm install -g ts-node @nestjs/cli 
 
 WORKDIR /usr/src/api
@@ -20,4 +22,4 @@ RUN npm run build
 
 COPY ./src/utilities/env ./dist/env
 
-CMD [ "dumb-init", "NODE_ENV=production", "node", "dist/main" ]
+CMD [ "dumb-init", "npm", "run", "start:prod" ]
