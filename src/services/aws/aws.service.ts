@@ -109,7 +109,7 @@ export class AwsService {
                     
                     stream.end(
                         `
-                            sh /opt/openvidu/push_recording_s3.sh -n ${fileName} -k ${key} -b ${this.configService.get<string>('aws.s3.bucket')}\n
+                            sh /opt/openvidu/push_recording_s3.sh -n ${fileName} -k ${key} -b ${this.configService.get<string>('aws.s3.uploadBucket')}\n
                             exit\n
                         `
                     );

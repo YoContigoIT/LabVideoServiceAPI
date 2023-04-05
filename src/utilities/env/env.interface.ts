@@ -41,6 +41,7 @@ export default class {
         region: string;
         s3: {
             bucket: string;
+            uploadBucket: string;
         }
     }
 }
