@@ -81,6 +81,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const agent = await this.agentsService.findOne(createAgentsConnectionDto.agent as any);
     if (!agent) throw new WsException('There is not any Agent with this UUID');
 
+    const room = this.agentsConnectionService.getRoomByAgentUUID(createAgentsConnectionDto.agent as any);
+    if (room) throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
+
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
 
     // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
@@ -111,7 +114,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
 
     if (room.users.length) {
-      this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
+      await this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
         answer: new Date()
       });
     }

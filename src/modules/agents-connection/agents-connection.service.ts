@@ -118,6 +118,10 @@ export class AgentsConnectionService {
     return this.rooms.find((room) => room.users.findIndex((user) => user.socketId === socketId) !== -1);
   }
 
+  getRoomByAgentUUID(uuid: string) {
+    return this.rooms.find((room) => room.host.uuid === uuid);
+  }
+
   removeGuestFromRoomBySocket(socketId: string) {
     const room = this.getRoomByGuestSocket(socketId);
     if (!room) return;

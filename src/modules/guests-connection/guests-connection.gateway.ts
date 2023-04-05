@@ -73,7 +73,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
-    if (!guest) throw new WsException('There is not any Guest with this UUID');
+    if (!guest) throw new WsException('There is not any Guest with this UUID');    
 
     if (createGuestsConnectionDto.sessionId) {
 

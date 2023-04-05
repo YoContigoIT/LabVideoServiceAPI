@@ -65,6 +65,9 @@ export class GuestsConnectionService {
       if (!availableRooms.length) return;
       availableRooms = shuffleArray(availableRooms);
 
+      console.log('availableRooms', availableRooms);
+      
+      
       for(let [index, line] of this.priorityLine.entries()) {
         if (!line.priorityLine.value.length) break;
 
@@ -81,6 +84,7 @@ export class GuestsConnectionService {
 
         availableRoom.users.push(guest);
         availableRoom.available = false;
+        
 
         const pl = this.priorityLine;
         
@@ -150,7 +154,6 @@ export class GuestsConnectionService {
     return undefined;
   }
   
-  // TODO: Manage priority rules
   addGuestToPriorityLine(guest: Guest): any {
     const priorityLine = this.findProperPriorityList(guest);
 

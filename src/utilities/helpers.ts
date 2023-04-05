@@ -25,10 +25,12 @@ export function paginatorResponse(data: [any[], number], page: number, limit: nu
     statusCode: 'success',
     data: [...result],
     count: total,
-    currentPage: page,
+    currentPage: parseInt(page as any),
     nextPage: nextPage,
     prevPage: prevPage,
     lastPage: lastPage,
+    pageIndex: parseInt(page as any),
+    pageSize: parseInt(limit as any)
   }
 }
 

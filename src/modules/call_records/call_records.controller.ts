@@ -1,16 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ClassSerializerInterceptor, UseInterceptors, UseGuards } from '@nestjs/common';
 import { CallRecordsService } from './call_records.service';
-import { CreateCallRecordDto } from './dto/create-call_record.dto';
-import { UpdateCallRecordDto } from './dto/update-call_record.dto';
 import { FindAllCallRecordDto } from './dto/find-all-call_record.dto';
 import { DashboardGraphCallRecordQueryDto } from './dto/dashboard-graph-call_record.dto';
 import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
 import { RoleGuard } from '../auth/guard/role.guard';
-import { Role } from '../auth/auth.interfaces';
+import { ApiKey, Role } from '../auth/auth.interfaces';
+import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
+import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
 
+
+@ApiKeyType(ApiKey.PUBLIC)
 @Roles(Role.ADMIN)
-@UseGuards(AuthJWTGuard, RoleGuard)
+@UseGuards(MultipleAuthorizeGuard)
 @Controller('call-records')
 export class CallRecordsController {
   constructor(private readonly callRecordsService: CallRecordsService) {}

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateCallRecordDto } from './dto/create-call_record.dto';
 import { UpdateCallRecordDto } from './dto/update-call_record.dto';
 import { CallRecord } from './entities/call_record.entity';
 import { FindAllCallRecordDto } from './dto/find-all-call_record.dto';
 import { DashboardGraphCallRecordQueryDto } from './dto/dashboard-graph-call_record.dto';
-import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 
 @Injectable()
 export class CallRecordsService {
@@ -18,8 +18,12 @@ export class CallRecordsService {
     return callRecordInfo;
   }
 
-  findAll(query: FindAllCallRecordDto) {
+  async findAll(query: FindAllCallRecordDto) {
     const where: FindOptionsWhere<CallRecord> = {};
+
+    const take = query.pageSize || 10;
+    const page = query.pageIndex || 0;
+    const skip = page*take;
 
     if (query.agentConnectionId) {
       where.agentConnectionId = {
@@ -33,11 +37,37 @@ export class CallRecordsService {
       }
     }
 
-    if(query.sessionStartedAt) {
-      where.sessionStartedAt
+    if (query.agentUuid) {
+      where.agentConnectionId = {
+        agent: {
+          uuid: query.agentUuid
+        }
+      }
     }
 
-    return this.callRecordRepository.find({
+    if (query.guestUuid) {
+      where.guestConnectionId = {
+        uuid: {
+          uuid: query.guestUuid
+        }
+      }
+    }
+
+    if(query.sessionStartedFrom) {
+      where.sessionStartedAt = Between(
+        query.sessionStartedFrom,
+        query.sessionStartedTo || new Date()
+      )
+    }
+
+    if(query.sessionFinishedFrom) {
+      where.sessionFinishedAt = Between(
+        query.sessionFinishedFrom,
+        query.sessionFinishedTo || new Date()
+      )
+    }
+
+    const data = await this.callRecordRepository.findAndCount({
       relations: {
         agentConnectionId: {
           agent: true
@@ -46,8 +76,12 @@ export class CallRecordsService {
           uuid: true
         }
       },
+      take: query.paginate ? take : 0,
+      skip: query.paginate ? skip : 0,
       where
     });
+
+    return paginatorResponse(data, page, take);
   }
 
   dashboardGraph(query: DashboardGraphCallRecordQueryDto) {

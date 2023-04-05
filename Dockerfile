@@ -16,11 +16,8 @@ RUN npm install
 
 ARG NODE_ENV=production
 
-# Domain name or ip where the API is running
-ENV HTTP_HOST_IP=localhost
-
 RUN npm run build 
 
 COPY ./src/utilities/env ./dist/env
 
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "dumb-init", "NODE_ENV=production", "node", "dist/main" ]

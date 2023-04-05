@@ -1,6 +1,14 @@
-import { IsDateString, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class FindAllCallRecordDto {
+    
+    @IsUUID()
+    @IsOptional()
+    guestUuid?: string;
+    
+    @IsUUID()
+    @IsOptional()
+    agentUuid?: string;
 
     @IsString()
     @IsOptional()
@@ -12,5 +20,26 @@ export class FindAllCallRecordDto {
 
     @IsDateString()
     @IsOptional()
-    sessionStartedAt?: Date;
+    sessionStartedFrom?: Date;
+
+    @IsDateString()
+    @IsOptional()
+    sessionStartedTo?: Date;
+
+    @IsDateString()
+    @IsOptional()
+    sessionFinishedFrom?: Date;
+
+    @IsDateString()
+    @IsOptional()
+    sessionFinishedTo?: Date;
+
+    @IsOptional()
+    pageIndex?: number
+
+    @IsOptional()
+    pageSize?: number
+
+    @IsOptional()
+    paginate?: boolean = true;
 }
