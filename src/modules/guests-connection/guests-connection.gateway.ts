@@ -33,49 +33,36 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   ) {}
 
   handleConnection(socket: Socket) {
-    // throw new Error('Method not implemented.');
   }
 
   async handleDisconnect(socket: Socket) {
-
+    console.log('handleDisconnect GUEST ---------')
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
-
+    console.log("Guest ROOM on disconnect", room)
     if (room) {
       this.server.to(room.host.socketId).emit('guest-disconnected');
     } else {
+      console.log('getGuestIdxBySocketId')
       const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
+
+      console.log('guestIdx', guestIdx);
+      
       if (guestIdx !== -1) { 
         this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
       }
-    }
-    
-    if (false) {
-      this.guestsConnectionService.updateRoomGuest(room);
-      this.agentsConnectionService.removeGuestFromRoomBySocket(socket.id);
-      const OVSession = this.videoServiceService.getSessionById(room.sessionId)
-      
-      if(!OVSession){
-        this.server.to(room.host.socketId).emit('aborted-call');
-        return;
-      }
-
-      if(OVSession.activeConnections.length) {
-        OVSession.close()
-        if (room.users[0].guestConnectionId) {
-          this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, { endTimeConnection: new Date()})
-        }
-
-      };
-      return;
     }
   }
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
-    if (!guest) throw new WsException('There is not any Guest with this UUID');    
+    if (!guest) throw new WsException('There is not any Guest with this UUID');
 
-    console.log(createGuestsConnectionDto);
+    
+    const linedGuest = this.guestsConnectionService.findGuestInPriorityLineByUuid(createGuestsConnectionDto.uuid as any);
+    if(linedGuest) throw new WsException({ message: 'The Guest is already connect', error: 'ALREADY_CONNECTED' });
+
+    console.log('createGuestsConnectionDto', createGuestsConnectionDto);
     
 
     if (createGuestsConnectionDto.sessionId) {
@@ -85,8 +72,9 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       if(session) {
         try {
           const connection = await this.videoServiceService.createConnection(session.session, {});
+          console.log('connection ----------', connection)
           const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
-
+          console.log(guestConnection, 'guestConnection')
           const room = this.agentsConnectionService.findRoomBySessionId(createGuestsConnectionDto.sessionId);
           
           const user = room.users?.findIndex(user => user.guest.uuid === (createGuestsConnectionDto.uuid as any));

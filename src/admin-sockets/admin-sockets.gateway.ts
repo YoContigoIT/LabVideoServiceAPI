@@ -40,8 +40,18 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   @SubscribeMessage('register-to-priority-line-updates')
   registerToPriorityLineUpdates(@ConnectedSocket() client: Socket) {
 
-    this.guestConnectionsService.priorityLine$
+    combineLatest([
+      this.guestConnectionsService.priorityLine$,
+      ...this.guestConnectionsService.priorityLine.map(pl => pl.priorityLine.asObservable())
+    ])
+      .pipe(map(([mainPriorityLine, ..._]) => mainPriorityLine.map(pl => ({
+        gender: pl.gender,
+        language: pl.language,
+        guests: pl.priorityLine.value,
+        length: pl.priorityLine.value.length
+      }))))
       .subscribe((priorityLine) => {
+        console.log('ADMIN priorityLine----->>>',priorityLine);
         client.emit('priority-line-update', priorityLine);
       });
   }
@@ -54,16 +64,16 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
       this.guestConnectionsService.priorityLine$,
       ...this.guestConnectionsService.priorityLine.map(pl => pl.priorityLine.asObservable())
     ])
-      .pipe(map(([rooms, mainPriorityLain, ..._]) => {
+      .pipe(map(([rooms, mainPriorityLine, ..._]) => {
         return {
           rooms: {
             active: rooms.length,
             inCall: rooms.filter(room => !room.available).length,
             free: rooms.filter(room => room.available).length
           },
-          priorityLine: mainPriorityLain.length,
+          priorityLine: mainPriorityLine.length,
           
-          priorityLines: mainPriorityLain.map(pl => ({
+          priorityLines: mainPriorityLine.map(pl => ({
             gender: pl.gender,
             language: pl.language,
             length: pl.priorityLine.value.length

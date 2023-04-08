@@ -26,6 +26,8 @@ import { RefuseCallDto } from "./dto/refuse-call.dto";
 @WebSocketGateway({
     cors: {
       origin: '*',
+      allowedHeaders: '*',
+      methods: '*',
     },
 })
 export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -48,28 +50,45 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   async handleDisconnect(socket: Socket): Promise<HttpResponse> {
+    console.log('handleDisconnect AGENT ---------')
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    console.log(room, 'room agentconnecti')
     if (!room) return;
     
     this.agentsConnectionService.removeRoom(room.name);
 
     if (room.sessionId){
-      const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+      try {
 
-      if(OVSession?.connections.length) OVSession.close();
+        console.log(room.sessionId, 'ssessionId -------');
+        
+        const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+        console.log(OVSession, 'OVSession AGENTS ---------')
+        
+        if(OVSession?.connections?.length) OVSession.close();
+        
+        room?.users.forEach(async user => {
+          this.guestsConnectionService.updateGuestConnection(user.guestConnectionId, {
+            endTimeConnection: new Date()
+          });
+          const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
+          if(callRecordId) this.callRecordService.update(callRecordId.id);
 
-      if (room.users.length) {
-        this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
-          endTimeConnection: new Date()
-        });
-        const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
-        if(callRecordId) this.callRecordService.update(callRecordId.id);
+          this.server.to(user.socketId).emit('agent-disconnected', {});
+
+        })
+      } catch (e) {
+        console.warn("----ERROR WITH OPENVIDU----", e);
       }
-      return;
+      
     }
 
-    this.server.to(room.name).disconnectSockets();
+    console.log('disconnectSocket');
+    
+    // this.server.to(room.name).disconnectSockets();
 
+    console.log('saveAgentDisconnection');
+    
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
   }
@@ -83,7 +102,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     const room = this.agentsConnectionService.getRoomByAgentUUID(createAgentsConnectionDto.agent as any);
     if (room) throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
-
+    console.log(room, 'room-agent-connect')
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
 
     // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
@@ -103,6 +122,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   guestInRoom(room: Room, guest: Guest) {
     this.server.in(guest.socketId).socketsJoin(room.name);
+    console.log(room.host.socketId, 'emit to guestconnect');
     this.server.in(room.host.socketId).emit('guest-connected', guest);
   }
 
@@ -177,11 +197,16 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     
     console.log({refuseCallDto});
     
-    if(refuseCallDto?.requeue) {
+    if(refuseCallDto.requeue) {
       const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
+
+      console.log('findProperPriorityList', priorityLine);
+      
       this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
     } else {
       this.server.to(guest.socketId).emit('disconnect-guest', { reason: 'CALL_REFUSED'});
+      console.log('disconnectguest-emit');
+      
     }
 
     return { success: true };
@@ -189,6 +214,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('toggle-video-guest')
   async toggleVideoGuest(@MessageBody() toggleVideoGuestData, @ConnectedSocket() socket: Socket) {
+    console.log('toggleVideoGuestData', toggleVideoGuestData);
+    
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     
     room.users.forEach(user => {
@@ -200,6 +227,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('toggle-audio-guest')
   async toggleAudioGuest(@MessageBody() toggleAudioGuestData: any, @ConnectedSocket() socket: Socket) {
+    console.log('toggleAudioGuestData', toggleAudioGuestData);
+    
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     
     room.users.forEach(user => {
@@ -212,11 +241,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('close-video-call')
   async closeVideoCall(@ConnectedSocket() client: Socket) {
     console.log("ENTRANDO A close-video-call")
+
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
     console.log('ROOM', room);
     
 
-    if (!room) return room;    
+    if (!room) return room;
 
     if(room.users?.length) {
       this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
@@ -227,12 +257,18 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     }
 
 
-    if (room.sessionId){
-      const OVSession = this.videoServiceService.getSessionById(room.sessionId);
-      console.log(OVSession, 'OV');
+    if (room?.sessionId){
+      try {
+        const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+        console.log(OVSession, 'OV');
+        if(OVSession?.connections?.length) OVSession.close();
+
+      } catch (e) {
+        console.warn('-----ERROR OPENVIDU ON close-video-call------', e);
+      }
       
-      if(OVSession?.connections.length) OVSession.close();
     }
+    
 
     console.log('ROOM USERS ---->', room.users);
     

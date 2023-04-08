@@ -29,8 +29,7 @@ export class VideoServiceGateway {
 
     @SubscribeMessage('start-recording')
     async startRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
-        const videoRecording = await this.videoServiceService.startRecording(recordingVideoServiceDto);
-        return videoRecording;
+        return await this.videoServiceService.startRecording(recordingVideoServiceDto);
     }
     
     @SubscribeMessage('stop-recording')

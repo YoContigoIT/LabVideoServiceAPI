@@ -12,6 +12,7 @@ import { LanguagesService } from '../languages/languages.service';
 import { Language } from '../languages/entities/language.entity';
 import { parseAffeceRowToHttpResponse, shuffleArray } from 'src/utilities/helpers';
 import { VideoServiceService } from '../video-service/video-service.service';
+import { log } from 'console';
 
 type PriorityLineList = {
   gender: string;
@@ -61,29 +62,33 @@ export class GuestsConnectionService {
   checkRoomsAvailability() {
 
     setInterval(() => {
-      let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
-      if (!availableRooms.length) return;
-      availableRooms = shuffleArray(availableRooms);
-
-      console.log('availableRooms', availableRooms);
-
       
-      
+      this._priorityLine.value.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
       
       for(let [index, line] of this.priorityLine.entries()) {
-        console.log(line.priorityLine.value);
+
+        let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
+        if (!availableRooms.length) break;
+        availableRooms = shuffleArray(availableRooms);
+        console.log('availableRooms', availableRooms.map(i => i.host));
+        // console.log('line', line);
+        // console.log('line.priorityLine.value', line.priorityLine.value);
         if (!line.priorityLine.value.length) break;
+
+
 
         const guest = this.removeGuestFromAssertivePriorityLine(0, line);
         if (!guest) break;
         
-        let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
-          && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
-          || (room.host.agent.sex === line.gender && room.host.agent.role.lowerLimitPriority >= +guest.priority))
+        // let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
+        //   && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
+        //   || (room.host.agent.sex === line.gender && room.host.agent.role.lowerLimitPriority >= +guest.priority))
           
-        if (!availableRoom) {
-          availableRoom = availableRooms[0];
-        }
+        // if (!availableRoom) {
+        //   availableRoom = availableRooms[0];
+        // }
+
+        let availableRoom = availableRooms[0];
 
         availableRoom.users.push(guest);
         availableRoom.available = false;
@@ -97,14 +102,17 @@ export class GuestsConnectionService {
       }
         
       this.agentsConnectionService.updateRoomsList(this.agentsConnectionService.rooms);
-    }, 3000);
+    }, 4000);
   }
 
   pushToAssertivePriorityLine(guest: Guest, priorityLine: BehaviorSubject<Guest[]>) {
     priorityLine.pipe(take(1)).subscribe(previusVal => {
       const newArr = [...previusVal, guest];
       const sortedArray = newArr.sort((a, b) => parseInt(a.priority) - parseInt(b.priority));
+      console.log('sortedArray', sortedArray);
+      
       priorityLine.next(sortedArray);
+      console.log("pushToAssertivePriorityLine")
     })
   }
 
@@ -170,7 +178,9 @@ export class GuestsConnectionService {
       return _$guest.gender === list.gender && _$guest.languages[0]?.title === list.language;
     });
 
+    console.log('Lista de prioridad encontrada', priorityLine);
     if(priorityLine) return priorityLine;
+
 
     priorityLine = {
       gender: _$guest.gender,
@@ -178,7 +188,13 @@ export class GuestsConnectionService {
       priorityLine: new BehaviorSubject<Guest[]>([])
     }
 
+    console.log("Creando lista de prioridad --------------------------------")
+    console.log(priorityLine);
+    
+
     this._priorityLine.next([...this._priorityLine.value, priorityLine]);
+
+    console.log(this._priorityLine.value, 'next-PriorityLine');
 
     return priorityLine;
   }
@@ -213,5 +229,9 @@ export class GuestsConnectionService {
         sessionId
       }
     })
+  }
+
+  findGuestInPriorityLineByUuid(uuid: string) {
+    return this._priorityLine.value.find(pl => pl.priorityLine.value.find(guest => guest.guest.uuid === uuid));
   }
 }

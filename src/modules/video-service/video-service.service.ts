@@ -89,7 +89,7 @@ export class VideoServiceService {
 
   getSessionById(sessionId: string) {
     try {
-      return this.openVidu.activeSessions.find((session) => session.sessionId === sessionId);
+      return this.openVidu?.activeSessions.find((session) => session.sessionId === sessionId);
     } catch (error) {
       console.warn(error);
     }

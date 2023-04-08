@@ -9,6 +9,7 @@ import { RoleGuard } from '../auth/guard/role.guard';
 import { ApiKey, Role } from '../auth/auth.interfaces';
 import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
 import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
+import { RecordingsByFolioDto } from './dto/recordings-by-folio.dto';
 
 @ApiKeyType(ApiKey.PUBLIC)
 @Roles(Role.ADMIN)
@@ -29,10 +30,11 @@ export class RecordingsController {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get('/folio/:folio')
-  findAllByFolio(@Param('folio') folio: string) {
-    return this.recordingsService.findAllByFolio(folio);
+  @Get('/folio')
+  findAllByFolio(@Query() folio: RecordingsByFolioDto) {
+    return this.recordingsService.findAllByFolio(folio.folio);
   }
+  
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
