@@ -65,7 +65,9 @@ export class GuestsConnectionService {
       
       this._priorityLine.value.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
       
-      for(let [index, line] of this.priorityLine.entries()) {
+      const lines = shuffleArray(this.priorityLine)
+
+      for(let [index, line] of lines.entries()) {
 
         let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
         if (!availableRooms.length) break;
