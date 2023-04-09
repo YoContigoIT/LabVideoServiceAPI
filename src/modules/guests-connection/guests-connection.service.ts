@@ -8,11 +8,10 @@ import { AgentsConnectionService } from 'src/modules/agents-connection/agents-co
 import { AgentsConnectionGateway } from 'src/modules/agents-connection/agents-connection.gateway';
 import { BehaviorSubject, Observable, take } from 'rxjs';
 import { Room } from 'src/modules/agents-connection/agents-connection.interface';
-import { LanguagesService } from '../languages/languages.service';
+
 import { Language } from '../languages/entities/language.entity';
-import { parseAffeceRowToHttpResponse, shuffleArray } from 'src/utilities/helpers';
+import { shuffleArray } from 'src/utilities/helpers';
 import { VideoServiceService } from '../video-service/video-service.service';
-import { log } from 'console';
 
 type PriorityLineList = {
   gender: string;
@@ -63,9 +62,8 @@ export class GuestsConnectionService {
 
     setInterval(() => {
       
-      this._priorityLine.value.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
-      
       const lines = shuffleArray(this.priorityLine)
+      lines.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
 
       for(let [index, line] of lines.entries()) {
 
@@ -75,12 +73,12 @@ export class GuestsConnectionService {
         console.log('availableRooms', availableRooms.map(i => i.host));
         // console.log('line', line);
         // console.log('line.priorityLine.value', line.priorityLine.value);
-        if (!line.priorityLine.value.length) break;
+        if (!line.priorityLine.value.length) continue;
 
 
 
         const guest = this.removeGuestFromAssertivePriorityLine(0, line);
-        if (!guest) break;
+        if (!guest) continue;
         
         // let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
         //   && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 

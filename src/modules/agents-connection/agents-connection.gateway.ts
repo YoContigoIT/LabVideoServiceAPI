@@ -3,7 +3,6 @@ import { Server, Socket } from 'socket.io';
 import { AgentsConnectionService } from "./agents-connection.service";
 import { CreateAgentsConnectionDto } from "./dto/create-agents-connection.dto";
 import { HttpResponse } from "src/common/interfaces/http-responses.interface";
-import { UsersService } from "src/modules/users/users.service";
 import { Guest } from "src/modules/guests-connection/guests-connection.interface";
 import { Room } from "./agents-connection.interface";
 import { getUuidv4 } from "src/utilities/helpers";
@@ -146,6 +145,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       sessionStartedAt : new Date(),
     });
 
+
     const callRecordId = callRecordInfo.id as any as CallRecord;
 
     const recordingInfo = await this.recordingService.create({ callRecordId: callRecordId, sessionId: session.sessionId });
@@ -275,11 +275,16 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.users?.forEach(user => {
       this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })
-    room.users = [];
-    room.sessionId = undefined;
-    room.available = true;
-    this.agentsConnectionService.updateRoom(room.name, room);
-    return room;
+
+    this.agentsConnectionService.removeRoom(room.name);
+
+    client.disconnect();
+
+    // room.users = [];
+    // room.sessionId = undefined;
+    // room.available = true;
+    // this.agentsConnectionService.updateRoom(room.name, room);
+    // return room;
   }
 
 }

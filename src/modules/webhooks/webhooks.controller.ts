@@ -33,7 +33,7 @@ export class WebhooksController {
             this.webhooksService.uploadVideoToS3(eventData.sessionId, eventData.name);
             
             const recordingInfo = await this.recordingsService.insertDuration(eventData.sessionId,{ duration: eventData.duration } )
-            const seconds = this.recordingsMarkService.seconsToString(eventData.duration);
+            const seconds = this.recordingsMarkService.seconsToString(Math.trunc(eventData.duration));
             
             this.recordingsMarkService.create({
               markTime: seconds,
