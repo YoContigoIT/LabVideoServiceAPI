@@ -107,6 +107,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
 
     const roomName = await getUuidv4();
+    console.log(roomName, 'getUUIDV4-ROOMNAME');
+    
     this.server.in(client.id).socketsJoin(roomName);
 
     this.agentsConnectionService.addUserToRoom(roomName, {
@@ -276,15 +278,15 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })
 
-    // this.agentsConnectionService.removeRoom(room.name);
+    this.agentsConnectionService.removeRoom(room.name);
 
-    // client.disconnect();
+    client.disconnect();
 
-    room.users = [];
-    room.sessionId = undefined;
-    room.available = true;
-    this.agentsConnectionService.updateRoom(room.name, room);
-    return room;
+    // room.users = [];
+    // room.sessionId = undefined;
+    // room.available = true;
+    // this.agentsConnectionService.updateRoom(room.name, room);
+    // return room;
   }
 
 }

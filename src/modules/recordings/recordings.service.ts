@@ -85,7 +85,7 @@ export class RecordingsService {
     if(query.search) {
       where.callRecordId = {
         guestConnectionId: {
-          folio: Like(`%${query.search}%`)
+          folio: query.search
         }
       }
     }

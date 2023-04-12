@@ -22,6 +22,8 @@ export class GuestsController {
 
   @Post()
   create(@Body() createGuestDto: CreateGuestDto): Promise<CreateGuestDto> {
+    console.log(createGuestDto);
+    
     return this.guestsService.create(createGuestDto);
   }
 

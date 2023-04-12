@@ -178,9 +178,10 @@ export class GuestsConnectionService {
       return _$guest.gender === list.gender && _$guest.languages[0]?.title === list.language;
     });
 
-    console.log('Lista de prioridad encontrada', priorityLine);
-    if(priorityLine) return priorityLine;
-
+    if(priorityLine){
+      console.log('Lista de prioridad encontrada', priorityLine);
+      return priorityLine;
+    } 
 
     priorityLine = {
       gender: _$guest.gender,
@@ -220,7 +221,7 @@ export class GuestsConnectionService {
     const room = this.agentsConnectionService.findRoomBySessionId(sessionId);
     if (!room) return false;
 
-    return {session : this.videoService.getSessionById(sessionId), room };
+    return { session : this.videoService.getSessionById(sessionId), room };
   }
 
   findGuestConnectionBySessionId(sessionId: string) {

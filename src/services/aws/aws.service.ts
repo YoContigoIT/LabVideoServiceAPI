@@ -1,4 +1,4 @@
-import { ListObjectsV2Command, DeleteObjectCommand, GetObjectCommand, PutObjectCommand, PutObjectCommandInput, PutObjectRequest, S3, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, DeleteObjectCommand, GetObjectCommand, PutObjectCommand, PutObjectCommandInput, PutObjectRequest, S3, S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -40,18 +40,20 @@ export class AwsService {
 
     }
 
-    getSignedURL(key: string) {
+    async getSignedURL(key: string) {
         const bucketParams = {
             ...this.uploadParams,
             Key: key
         }
         
         try {
+            await this.s3Client.send(new HeadObjectCommand(bucketParams))
+
             const command = new GetObjectCommand(bucketParams);
 
-            return getSignedUrl(this.s3Client, command, { expiresIn: 3600 })
+            return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 })
         } catch(error) {
-            console.error(error);
+            return null;
         }
     }
 

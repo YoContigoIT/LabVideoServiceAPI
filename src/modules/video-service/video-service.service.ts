@@ -32,7 +32,7 @@ export class VideoServiceService {
       }
     };
 
-    let createSession;
+    let createSession: Session;
     try {
 
       createSession = await this.openVidu.createSession({
@@ -52,6 +52,9 @@ export class VideoServiceService {
     }
 
     try {
+
+      if (!this.validateIfSessionExists(session)) return null;
+
       return await session.createConnection({
         ...this.connectionProperties,
         ...connectionProperties,
@@ -61,30 +64,12 @@ export class VideoServiceService {
     }
   }
 
+  private validateIfSessionExists(session: Session) {
+    return this.openVidu.activeSessions.find(sesion => session.sessionId === sesion.sessionId);
+  }
+
   getSessions() {
     return this.openVidu.activeSessions;
-  }
-
-  async startRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
-    return await this.openVidu.startRecording(recordingVideoServiceDto.sessionId, {
-      // outputMode: Recording.OutputMode.INDIVIDUAL, // Every publisher stream is recorded in its own file
-      name: recordingVideoServiceDto.sessionId + '-' + recordingVideoServiceDto.socketId,
-    })
-      .then(function (response) {
-        return response;
-      })
-      .catch(error => console.error(error));
-  }
-
-  async stopRecording(recordingVideoServiceDto: RecordingVideoServiceDto) {
-    return await this.openVidu.stopRecording(recordingVideoServiceDto.sessionId)
-      .then(function (response) {
-        return response;
-      })
-      .catch(function (error) {
-        // console.error(error)
-        return error;
-      });
   }
 
   getSessionById(sessionId: string) {

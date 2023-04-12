@@ -26,16 +26,6 @@ export class VideoServiceGateway {
         @Inject(forwardRef(() => AgentsConnectionService))
         private agentsConnectionService: AgentsConnectionService
     ) {}
-
-    @SubscribeMessage('start-recording')
-    async startRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {
-        return await this.videoServiceService.startRecording(recordingVideoServiceDto);
-    }
-    
-    @SubscribeMessage('stop-recording')
-    stopRecording(@MessageBody() recordingVideoServiceDto: RecordingVideoServiceDto, @ConnectedSocket() client: Socket) {        
-        return this.videoServiceService.stopRecording(recordingVideoServiceDto);
-    }
     
     @SubscribeMessage("mark-recording")
     marksRecording(@MessageBody() createRecordingMarkDto: CreateRecordingMarkDto, @ConnectedSocket() client: Socket) {
