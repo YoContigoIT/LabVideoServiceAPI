@@ -136,7 +136,7 @@ export class RecordingsService {
 
     where.callRecordId = {
       guestConnectionId: {
-        folio: Like(`%${folio}%`)
+        folio
       }
     }
   
