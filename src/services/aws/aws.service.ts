@@ -106,7 +106,7 @@ export class AwsService {
                       connection.end();
                     })
                     .on('data', (data) => {
-                    //   console.log('OUTPUT: ' + data);
+                      console.log('OUTPUT: ' + data);
                     });
                     
                     stream.end(

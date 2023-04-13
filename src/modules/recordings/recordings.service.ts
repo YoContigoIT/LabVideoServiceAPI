@@ -20,7 +20,6 @@ export class RecordingsService {
     const recordingInfo = await this.recordingRepository.save(createRecordingDto);
     return recordingInfo;
   }
-  
 
   async findAll(query: GetRecordingsDto) {
     const where: FindOptionsWhere<Recording> = {}

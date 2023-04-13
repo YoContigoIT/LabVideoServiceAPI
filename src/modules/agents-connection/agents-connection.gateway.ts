@@ -53,8 +53,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     // console.log(room, 'room agentconnecti')
     if (!room) return;
-    
-    this.agentsConnectionService.removeRoom(room.name);
+  
 
     if (room.sessionId){
       try {
@@ -83,7 +82,11 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       } catch (e) {
       }
       
+    } else if (room.users?.length) {
+      this.queueGuestReconnect({ requeue: true }, socket)
     }
+
+    this.agentsConnectionService.removeRoom(room.name);
 
     // console.log('disconnectSocket');
     
@@ -138,7 +141,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
 
-    if (room.users.length) {
+    if(!room) throw new WsException('No hay denunciantes activos en tu sala');
+
+    if (room?.users?.length) {
       await this.guestsConnectionService.updateGuestConnection(room.users[0].guestConnectionId, {
         answer: new Date()
       });
@@ -193,14 +198,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('refuse-call')
   queueGuestReconnect(@MessageBody() refuseCallDto: RefuseCallDto, @ConnectedSocket() socket: Socket) {
 
+    console.log({refuseCallDto});
+
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
 
     const guest = room.users.splice(0,1)[0];
     room.available = true;
     this.agentsConnectionService.updateRoom(room.name, room);
-    
-    console.log({refuseCallDto});
     
     if(refuseCallDto.requeue) {
       const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
