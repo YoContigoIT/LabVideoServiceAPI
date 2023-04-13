@@ -217,11 +217,11 @@ export class GuestsConnectionService {
     return this._priorityLine.value;
   }
   
-  getSessionToReconnect(sessionId: string) {
+  async getSessionToReconnect(sessionId: string) {
     const room = this.agentsConnectionService.findRoomBySessionId(sessionId);
     if (!room) return false;
 
-    return { session : this.videoService.getSessionById(sessionId), room };
+    return { session : await this.videoService.getSessionById(sessionId), room };
   }
 
   findGuestConnectionBySessionId(sessionId: string) {

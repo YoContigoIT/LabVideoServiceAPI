@@ -51,7 +51,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async handleDisconnect(socket: Socket): Promise<HttpResponse> {
     console.log('handleDisconnect AGENT ---------')
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
-    console.log(room, 'room agentconnecti')
+    // console.log(room, 'room agentconnecti')
     if (!room) return;
     
     this.agentsConnectionService.removeRoom(room.name);
@@ -59,12 +59,11 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     if (room.sessionId){
       try {
 
-        console.log(room.sessionId, 'ssessionId -------');
+        // console.log(room.sessionId, 'ssessionId -------');
         
-        const OVSession = this.videoServiceService.getSessionById(room.sessionId);
-        console.log(OVSession, 'OVSession AGENTS ---------')
+        const OVSession = await this.videoServiceService.getSessionById(room.sessionId);
+        // console.log(OVSession, 'OVSession AGENTS ---------')
         
-        if(OVSession?.connections?.length) OVSession.close();
         
         room?.users.forEach(async user => {
           this.guestsConnectionService.updateGuestConnection(user.guestConnectionId, {
@@ -72,21 +71,25 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
           });
           const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
           if(callRecordId) this.callRecordService.update(callRecordId.id);
-
+          
           this.server.to(user.socketId).emit('agent-disconnected', {});
-
+          
         })
+
+        await OVSession.fetch()
+        if(OVSession?.connections?.length) await OVSession.close().catch((e) => {
+          console.warn("----ERROR WITH OPENVIDU WHEN CLOSSING----", e);
+        });
       } catch (e) {
-        console.warn("----ERROR WITH OPENVIDU----", e);
       }
       
     }
 
-    console.log('disconnectSocket');
+    // console.log('disconnectSocket');
     
     // this.server.to(room.name).disconnectSockets();
 
-    console.log('saveAgentDisconnection');
+    // console.log('saveAgentDisconnection');
     
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
@@ -240,6 +243,37 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     return toggleAudioGuestData;
   }
 
+  @SubscribeMessage('refresh-guest-connection')
+  refreshGuestConnection(@ConnectedSocket() socket: Socket) {
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+
+    if (room?.users) {
+      room.users.forEach(user => {
+        this.server.in(room.name).to(user.socketId).emit('refresh-connection');
+      });
+    }
+
+    return;
+  }
+
+  @SubscribeMessage('reload-agent-video-call')
+  async reloadAgentVideoCall(@ConnectedSocket() socket: Socket) {
+    try {
+      const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+      if(!room) return;
+  
+      const sessionId = await this.videoServiceService.getSessionById(room.sessionId);
+      if(!sessionId) return;
+  
+      const connection = await this.videoServiceService.createConnection(sessionId, {});
+      console.log('------------------connection_general----------', connection);
+      
+      return connection 
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+
   @SubscribeMessage('close-video-call')
   async closeVideoCall(@ConnectedSocket() client: Socket) {
     console.log("ENTRANDO A close-video-call")
@@ -261,9 +295,12 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     if (room?.sessionId){
       try {
-        const OVSession = this.videoServiceService.getSessionById(room.sessionId);
+        const OVSession = await this.videoServiceService.getSessionById(room.sessionId);
         console.log(OVSession, 'OV');
-        if(OVSession?.connections?.length) OVSession.close();
+        await OVSession.fetch()
+        if(OVSession?.connections?.length) await OVSession.close().catch((e) => {
+          console.warn("----ERROR WITH OPENVIDU WHEN CLOSSING----", e);
+        });
 
       } catch (e) {
         console.warn('-----ERROR OPENVIDU ON close-video-call------', e);
@@ -271,6 +308,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       
     }
     
+    this.agentsConnectionService.removeRoom(room.name);
 
     console.log('ROOM USERS ---->', room.users);
     
@@ -278,7 +316,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })
 
-    this.agentsConnectionService.removeRoom(room.name);
 
     client.disconnect();
 

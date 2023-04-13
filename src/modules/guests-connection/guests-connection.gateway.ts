@@ -65,7 +65,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     if (createGuestsConnectionDto.sessionId) {
       try {
-        const session = this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
+        const session = await this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
 
         if (session) {
           const connection = await this.videoServiceService.createConnection(session.session, {});

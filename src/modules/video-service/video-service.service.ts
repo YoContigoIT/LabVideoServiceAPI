@@ -72,8 +72,9 @@ export class VideoServiceService {
     return this.openVidu.activeSessions;
   }
 
-  getSessionById(sessionId: string) {
+  async getSessionById(sessionId: string) {
     try {
+      await this.openVidu.fetch();
       return this.openVidu?.activeSessions.find((session) => session.sessionId === sessionId);
     } catch (error) {
       console.warn(error);
