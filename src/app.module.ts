@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 import { User } from './modules/users/entities/user.entity';
@@ -40,6 +40,7 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { UserRole } from './modules/user-roles/entities/user-role.entity';
 import { ApiKeyModule } from './modules/api-key/api-key.module';
 import { ApiKey } from './modules/api-key/entities/api-key.entity';
+import { MySQLConnection } from './utilities/env/env.interface';
 
 @Module({
   imports: [
@@ -50,31 +51,42 @@ import { ApiKey } from './modules/api-key/entities/api-key.entity';
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async ( configService: ConfigService ) => ({        
-        type: "mysql",
-        host: configService.get<string>("db.mysql.host"),
-        port: parseInt(configService.get<string>("db.mysql.port")),
-        username: configService.get<string>("db.mysql.username"),
-        password: configService.get<string>("db.mysql.password"),
-        database: configService.get<string>("db.mysql.database"),
-        entities: [
-          User,
-          CallRecord,
-          AgentsConnection,
-          Guest,
-          GuestsConnection,
-          RecordingsMarkType,
-          RecordingMark,
-          Recording,
-          Setting,
-          Agent,
-          Role,
-          Language,
-          UserRole,
-          ApiKey,
-        ],
-        synchronize: true,
-      }),
+      useFactory: async ( configService: ConfigService ) => {
+        
+        let config: any = {        
+          type: "mysql",
+          entities: [
+            User,
+            CallRecord,
+            AgentsConnection,
+            Guest,
+            GuestsConnection,
+            RecordingsMarkType,
+            RecordingMark,
+            Recording,
+            Setting,
+            Agent,
+            Role,
+            Language,
+            UserRole,
+            ApiKey,
+          ],
+          synchronize: true,
+        };
+
+        if (configService.get<boolean>("db.mysql.useReplication")) {
+          config.replication = configService.get<string>("db.mysql.replication")
+        } else {
+          config = { ...config,
+            ...configService.get<MySQLConnection>("db.mysql.unique")
+          }
+        }
+
+        console.log(config);
+        
+        
+        return config;
+      },
       inject: [ConfigService],
     }),
     UsersModule,

@@ -13,6 +13,9 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   public server: Server;
   dashboardConnection: Subscription;
 
+  roomsSubscriptions: { [key: string ]:Subscription } = {};
+  priorityLineSubscriptions:  { [key: string ]:Subscription } = {};
+
   constructor(
     private adminSocketsService: AdminSocketsService,
     private agentsConnectionsService: AgentsConnectionService,
@@ -24,14 +27,23 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
     // throw new Error('Method not implemented.');
   }
   handleDisconnect(socket: Socket) {
-    this.dashboardConnection?.unsubscribe();
-    // throw new Error('Method not implemented.');
+    // this.dashboardConnection?.unsubscribe();
+    try {
+      if (this.roomsSubscriptions[socket.id]) {
+        this.roomsSubscriptions[socket.id]?.unsubscribe();
+        delete this.roomsSubscriptions[socket.id];
+      } else if (this.priorityLineSubscriptions[socket.id]) {
+        this.priorityLineSubscriptions[socket.id]?.unsubscribe();
+        delete this.priorityLineSubscriptions[socket.id];
+      }
+
+    } catch(e) {}
   }
 
   @SubscribeMessage('register-to-rooms-updates')
   registerToRoomsUpdates(@ConnectedSocket() client: Socket) {
 
-    this.agentsConnectionsService.rooms$
+    this.roomsSubscriptions[client.id] = this.agentsConnectionsService.rooms$
       .subscribe((rooms) => {
         client.emit('rooms-update', rooms);
       });
@@ -40,7 +52,7 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   @SubscribeMessage('register-to-priority-line-updates')
   registerToPriorityLineUpdates(@ConnectedSocket() client: Socket) {
 
-    combineLatest([
+    this.priorityLineSubscriptions[client.id] = combineLatest([
       this.guestConnectionsService.priorityLine$,
       ...this.guestConnectionsService.priorityLine.map(pl => pl.priorityLine.asObservable())
     ])

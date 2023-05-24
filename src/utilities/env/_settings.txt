@@ -1,0 +1,56 @@
+import environment from './env.interface';
+
+const settings: environment = {
+    http: {
+        host: process.env.HTTP_HOST_IP || 'localhost',
+        port: process.env.HTTP_HOST_PORT || 3000
+    },
+    db: {
+        mysql: {
+            username: process.env.DB_MYSQL_USERNAME || "fgebc_admin",
+            password:process.env.DB_MYSQL_PASSWORD || "fgebc_dba0wner",
+            host: process.env.DB_MYSQL_HOST || '172.19.10.36',
+            port: process.env.DB_MYSQL_PORT || 3306,
+            database: process.env.DB_MYSQL_DB_NAME || "video_service"
+        }
+    },
+    ws: {
+        port: '',
+        apiRoomName: 'admin-socket-room-34343m5934m21'
+    },
+
+    logger: {
+        level: ''
+    },
+
+    jwt: {
+        secret_key: process.env.JWT_SECRET || "5fQkn(CRyCS2n&!y",
+        expiration_time: process.env.JWT_EXPIRATION_TIME || "12h"
+    },
+
+    openVidu: {
+        host: process.env.OPEN_VIDU_HOST || "https://videodenunciaserver3.fgebc.gob.mx",
+        secret: process.env.OPEN_VIDU_SECRET || '2g5a0Z_usPQb_B',
+        // host : 'https://34.206.8.62',
+        // secret: 'MY_SECRET',
+        port: process.env.OPEN_VIDU_PORT || 443,
+        recordingPath: process.env.OPENVIDU_RECORDING_PATH || '/recordings',
+
+        ssh: {
+            host: process.env.OPEN_VIDU_SSH_HOST || "34.206.8.62",
+            port: process.env.OPEN_VIDU_SSH_PORT || 22,
+            username: process.env.OPEN_VIDU_SSH_USERNAME || "ubuntu",
+            passphrase: process.env.OPEN_VIDU_SSH_PASSWORD || "yocontigo2023_AWS",
+            secretKeyDir: process.env.OPEN_VIDU_SSH_SECRET_DIR || "private_key"
+        }
+    },
+    aws: {
+        region: process.env.AWS_REGION || 'us-east-1',
+        s3: {
+            bucket: process.env.AWS_S3_BUCKET || 'video-service-recordings',
+            uploadBucket: process.env.AWS_S3_UPLOAD_BUCKET || 'video-service-uploads'
+        }
+    }
+}
+
+export default settings;

@@ -16,6 +16,8 @@ export class VideoServiceService {
     private configService: ConfigService,
     private settingsService: SettingsService
   ) {
+    console.log(this.configService.get<string>('openVidu.host'));
+    
     this.openVidu = new OpenVidu(this.configService.get<string>('openVidu.host') + ':' + this.configService.get<string>('openVidu.port'), this.configService.get<string>('openVidu.secret'));
     this.marksProperties = {}
   }

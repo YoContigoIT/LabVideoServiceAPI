@@ -140,14 +140,20 @@ export class RecordingsService {
     }
   
     const data = await this.recordingRepository.find({
+      select: {
+        uri: true,
+        duration: true,
+        callRecordId: {
+          sessionStartedAt: true,
+          sessionFinishedAt: true,
+          guestConnectionId: {
+            folio: true,
+          }
+        }
+      },
       relations: {
         callRecordId: {
-          agentConnectionId: {
-            agent: true
-          },
-          guestConnectionId: {
-            // guest: true
-          }
+          guestConnectionId: true
         }
       },
       where

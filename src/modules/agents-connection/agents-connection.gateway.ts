@@ -51,18 +51,14 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async handleDisconnect(socket: Socket): Promise<HttpResponse> {
     console.log('handleDisconnect AGENT ---------')
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
-    // console.log(room, 'room agentconnecti')
+
     if (!room) return;
   
 
     if (room.sessionId){
       try {
-
-        // console.log(room.sessionId, 'ssessionId -------');
         
         const OVSession = await this.videoServiceService.getSessionById(room.sessionId);
-        // console.log(OVSession, 'OVSession AGENTS ---------')
-        
         
         room?.users.forEach(async user => {
           this.guestsConnectionService.updateGuestConnection(user.guestConnectionId, {
@@ -88,12 +84,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     this.agentsConnectionService.removeRoom(room.name);
 
-    // console.log('disconnectSocket');
-    
-    // this.server.to(room.name).disconnectSockets();
-
-    // console.log('saveAgentDisconnection');
-    
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
   }
@@ -107,7 +97,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     const room = this.agentsConnectionService.getRoomByAgentUUID(createAgentsConnectionDto.agent as any);
     if (room) throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
-    console.log(room, 'room-agent-connect')
+
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
 
     // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
