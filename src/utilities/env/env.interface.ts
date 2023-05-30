@@ -1,3 +1,11 @@
+export class MySQLConnection {
+    username: string;
+    password: string;
+    host: string;
+    port: number | string;
+    database: string;
+}
+
 export default class {
     http: {
         host: string;
@@ -5,11 +13,12 @@ export default class {
     };
     db: {
         mysql: {
-            username: string;
-            password: string;
-            host: string;
-            port: number | string;
-            database: string;
+            useReplication: boolean;
+            unique?: MySQLConnection,
+            replication?: {
+                master: MySQLConnection,
+                slaves: MySQLConnection[]
+            }
         };
     };
     ws: {

@@ -60,12 +60,8 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     // TODO: SessionId es de OPENVIDU 
     if (room.sessionId){
       try {
-
-        // console.log(room.sessionId, 'ssessionId -------');
         
         const OVSession = await this.videoServiceService.getSessionById(room.sessionId);
-        // console.log(OVSession, 'OVSession AGENTS ---------')
-        
         
         room?.users.forEach(async user => {
           this.guestsConnectionService.updateGuestConnection(user.guestConnectionId, {
@@ -92,8 +88,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     
     this.agentsConnectionService.removeRoom(room.name);
 
-    console.log(this.server.adapter, '---------SERVER---------');
-    
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
   }

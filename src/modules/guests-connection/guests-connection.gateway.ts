@@ -40,17 +40,14 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     console.log('handleDisconnect GUEST ---------')
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
-    console.log("Guest ROOM on disconnect", room)
+
     if (room) {
       this.agentsConnectionGateway.server.to(room.host.socketId).emit('guest-disconnected');
 
       const guestRemoved = room.users.splice(0,1)[0];
       room.available = true;
     } else {
-      // console.log('getGuestIdxBySocketId')
       const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
-
-      // console.log('guestIdx', guestIdx);
 
       if (guestIdx !== -1) {
         this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
