@@ -17,8 +17,7 @@ export class RecordingsService {
   ) {}
   
   async create(createRecordingDto: CreateRecordingDto) {
-    const recordingInfo = await this.recordingRepository.save(createRecordingDto);
-    return recordingInfo;
+    return await this.recordingRepository.save(createRecordingDto);
   }
 
   async findAll(query: GetRecordingsDto) {

@@ -18,6 +18,7 @@ import { RoleGuard } from '../auth/guard/role.guard';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
 import { ApiKeyGuard } from '../auth/guard/apikey.guard';
 import { AuthModule } from '../auth/auth.module';
+import { GuestsConnectionGateway } from '../guests-connection/guests-connection.gateway';
 
 @Module({
   imports: [

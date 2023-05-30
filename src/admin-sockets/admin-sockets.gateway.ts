@@ -21,6 +21,8 @@ export class AdminSocketsGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   handleConnection(socket: Socket) {
+    console.log('AdminSocketsGateway');
+    
     // throw new Error('Method not implemented.');
   }
   handleDisconnect(socket: Socket) {

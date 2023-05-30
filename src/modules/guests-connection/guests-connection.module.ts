@@ -9,17 +9,18 @@ import { GuestsModule } from 'src/modules/guests/guests.module';
 import { VideoServiceModule } from 'src/modules/video-service/video-service.module';
 import { LanguagesModule } from '../languages/languages.module';
 import { AuthModule } from '../auth/auth.module';
+import { AgentsConnectionGateway } from '../agents-connection/agents-connection.gateway';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([GuestsConnection]),
-    forwardRef(() => AgentsConnectionModule),
     GuestsModule,
-    forwardRef(() => VideoServiceModule),
     LanguagesModule,
     AuthModule,
+    forwardRef(() => AgentsConnectionModule),
+    forwardRef(() => VideoServiceModule),
   ],
   providers: [GuestsConnectionGateway, GuestsConnectionService],
-  exports: [GuestsConnectionService]
+  exports: [GuestsConnectionService, GuestsConnectionGateway]
 })
 export class GuestsConnectionModule {}

@@ -45,7 +45,6 @@ export class AgentsConnectionService {
   }
 
   addUserToRoom(roomName: any, user: RoomAgents) {
-    const roomIndex = this.getRoomByName(roomName)
     this.addRoom(roomName, user)
   }
 
@@ -78,11 +77,12 @@ export class AgentsConnectionService {
 
   removeRoom(roomName: string): Room | HttpResponse {
     const roomIndex = this.getRoomByName(roomName);
-
+    
     if (roomIndex !== -1) {
       const rooms = this.rooms;
       const removedRoom = rooms.splice(roomIndex, 1)[0];
       this._rooms.next(rooms);
+
       return removedRoom;
     }
 
@@ -96,7 +96,7 @@ export class AgentsConnectionService {
     this.rooms$.pipe(take(1)).subscribe(val => {
       const newArr = [...val, room];
       this._rooms.next(newArr);
-    })
+    });
   }
 
   async saveAgentDisconnection(id: string) {
@@ -148,7 +148,6 @@ export class AgentsConnectionService {
 
 
   findAll(query: ListAgentsConnectionsDto) {
-
     const where: FindOptionsWhere<AgentsConnection> = {};
 
     if (query.uuid) {

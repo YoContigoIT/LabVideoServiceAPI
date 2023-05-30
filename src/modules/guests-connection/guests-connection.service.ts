@@ -12,6 +12,7 @@ import { Room } from 'src/modules/agents-connection/agents-connection.interface'
 import { Language } from '../languages/entities/language.entity';
 import { shuffleArray } from 'src/utilities/helpers';
 import { VideoServiceService } from '../video-service/video-service.service';
+import { UUIDVersion } from 'class-validator';
 
 type PriorityLineList = {
   gender: string;
@@ -33,34 +34,18 @@ export class GuestsConnectionService {
 
   constructor(
     @InjectRepository(GuestsConnection) private guestConnectionRepository: Repository<GuestsConnection>,
-    @Inject(forwardRef(() => AgentsConnectionService))
-    private agentsConnectionService: AgentsConnectionService,
-    @Inject(forwardRef(() => AgentsConnectionGateway))
-    private agentsConnectionGateway: AgentsConnectionGateway,
+    @Inject(forwardRef(() => AgentsConnectionService)) private agentsConnectionService: AgentsConnectionService,
+    @Inject(forwardRef(() => AgentsConnectionGateway)) private agentsConnectionGateway: AgentsConnectionGateway,
     private videoService: VideoServiceService,
   ) {
-      this.checkRoomsAvailability();
-
-      // this.languagesService.findAll()
-      // .then((languages) => {
-      //   this.languages = languages;
-      //   let list = [];
-      //   this.languages.forEach(language => {
-      //     this.genders.forEach(gender => {
-      //       list.push({
-      //         gender,
-      //         language: language.title,
-      //         priorityLine: new BehaviorSubject<Guest[]>([])
-      //       })
-      //     })
-      //   })
-      // this._priorityLine.next([]);
-      // });
+    this.checkRoomsAvailability();
   }
   
   checkRoomsAvailability() {
 
     setInterval(() => {
+
+      // console.log('checkRoomsAvailability');
       
       const lines = shuffleArray(this.priorityLine)
       lines.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
@@ -68,9 +53,12 @@ export class GuestsConnectionService {
       for(let [index, line] of lines.entries()) {
 
         let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
+        // console.log(availableRooms, '----------Rooms-available----------');
+        
         if (!availableRooms.length) break;
+        //FIXME: validar si se tiene que hacer el shuffle otra vez
         availableRooms = shuffleArray(availableRooms);
-        console.log('availableRooms', availableRooms.map(i => i.host));
+        // console.log('availableRooms', availableRooms.map(i => i.host));
         // console.log('line', line);
         // console.log('line.priorityLine.value', line.priorityLine.value);
         if (!line.priorityLine.value.length) continue;
@@ -78,6 +66,8 @@ export class GuestsConnectionService {
 
 
         const guest = this.removeGuestFromAssertivePriorityLine(0, line);
+
+        // CHECK: 
         if (!guest) continue;
         
         // let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
@@ -98,6 +88,8 @@ export class GuestsConnectionService {
         
         pl[index] = line;
         this._priorityLine.next(pl);
+
+        //TODO: Conecta con sockets
         this.agentsConnectionGateway.guestInRoom(availableRoom, guest);
       }
         
@@ -105,15 +97,24 @@ export class GuestsConnectionService {
     }, 4000);
   }
 
+  existsInPriorityLine(guestUUID: UUIDVersion) {
+    for(let line of this.priorityLine) {
+      const guest = line.priorityLine.value.find((guest) => guest.guest.uuid === guestUUID )
+      if (guest){
+        return true;
+      } 
+    }
+
+    return false;
+  }
+
   pushToAssertivePriorityLine(guest: Guest, priorityLine: BehaviorSubject<Guest[]>) {
     priorityLine.pipe(take(1)).subscribe(previusVal => {
       const newArr = [...previusVal, guest];
       const sortedArray = newArr.sort((a, b) => parseInt(a.priority) - parseInt(b.priority));
-      console.log('sortedArray', sortedArray);
       
       priorityLine.next(sortedArray);
-      console.log("pushToAssertivePriorityLine")
-    })
+    });
   }
 
   create(createGuestsConnectionDto: CreateGuestsConnectionDto) {    
@@ -167,7 +168,7 @@ export class GuestsConnectionService {
   
   addGuestToPriorityLine(guest: Guest): any {
     const priorityLine = this.findProperPriorityList(guest);
-
+    
     this.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
   }
 
@@ -179,7 +180,7 @@ export class GuestsConnectionService {
     });
 
     if(priorityLine){
-      console.log('Lista de prioridad encontrada', priorityLine);
+      // console.log('Lista de prioridad encontrada', priorityLine);
       return priorityLine;
     } 
 
@@ -189,13 +190,13 @@ export class GuestsConnectionService {
       priorityLine: new BehaviorSubject<Guest[]>([])
     }
 
-    console.log("Creando lista de prioridad --------------------------------")
-    console.log(priorityLine);
+    // console.log("Creando lista de prioridad --------------------------------")
+    // console.log(priorityLine);
     
 
     this._priorityLine.next([...this._priorityLine.value, priorityLine]);
 
-    console.log(this._priorityLine.value, 'next-PriorityLine');
+    // console.log(this._priorityLine.value, 'next-PriorityLine');
 
     return priorityLine;
   }

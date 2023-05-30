@@ -19,24 +19,25 @@ import { ApiKeyType } from "src/utilities/decorators/apiKeyType.decorator";
 import { ApiKeyGuard } from "../auth/guard/apikey.guard";
 import { ApiKey } from "../auth/auth.interfaces";
 import { RefuseCallDto } from "./dto/refuse-call.dto";
+import { GuestsConnectionGateway } from "../guests-connection/guests-connection.gateway";
 
 @ApiKeyType(ApiKey.PUBLIC)
 @UseGuards(ApiKeyGuard)
 @WebSocketGateway({
-    cors: {
-      origin: '*',
-      allowedHeaders: '*',
-      methods: '*',
-    },
+  namespace: "/agent",
+  cors: {
+    origin: '*',
+    allowedHeaders: '*',
+    methods: '*',
+  },
 })
 export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  server: Server;
+  @WebSocketServer() server: Server;
 
   constructor(
+    @Inject(forwardRef(() => GuestsConnectionService)) private guestsConnectionService: GuestsConnectionService,
+    @Inject(forwardRef(() => GuestsConnectionGateway)) private guestsConnectionGateway: GuestsConnectionGateway,
     private agentsConnectionService: AgentsConnectionService,
-    @Inject(forwardRef(() => GuestsConnectionService))
-    private guestsConnectionService: GuestsConnectionService,
     private videoServiceService: VideoServiceService,
     private callRecordService: CallRecordsService,
     private recordingService: RecordingsService,
@@ -44,17 +45,19 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private agentsService: AgentService,
   ) {}
 
-  async handleConnection(socket: Socket) {
-    
+  async handleConnection(@ConnectedSocket() socket: Socket) {
+    console.log('------------------connect_agent------------------');
   }
 
-  async handleDisconnect(socket: Socket): Promise<HttpResponse> {
-    console.log('handleDisconnect AGENT ---------')
-    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
-    // console.log(room, 'room agentconnecti')
-    if (!room) return;
-  
+  async handleDisconnect(@ConnectedSocket() socket: Socket): Promise<HttpResponse> {
+    console.log('---------disconnect_agent---------');
 
+    const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
+    console.log(room, 'room-disconnect');
+    
+    if (!room) return;
+
+    // TODO: SessionId es de OPENVIDU 
     if (room.sessionId){
       try {
 
@@ -72,7 +75,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
           if(callRecordId) this.callRecordService.update(callRecordId.id);
           
           this.server.to(user.socketId).emit('agent-disconnected', {});
-          
         })
 
         await OVSession.fetch()
@@ -80,19 +82,17 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
           console.warn("----ERROR WITH OPENVIDU WHEN CLOSSING----", e);
         });
       } catch (e) {
+        console.log(e);
       }
       
-    } else if (room.users?.length) {
+    } else if (room.users.length) {
+      console.log('requeue');      
       this.queueGuestReconnect({ requeue: true }, socket)
     }
-
+    
     this.agentsConnectionService.removeRoom(room.name);
 
-    // console.log('disconnectSocket');
-    
-    // this.server.to(room.name).disconnectSockets();
-
-    // console.log('saveAgentDisconnection');
+    console.log(this.server.adapter, '---------SERVER---------');
     
     await this.agentsConnectionService.saveAgentDisconnection(room.host.agentConnectionId);
 
@@ -101,19 +101,21 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   @SubscribeMessage('connect-agent')
   async connectAgent(@MessageBody() createAgentsConnectionDto: CreateAgentsConnectionDto, @ConnectedSocket() client: Socket) {
     createAgentsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
-    
+
     const agent = await this.agentsService.findOne(createAgentsConnectionDto.agent as any);
     if (!agent) throw new WsException('There is not any Agent with this UUID');
-
+    // console.log(agent.uuid, '<--------------------agent');
+    
+    //TODO: si hay un room con el uuid del agente es que ya esta conectado
     const room = this.agentsConnectionService.getRoomByAgentUUID(createAgentsConnectionDto.agent as any);
-    if (room) throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
-    console.log(room, 'room-agent-connect')
+    if (room){
+      console.log(room, 'room-exception- ¿Why exist?'); 
+      throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
+    }
+
     const agentConnection = await this.agentsConnectionService.agentConnection(createAgentsConnectionDto);
 
-    // const user = await this.usersService.findOne(createAgentsConnectionDto.user as unknown as string);
-
     const roomName = await getUuidv4();
-    console.log(roomName, 'getUUIDV4-ROOMNAME');
     
     this.server.in(client.id).socketsJoin(roomName);
 
@@ -124,12 +126,19 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       agent
     });
 
+    console.log(this.agentsConnectionService.rooms, '---------rooms--------');
     return { agentConnection, agent };
   }
 
   guestInRoom(room: Room, guest: Guest) {
+    console.log(room, 'room-master');
+    
+    console.log(guest.socketId, '----------SocketId-GUEST---------');
+    console.log(this.server, '----------server-GUEST---------');
     this.server.in(guest.socketId).socketsJoin(room.name);
-    console.log(room.host.socketId, 'emit to guestconnect');
+    this.guestsConnectionGateway.server.in(guest.socketId).emit('guest-connected', true);
+
+    console.log(room.host.socketId, 'emit-host(AGENT)');
     this.server.in(room.host.socketId).emit('guest-connected', guest);
   }
 
@@ -140,7 +149,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const connection = await this.videoServiceService.createConnection(session, {});
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
-
     if(!room) throw new WsException('No hay denunciantes activos en tu sala');
 
     if (room?.users?.length) {
@@ -154,7 +162,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       guestConnectionId: room.users[0].guestConnectionId as any,
       sessionStartedAt : new Date(),
     });
-
 
     const callRecordId = callRecordInfo.id as any as CallRecord;
 
@@ -171,7 +178,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     room.users?.forEach(async user => {
         const connection = await this.videoServiceService.createConnection(session, {});
         
-        this.server.to(user.socketId).emit('video-ready', {
+        this.guestsConnectionGateway.server.to(user.socketId).emit('video-ready', {
           token: connection.token,
           connectionId: connection.connectionId,
           sessionId: session.sessionId,
@@ -197,9 +204,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
   @SubscribeMessage('refuse-call')
   queueGuestReconnect(@MessageBody() refuseCallDto: RefuseCallDto, @ConnectedSocket() socket: Socket) {
-
-    console.log({refuseCallDto});
-
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     if (!room) return;
 
@@ -210,13 +214,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     if(refuseCallDto.requeue) {
       const priorityLine = this.guestsConnectionService.findProperPriorityList(guest);
 
-      console.log('findProperPriorityList', priorityLine);
-      
       this.guestsConnectionService.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
     } else {
-      this.server.to(guest.socketId).emit('disconnect-guest', { reason: 'CALL_REFUSED'});
-      console.log('disconnectguest-emit');
-      
+      this.guestsConnectionGateway.server.to(guest.socketId).emit('disconnect-guest', { reason: 'CALL_REFUSED'});
     }
 
     return { success: true };
@@ -321,8 +321,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })
 
+    room.available = true;
 
-    client.disconnect();
+    client.disconnect(true);
 
     // room.users = [];
     // room.sessionId = undefined;

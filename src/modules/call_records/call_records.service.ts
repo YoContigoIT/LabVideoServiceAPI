@@ -14,8 +14,7 @@ export class CallRecordsService {
     @InjectRepository(CallRecord) private callRecordRepository: Repository<CallRecord>
   ) {}
   async create(createCallRecordDto: CreateCallRecordDto) {
-    const callRecordInfo = await this.callRecordRepository.save(createCallRecordDto);
-    return callRecordInfo;
+    return await this.callRecordRepository.save(createCallRecordDto);
   }
 
   async findAll(query: FindAllCallRecordDto) {

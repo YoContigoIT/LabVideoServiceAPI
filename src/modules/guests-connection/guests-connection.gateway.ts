@@ -12,94 +12,110 @@ import { Guest } from '../guests/entities/guest.entity';
 import { ApiKeyType } from 'src/utilities/decorators/apiKeyType.decorator';
 import { ApiKeyGuard } from '../auth/guard/apikey.guard';
 import { ApiKey } from '../auth/auth.interfaces';
+import { UUIDVersion } from 'class-validator';
+import { AgentsConnectionGateway } from '../agents-connection/agents-connection.gateway';
 
 @ApiKeyType(ApiKey.PUBLIC)
 @UseGuards(ApiKeyGuard)
 @WebSocketGateway({
+  namespace: "/guest",
   cors: {
     origin: '*',
   },
 })
 export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  server: Server;
+  @WebSocketServer() server: Server;
 
   constructor(
     private guestsConnectionService: GuestsConnectionService,
-    @Inject(forwardRef(() => AgentsConnectionService))
-    private agentsConnectionService: AgentsConnectionService,
-    private videoServiceService: VideoServiceService,
+    @Inject(forwardRef(() => AgentsConnectionService)) private agentsConnectionService: AgentsConnectionService,
+    @Inject(forwardRef(() => AgentsConnectionGateway)) private agentsConnectionGateway: AgentsConnectionGateway,
     private guestsService: GuestsService,
   ) { }
 
-  handleConnection(socket: Socket) {
+  handleConnection(@ConnectedSocket() socket: Socket) {    
+    console.log('---------connect_guest---------');
   }
 
-  async handleDisconnect(socket: Socket) {
+  async handleDisconnect(@ConnectedSocket() socket: Socket) {
     console.log('handleDisconnect GUEST ---------')
     const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
     console.log("Guest ROOM on disconnect", room)
     if (room) {
-      this.server.to(room.host.socketId).emit('guest-disconnected');
+      this.agentsConnectionGateway.server.to(room.host.socketId).emit('guest-disconnected');
+
+      const guestRemoved = room.users.splice(0,1)[0];
+      room.available = true;
     } else {
-      console.log('getGuestIdxBySocketId')
+      // console.log('getGuestIdxBySocketId')
       const guestIdx = this.guestsConnectionService.getGuestIdxBySocketId(socket.id);
 
-      console.log('guestIdx', guestIdx);
+      // console.log('guestIdx', guestIdx);
 
       if (guestIdx !== -1) {
         this.guestsConnectionService.removeGuestFromAssertivePriorityLine(guestIdx.guest, guestIdx.priorityLine);
       }
     }
+    socket.disconnect(true);
   }
 
   @SubscribeMessage('connect-guest')
   async create(@MessageBody() createGuestsConnectionDto: CreateGuestsConnectionDto, @ConnectedSocket() client: Socket) {
+    console.log(client.id, 'socket-GUEST');
+    
     const guest = await this.guestsService.findOne(createGuestsConnectionDto.uuid as any);
     if (!guest) throw new WsException('There is not any Guest with this UUID');
 
-    console.log(guest, 'gues-connected')
-
     const linedGuest = this.guestsConnectionService.findGuestInPriorityLineByUuid(createGuestsConnectionDto.uuid as any);
-    if (linedGuest) throw new WsException({ message: 'The Guest is already connect', error: 'ALREADY_CONNECTED' });
+    if (linedGuest) {
+      console.log('ERROR-ALREADY-CONNET');
+      
+      console.log('pl -> ', this.guestsConnectionService.priorityLine.forEach(i => {
+        i.priorityLine.value.map(j => {
+          j.guest.name
+        })
+      }));
+      
+      throw new WsException({ message: 'The Guest is already connect', error: 'ALREADY_CONNECTED' });
+    } 
+    
+    // if (createGuestsConnectionDto.sessionId) {
+    //   try {
+    //     const session = await this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
 
-    if (createGuestsConnectionDto.sessionId) {
-      try {
-        const session = await this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
+    //     if (session) {
+    //       const connection = await this.videoServiceService.createConnection(session.session, {});
+    //       console.log('connection ----------', connection)
+    //       const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
+    //       console.log(guestConnection, 'guestConnection')
+    //       const room = this.agentsConnectionService.findRoomBySessionId(createGuestsConnectionDto.sessionId);
 
-        if (session) {
-          const connection = await this.videoServiceService.createConnection(session.session, {});
-          console.log('connection ----------', connection)
-          const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
-          console.log(guestConnection, 'guestConnection')
-          const room = this.agentsConnectionService.findRoomBySessionId(createGuestsConnectionDto.sessionId);
-
-          const user = room.users?.findIndex(user => user.guest.uuid === (createGuestsConnectionDto.uuid as any));
-
-
-          if (user != -1) {
-
-            client.emit('video-ready', {
-              token: connection.token,
-              connectionId: connection.connectionId,
-              sessionId: session.session.sessionId,
-              agent: {
-                name: session.room.host.agent.fullName,
-                role: session.room.host.agent.role.title
-              }
-            });
-
-            room.users[user].socketId = client.id;
+    //       const user = room.users?.findIndex(user => user.guest.uuid === (createGuestsConnectionDto.uuid as any));
 
 
-            this.agentsConnectionService.updateRoom(room.name, room);
-            return { guest, guestConnection };
-          }
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    }
+    //       if (user != -1) {
+
+    //         client.emit('video-ready', {
+    //           token: connection.token,
+    //           connectionId: connection.connectionId,
+    //           sessionId: session.session.sessionId,
+    //           agent: {
+    //             name: session.room.host.agent.fullName,
+    //             role: session.room.host.agent.role.title
+    //           }
+    //         });
+
+    //         room.users[user].socketId = client.id;
+
+
+    //         this.agentsConnectionService.updateRoom(room.name, room);
+    //         return { guest, guestConnection };
+    //       }
+    //     }
+    //   } catch (err) {
+    //     console.warn(err);
+    //   }
+    // }
 
     createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
 
@@ -114,8 +130,8 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       guestConnectionId: guestConnection.id,
       details: guestConnection.details,
       guestConnection
-    })
-
+    });
+    
     return { guestConnection, guest };
   }
 
@@ -124,5 +140,10 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     return this.guestsConnectionService.updateGuestConnection(id, {
       endTimeConnection: new Date()
     });
+  }
+
+  @SubscribeMessage('check-proprity-line')
+  checkPriorityLine(@MessageBody() guestUUID: UUIDVersion, @ConnectedSocket() client: Socket) {
+    return this.guestsConnectionService.existsInPriorityLine(guestUUID)
   }
 }
