@@ -70,7 +70,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
           const callRecordId = await this.callRecordService.findCallRecordByGuestConnectionId(room.users[0].guestConnectionId);
           if(callRecordId) this.callRecordService.update(callRecordId.id);
           
-          this.server.to(user.socketId).emit('agent-disconnected', {});
+          this.guestsConnectionGateway.server.to(user.socketId).emit('agent-disconnected', {});
         })
 
         await OVSession.fetch()
@@ -125,14 +125,9 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
   }
 
   guestInRoom(room: Room, guest: Guest) {
-    console.log(room, 'room-master');
-    
-    console.log(guest.socketId, '----------SocketId-GUEST---------');
-    console.log(this.server, '----------server-GUEST---------');
     this.server.in(guest.socketId).socketsJoin(room.name);
     this.guestsConnectionGateway.server.in(guest.socketId).emit('guest-connected', true);
 
-    console.log(room.host.socketId, 'emit-host(AGENT)');
     this.server.in(room.host.socketId).emit('guest-connected', guest);
   }
 
@@ -223,7 +218,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     
     room.users.forEach(user => {
-      this.server.in(room.name).to(user.socketId).emit('mute-video', {toggleVideo : toggleVideoGuestData});
+      this.guestsConnectionGateway.server.in(room.name).to(user.socketId).emit('mute-video', {toggleVideo : toggleVideoGuestData});
     })
 
     return toggleVideoGuestData;
@@ -236,7 +231,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     const room = this.agentsConnectionService.getRoomByHostSocket(socket.id);
     
     room.users.forEach(user => {
-      this.server.in(room.name).to(user.socketId).emit('mute-audio', {toggleAudio: toggleAudioGuestData});
+      this.guestsConnectionGateway.server.in(room.name).to(user.socketId).emit('mute-audio', {toggleAudio: toggleAudioGuestData});
     })
 
     return toggleAudioGuestData;
@@ -248,7 +243,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     if (room?.users) {
       room.users.forEach(user => {
-        this.server.in(room.name).to(user.socketId).emit('refresh-connection');
+        this.guestsConnectionGateway.server.in(room.name).to(user.socketId).emit('refresh-connection');
       });
     }
 
@@ -265,7 +260,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       if(!sessionId) return;
   
       const connection = await this.videoServiceService.createConnection(sessionId, {});
-      console.log('------------------connection_general----------', connection);
       
       return connection 
     } catch (e) {
@@ -278,8 +272,6 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     console.log("ENTRANDO A close-video-call")
 
     const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
-    console.log('ROOM', room);
-    
 
     if (!room) return room;
 
@@ -312,7 +304,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     console.log('ROOM USERS ---->', room.users);
     
     room.users?.forEach(user => {
-      this.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
+      this.guestsConnectionGateway.server.in(room.name).to(user.socketId).emit('disconnect-guest', 'disconnect from server');
     })
 
     room.available = true;

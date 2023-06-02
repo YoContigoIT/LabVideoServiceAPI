@@ -29,8 +29,9 @@ export class WebhooksController {
         
         if(eventData.status === RecordingStatusChangedStatusTypes.ready) {  
           try {
+            console.log(eventData, 'eventData');
             
-            this.webhooksService.uploadVideoToS3(eventData.sessionId, eventData.name);
+            // this.webhooksService.uploadVideoToS3(eventData.sessionId, eventData.name);
             
             const recordingInfo = await this.recordingsService.insertDuration(eventData.sessionId,{ duration: eventData.duration } )
             const seconds = this.recordingsMarkService.seconsToString(Math.trunc(eventData.duration));

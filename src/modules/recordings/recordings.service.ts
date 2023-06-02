@@ -209,8 +209,9 @@ export class RecordingsService {
 
   async insertDuration(sessionId: string, updateRecordingDto: UpdateRecordingDto) {
     const recording = await this.recordingRepository.findOne({ where: { sessionId: sessionId } });
-
-    await this.recordingRepository.save({ ...recording, duration: updateRecordingDto.duration });
+    
+    const record = await this.recordingRepository.save({ ...recording, uri: sessionId, duration: updateRecordingDto.duration });
+    
     return recording;
   }
 

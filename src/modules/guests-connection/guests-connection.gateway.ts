@@ -67,12 +67,6 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     if (linedGuest) {
       console.log('ERROR-ALREADY-CONNET');
       
-      console.log('pl -> ', this.guestsConnectionService.priorityLine.forEach(i => {
-        i.priorityLine.value.map(j => {
-          j.guest.name
-        })
-      }));
-      
       throw new WsException({ message: 'The Guest is already connect', error: 'ALREADY_CONNECTED' });
     } 
     

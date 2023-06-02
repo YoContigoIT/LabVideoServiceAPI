@@ -82,9 +82,6 @@ import { MySQLConnection } from './utilities/env/env.interface';
           }
         }
 
-        console.log(config);
-        
-        
         return config;
       },
       inject: [ConfigService],

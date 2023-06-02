@@ -9,9 +9,12 @@ import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { ApiKeyGuard } from "../auth/guard/apikey.guard";
 import { ApiKey } from "../auth/auth.interfaces";
 import { AgentsConnectionService } from '../agents-connection/agents-connection.service';
+import { AgentsConnectionGateway } from "../agents-connection/agents-connection.gateway";
+
 @ApiKeyType(ApiKey.PUBLIC)
 @UseGuards(ApiKeyGuard)
 @WebSocketGateway({
+    namespace: "/agent",
     cors: {
         origin: '*',
     },
@@ -23,21 +26,20 @@ export class VideoServiceGateway {
     constructor(
         private videoServiceService: VideoServiceService,
         private recordingMarkService: RecordingMarkService,
-        @Inject(forwardRef(() => AgentsConnectionService))
-        private agentsConnectionService: AgentsConnectionService
+        @Inject(forwardRef(() => AgentsConnectionService)) private agentsConnectionService: AgentsConnectionService,
+        @Inject(forwardRef(() => AgentsConnectionGateway)) private agentsConnectionGateway: AgentsConnectionGateway
     ) {}
     
     @SubscribeMessage("mark-recording")
     marksRecording(@MessageBody() createRecordingMarkDto: CreateRecordingMarkDto, @ConnectedSocket() client: Socket) {
-        
         const room = this.agentsConnectionService.getRoomByHostSocket(client.id);
         if (createRecordingMarkDto.recordingMarkTypeId === '3') {
             // Start recording MARK type
-            this.server.in(room.name).emit('recording-status', { isRecording: true});
+            this.agentsConnectionGateway.server.in(room.name).emit('recording-status', { isRecording: true});
 
         } else if (createRecordingMarkDto.recordingMarkTypeId === '4') {
             // Stop recording MARK type
-            this.server.in(room.name).emit('recording-status', { isRecording: false });
+            this.agentsConnectionGateway.server.in(room.name).emit('recording-status', { isRecording: false });
         }
         
         return this.recordingMarkService.create(createRecordingMarkDto);
