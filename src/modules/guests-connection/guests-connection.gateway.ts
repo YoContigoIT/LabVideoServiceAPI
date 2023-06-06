@@ -126,6 +126,17 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     return { guestConnection, guest };
   }
 
+  @SubscribeMessage('toggle-video-guest')
+  async toggleVideoGuest(@MessageBody() toggleVideoGuestData, @ConnectedSocket() socket: Socket) {    
+    const room = this.guestsConnectionService.getRoomByGuestSocket(socket.id);
+    // console.log(room, 'room');
+    
+    this.agentsConnectionGateway.server.to(room.host.socketId).emit('mute-video', { toggleVideo : toggleVideoGuestData })
+    this.server.to(socket.id).emit('mute-video', {toggleVideo : toggleVideoGuestData});
+
+    return toggleVideoGuestData;
+  }
+
   @SubscribeMessage('disconnect-call')
   updateGuestConnection(@MessageBody() id: string) {
     return this.guestsConnectionService.updateGuestConnection(id, {

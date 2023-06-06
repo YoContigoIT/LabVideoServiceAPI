@@ -103,6 +103,7 @@ export class AgentsConnectionGateway implements OnGatewayConnection, OnGatewayDi
     //TODO: si hay un room con el uuid del agente es que ya esta conectado
     const room = this.agentsConnectionService.getRoomByAgentUUID(createAgentsConnectionDto.agent as any);
     if (room){
+      client.disconnect();
       console.log(room, 'room-exception- ¿Why exist?'); 
       throw new WsException({ message: 'The Agent is already connect', error: 'ALREADY_CONNECTED' });
     }
