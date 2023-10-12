@@ -1,6 +1,5 @@
 ## Requisitos
-NodeJS V18.*.*
-
+NodeJS v18 (cualquier subversión)
 ## Descripción
 
 API de video llamadas para video denuncia.
