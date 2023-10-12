@@ -1,3 +1,5 @@
+## Requisitos
+NodeJS V18.*.*
 
 ## Descripción
 
