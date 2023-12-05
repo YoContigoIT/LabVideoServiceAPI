@@ -16,6 +16,11 @@ import { LanguagesSeeder } from "./languages.seeder";
 import { Language } from "src/modules/languages/entities/language.entity";
 import { RecordingsMarkTypeSeeder } from "./recordingMarksType.seeder";
 import { RootUserSeeder } from "./rootUser.seeder";
+import { Agent } from "http";
+import { Role } from "src/modules/roles/entities/role.entity";
+import { UserRole } from "src/modules/user-roles/entities/user-role.entity";
+import { ApiKey } from "src/modules/api-key/entities/api-key.entity";
+import { MySQLConnection } from "src/utilities/env/env.interface";
 
 seeder({
   imports: [
@@ -28,26 +33,39 @@ seeder({
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async ( configService: ConfigService ) => ({        
-        type: "mysql",
-        host: configService.get<string>("db.mysql.host"),
-        port: parseInt(configService.get<string>("db.mysql.port")),
-        username: configService.get<string>("db.mysql.username"),
-        password: configService.get<string>("db.mysql.password"),
-        database: configService.get<string>("db.mysql.database"),
-        entities: [
-          User,
-          // CallRecord,
-          // AgentsConnection,
-          // Guest,
-          // GuestsConnection,
-          RecordingsMarkType,
-          // RecordingMark,
-          // Recording,
-          Setting,
-        ],
-        synchronize: true,
-      }),
+      useFactory: async ( configService: ConfigService ) => {
+        
+        let config: any = {        
+          type: "mysql",
+          entities: [
+            User,
+            CallRecord,
+            AgentsConnection,
+            Guest,
+            GuestsConnection,
+            RecordingsMarkType,
+            RecordingMark,
+            Recording,
+            Setting,
+            Agent,
+            Role,
+            Language,
+            UserRole,
+            ApiKey,
+          ],
+          synchronize: true,
+        };
+
+        if (configService.get<boolean>("db.mysql.useReplication")) {
+          config.replication = configService.get<string>("db.mysql.replication")
+        } else {
+          config = { ...config,
+            ...configService.get<MySQLConnection>("db.mysql.unique")
+          }
+        }
+
+        return config;
+      },
       inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([Setting])

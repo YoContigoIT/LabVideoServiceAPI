@@ -69,44 +69,7 @@ export class GuestsConnectionGateway implements OnGatewayConnection, OnGatewayDi
       
       throw new WsException({ message: 'The Guest is already connect', error: 'ALREADY_CONNECTED' });
     } 
-    
-    // if (createGuestsConnectionDto.sessionId) {
-    //   try {
-    //     const session = await this.guestsConnectionService.getSessionToReconnect(createGuestsConnectionDto.sessionId);
 
-    //     if (session) {
-    //       const connection = await this.videoServiceService.createConnection(session.session, {});
-    //       console.log('connection ----------', connection)
-    //       const guestConnection = await this.guestsConnectionService.findGuestConnectionBySessionId(createGuestsConnectionDto.sessionId);
-    //       console.log(guestConnection, 'guestConnection')
-    //       const room = this.agentsConnectionService.findRoomBySessionId(createGuestsConnectionDto.sessionId);
-
-    //       const user = room.users?.findIndex(user => user.guest.uuid === (createGuestsConnectionDto.uuid as any));
-
-
-    //       if (user != -1) {
-
-    //         client.emit('video-ready', {
-    //           token: connection.token,
-    //           connectionId: connection.connectionId,
-    //           sessionId: session.session.sessionId,
-    //           agent: {
-    //             name: session.room.host.agent.fullName,
-    //             role: session.room.host.agent.role.title
-    //           }
-    //         });
-
-    //         room.users[user].socketId = client.id;
-
-
-    //         this.agentsConnectionService.updateRoom(room.name, room);
-    //         return { guest, guestConnection };
-    //       }
-    //     }
-    //   } catch (err) {
-    //     console.warn(err);
-    //   }
-    // }
 
     createGuestsConnectionDto.ip = client.handshake.headers['x-forwarded-for'] as string || client.handshake.address;
 

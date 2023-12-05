@@ -22,8 +22,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-    }
-    ));
+    }));
 
   const configService = app.get(ConfigService);
 
