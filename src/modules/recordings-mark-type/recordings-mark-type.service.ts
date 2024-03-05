@@ -5,39 +5,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RecordingsMarkType } from './entities/recordings-mark-type.entity';
 import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
-import { HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
 
 @Injectable()
 export class RecordingsMarkTypeService {
   constructor(
-    @InjectRepository(RecordingsMarkType) private recordingsMarkTypeRepository: Repository<RecordingsMarkType>,
+    @InjectRepository(RecordingsMarkType)
+    private recordingsMarkTypeRepository: Repository<RecordingsMarkType>,
   ) {}
 
-  create(createRecordingsMarkTypeDto: CreateRecordingsMarkTypeDto) {    
+  create(createRecordingsMarkTypeDto: CreateRecordingsMarkTypeDto) {
     return this.recordingsMarkTypeRepository.save(createRecordingsMarkTypeDto);
   }
 
   async findAll() {
     const data = await this.recordingsMarkTypeRepository.find();
-    return data.filter(i => !i.type);
+    return data.filter((i) => !i.type);
   }
-  
+
   findOne(id: string) {
     return this.recordingsMarkTypeRepository.findOne({
-      where: {id}
+      where: { id },
     });
   }
 
-  async update(id: string, updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto) {
+  async update(
+    id: string,
+    updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto,
+  ) {
     const response = await this.recordingsMarkTypeRepository
       .createQueryBuilder()
       .update(RecordingsMarkType)
       .set(updateRecordingsMarkTypeDto)
-      .where('id = :id', {id})
+      .where('id = :id', { id })
       .execute();
 
     return parseAffeceRowToHttpResponse(response.affected);
-  } 
+  }
 
   async remove(id: string) {
     const response = await this.recordingsMarkTypeRepository.softDelete(id);

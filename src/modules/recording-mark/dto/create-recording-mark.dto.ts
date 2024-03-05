@@ -1,14 +1,14 @@
-import { IsNotEmpty } from "class-validator"
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateRecordingMarkDto {
-    @IsNotEmpty()
-    markTime: string
+  @IsNotEmpty()
+  markTime: string;
 
-    messageText?: string
+  messageText?: string;
 
-    @IsNotEmpty()
-    recordingMarkTypeId: string
+  @IsNotEmpty()
+  recordingMarkTypeId: string;
 
-    @IsNotEmpty()
-    recordingId: string
+  @IsNotEmpty()
+  recordingId: string;
 }

@@ -1,27 +1,27 @@
-import { IsEmail, IsNotEmpty, IsString, IsArray } from "class-validator";
-import { Language } from "src/modules/languages/entities/language.entity";
-import { Role } from "src/modules/roles/entities/role.entity";
+import { IsEmail, IsNotEmpty, IsString, IsArray } from 'class-validator';
+import { Language } from 'src/modules/languages/entities/language.entity';
+import { Role } from 'src/modules/roles/entities/role.entity';
 
 export class CreateAgentDto {
-    @IsString()
-    @IsNotEmpty()
-    names: string;
+  @IsString()
+  @IsNotEmpty()
+  names: string;
 
-    @IsString()
-    @IsNotEmpty()
-    lastnames: string;
+  @IsString()
+  @IsNotEmpty()
+  lastnames: string;
 
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
-    @IsNotEmpty()
-    sex: string;
+  @IsNotEmpty()
+  sex: string;
 
-    @IsNotEmpty()
-    role: Role
+  @IsNotEmpty()
+  role: Role;
 
-    @IsNotEmpty()
-    @IsArray()
-    languages?: Language[]
+  @IsNotEmpty()
+  @IsArray()
+  languages?: Language[];
 }

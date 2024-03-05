@@ -1,14 +1,14 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateVideoServiceDto {}
 
 export class RecordingVideoServiceDto {
-    @IsNotEmpty()
-    socketId
+  @IsNotEmpty()
+  socketId;
 
-    @IsNotEmpty()
-    sessionId
+  @IsNotEmpty()
+  sessionId;
 
-    @IsNotEmpty()
-    connectionId
+  @IsNotEmpty()
+  connectionId;
 }

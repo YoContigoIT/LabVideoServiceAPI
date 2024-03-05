@@ -18,8 +18,8 @@ export class GuestsService {
   ) {}
   async create(createGuestDto: CreateGuestDto): Promise<CreateGuestDto> {
     const languages: Language[] = [];
-    for(let language of createGuestDto.languages) { 
-      languages.push(await this.languagesService.findOne(language.toString()))
+    for (const language of createGuestDto.languages) {
+      languages.push(await this.languagesService.findOne(language.toString()));
     }
 
     const agent = this.guestRepository.create(createGuestDto);
@@ -30,12 +30,12 @@ export class GuestsService {
   }
 
   async findAll(query: GetGuestsDto) {
-    let where = []
+    const where = [];
     const take = query.pageSize || 10;
     const page = query.pageIndex || 0;
-    const skip = page*take;
+    const skip = page * take;
 
-    if(query.search) {
+    if (query.search) {
       where.push({ name: Like(`%${query.search}%`) });
       where.push({ details: Like(`%${query.search}%`) });
     }
@@ -43,7 +43,7 @@ export class GuestsService {
     const data = await this.guestRepository.findAndCount({
       take: query.paginate ? take : 0,
       skip: query.paginate ? skip : 0,
-      where: where.length ? where : {}
+      where: where.length ? where : {},
     });
 
     return paginatorResponse(data, page, take);
@@ -52,45 +52,51 @@ export class GuestsService {
   findOne(uuid: string): Promise<Guest> {
     return this.guestRepository.findOne({
       relations: {
-        guestConnections: { 
+        guestConnections: {
           callRecord: {
-            recording: true
-          }
-        }
+            recording: true,
+          },
+        },
       },
-      where: {uuid}
+      where: { uuid },
     });
   }
 
   async updateGuest(uuid: string, updateGuestDto: UpdateGuestDto) {
-    let agent = await this.guestRepository.findOne({ where: {uuid}});  
-    
-    if (updateGuestDto.languages) {
+    const agent = await this.guestRepository.findOne({ where: { uuid } });
 
+    if (updateGuestDto.languages) {
       const languages: Language[] = [];
-      for(let language of updateGuestDto.languages) { 
-        languages.push(await this.languagesService.findOne(language.toString()))
+      for (const language of updateGuestDto.languages) {
+        languages.push(
+          await this.languagesService.findOne(language.toString()),
+        );
       }
- 
+
       agent.languages = languages;
       delete updateGuestDto.languages;
     }
-    const response = await this.guestRepository.save({...agent, ...updateGuestDto})
+    const response = await this.guestRepository.save({
+      ...agent,
+      ...updateGuestDto,
+    });
 
     return this.parseAffeceRowToHttpResponse(response.uuid ? 1 : 0);
   }
 
   async removeGuest(uuid: string) {
-    const response = await this.guestRepository.softDelete(uuid)
+    const response = await this.guestRepository.softDelete(uuid);
 
     return this.parseAffeceRowToHttpResponse(response.affected);
   }
 
   private parseAffeceRowToHttpResponse(affected: number) {
-    return affected === 1 ? {
-      status: HttpStatusResponse.SUCCESS
-    }: {
-      status: HttpStatusResponse.FAIL
-    } ;
+    return affected === 1
+      ? {
+          status: HttpStatusResponse.SUCCESS,
+        }
+      : {
+          status: HttpStatusResponse.FAIL,
+        };
   }
 }

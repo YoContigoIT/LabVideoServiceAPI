@@ -9,6 +9,6 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [RecordingsModule, RecordingMarkModule, AuthModule],
   controllers: [WebhooksController],
-  providers: [WebhooksService, AwsService]
+  providers: [WebhooksService, AwsService],
 })
 export class WebhooksModule {}

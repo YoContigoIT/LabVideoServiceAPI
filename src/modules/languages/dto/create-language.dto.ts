@@ -1,6 +1,6 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateLanguageDto {
-    @IsNotEmpty()
-    title: string
+  @IsNotEmpty()
+  title: string;
 }

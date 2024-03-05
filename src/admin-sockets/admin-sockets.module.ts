@@ -7,6 +7,6 @@ import { GuestsConnectionModule } from 'src/modules/guests-connection/guests-con
 @Module({
   imports: [AgentsConnectionModule, GuestsConnectionModule],
   providers: [AdminSocketsGateway, AdminSocketsService],
-  exports: [AdminSocketsGateway]
+  exports: [AdminSocketsGateway],
 })
 export class AdminSocketsModule {}

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { GuestsService } from './guests.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
@@ -22,8 +32,6 @@ export class GuestsController {
 
   @Post()
   create(@Body() createGuestDto: CreateGuestDto): Promise<CreateGuestDto> {
-    console.log(createGuestDto);
-    
     return this.guestsService.create(createGuestDto);
   }
 

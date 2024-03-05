@@ -22,17 +22,17 @@ export class RolesService {
 
   findOne(id: string) {
     return this.roleRepository.findOne({
-      where: {id}
+      where: { id },
     });
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
     const response = await this.roleRepository
-    .createQueryBuilder()
-    .update(Role)
-    .set(updateRoleDto)
-    .where('id = :id', {id})
-    .execute();
+      .createQueryBuilder()
+      .update(Role)
+      .set(updateRoleDto)
+      .where('id = :id', { id })
+      .execute();
 
     return parseAffeceRowToHttpResponse(response.affected);
   }

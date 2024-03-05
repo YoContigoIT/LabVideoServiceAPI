@@ -1,45 +1,44 @@
-import { IsDateString, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class FindAllCallRecordDto {
-    
-    @IsUUID()
-    @IsOptional()
-    guestUuid?: string;
-    
-    @IsUUID()
-    @IsOptional()
-    agentUuid?: string;
+  @IsUUID()
+  @IsOptional()
+  guestUuid?: string;
 
-    @IsString()
-    @IsOptional()
-    agentConnectionId: string;
+  @IsUUID()
+  @IsOptional()
+  agentUuid?: string;
 
-    @IsString()
-    @IsOptional()
-    guestConnectionId?: string;
+  @IsString()
+  @IsOptional()
+  agentConnectionId: string;
 
-    @IsDateString()
-    @IsOptional()
-    sessionStartedFrom?: Date;
+  @IsString()
+  @IsOptional()
+  guestConnectionId?: string;
 
-    @IsDateString()
-    @IsOptional()
-    sessionStartedTo?: Date;
+  @IsDateString()
+  @IsOptional()
+  sessionStartedFrom?: Date;
 
-    @IsDateString()
-    @IsOptional()
-    sessionFinishedFrom?: Date;
+  @IsDateString()
+  @IsOptional()
+  sessionStartedTo?: Date;
 
-    @IsDateString()
-    @IsOptional()
-    sessionFinishedTo?: Date;
+  @IsDateString()
+  @IsOptional()
+  sessionFinishedFrom?: Date;
 
-    @IsOptional()
-    pageIndex?: number
+  @IsDateString()
+  @IsOptional()
+  sessionFinishedTo?: Date;
 
-    @IsOptional()
-    pageSize?: number
+  @IsOptional()
+  pageIndex?: number;
 
-    @IsOptional()
-    paginate?: boolean = true;
+  @IsOptional()
+  pageSize?: number;
+
+  @IsOptional()
+  paginate?: boolean = true;
 }

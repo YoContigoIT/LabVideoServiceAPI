@@ -5,11 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecordingMark } from './entities/recording-mark.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RecordingMark]),
-  ],
+  imports: [TypeOrmModule.forFeature([RecordingMark])],
   controllers: [RecordingMarkController],
   providers: [RecordingMarkService],
-  exports: [RecordingMarkService]
+  exports: [RecordingMarkService],
 })
 export class RecordingMarkModule {}

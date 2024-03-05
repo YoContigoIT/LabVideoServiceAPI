@@ -1,143 +1,147 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AwsService } from 'src/services/aws/aws.service';
-import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import {
+  paginatorResponse,
+  parseAffeceRowToHttpResponse,
+} from 'src/utilities/helpers';
 import { Between, FindOptionsWhere, Like, Repository } from 'typeorm';
-import { CallRecord } from '../call_records/entities/call_record.entity';
 import { CreateRecordingDto } from './dto/create-recording.dto';
 import { GetRecordingsDto } from './dto/get-recordings.dto';
-import { UpdateRecordingDto, UpdateUriRecordingDto } from './dto/update-recording.dto';
+import {
+  UpdateRecordingDto,
+  UpdateUriRecordingDto,
+} from './dto/update-recording.dto';
 import { Recording } from './entities/recording.entity';
 
 @Injectable()
 export class RecordingsService {
   constructor(
-    @InjectRepository(Recording) private recordingRepository: Repository<Recording>,
-    private readonly awsService: AwsService
+    @InjectRepository(Recording)
+    private recordingRepository: Repository<Recording>,
+    private readonly awsService: AwsService,
   ) {}
-  
+
   async create(createRecordingDto: CreateRecordingDto) {
     return await this.recordingRepository.save(createRecordingDto);
   }
 
   async findAll(query: GetRecordingsDto) {
-    const where: FindOptionsWhere<Recording> = {}
+    const where: FindOptionsWhere<Recording> = {};
     const take = query.pageSize || 10;
     const page = query.pageIndex || 0;
-    const skip = page*take;
+    const skip = page * take;
     let order = {};
 
-    if(query.id) {
+    if (query.id) {
       where.id = query.id;
     }
 
-    if(query.callRecordId) {
+    if (query.callRecordId) {
       where.callRecordId = {
-        id: query.callRecordId
-      }
+        id: query.callRecordId,
+      };
     }
 
-    if(query.agentConnectionId) {
+    if (query.agentConnectionId) {
       where.callRecordId = {
         agentConnectionId: {
-          id: query.agentConnectionId
-        }
-      }
+          id: query.agentConnectionId,
+        },
+      };
     }
 
-    if(query.agentUuid) {
+    if (query.agentUuid) {
       where.callRecordId = {
         agentConnectionId: {
           agent: {
-            uuid: query.agentUuid
-          }
-        }
-      }
+            uuid: query.agentUuid,
+          },
+        },
+      };
     }
 
-    if(query.guestConnectionId) {
+    if (query.guestConnectionId) {
       where.callRecordId = {
         guestConnectionId: {
-          id: query.guestConnectionId
-        }
-      }
+          id: query.guestConnectionId,
+        },
+      };
     }
-    
-    if(query.guestUuid) {
+
+    if (query.guestUuid) {
       where.callRecordId = {
         guestConnectionId: {
-          uuid: query.guestUuid
-        }
-      }
+          uuid: query.guestUuid,
+        },
+      };
     }
 
-    if(query.fromDate) {
+    if (query.fromDate) {
       where.callRecordId = {
-        sessionStartedAt: Between(
-          query.fromDate,
-          query.toDate || new Date()
-        ),
-      }
+        sessionStartedAt: Between(query.fromDate, query.toDate || new Date()),
+      };
     }
 
-    if(query.search) {
+    if (query.search) {
       where.callRecordId = {
         guestConnectionId: {
-          folio: Like(`%${query.search}%`)
-        }
-      }
+          folio: Like(`%${query.search}%`),
+        },
+      };
     }
 
-    if (query.active === 'folio') { 
+    if (query.active === 'folio') {
       order = {
-        callRecordId : {
+        callRecordId: {
           guestConnectionId: {
-            folio: query.direction.toUpperCase()
-          }
-        }
-      }
+            folio: query.direction.toUpperCase(),
+          },
+        },
+      };
     }
 
-    if (query.active === 'time') { 
+    if (query.active === 'time') {
       order = {
-        callRecordId : {
-          sessionStartedAt: query.direction.toUpperCase()
-        }
-      }
+        callRecordId: {
+          sessionStartedAt: query.direction.toUpperCase(),
+        },
+      };
     }
-  
+
     const data = await this.recordingRepository.findAndCount({
       relations: {
         callRecordId: {
           agentConnectionId: {
-            agent: true
+            agent: true,
           },
           guestConnectionId: {
             // guest: true
-          }
-        }
+          },
+        },
       },
       take,
       skip,
       where,
-      order: Object.keys(order).length ? order : {
-        [query.active]: query.direction?.toUpperCase()
-      }
+      order: Object.keys(order).length
+        ? order
+        : {
+            [query.active]: query.direction?.toUpperCase(),
+          },
     });
 
     return paginatorResponse(data, page, take);
   }
 
   async findAllByFolio(folio: string) {
-    const where: FindOptionsWhere<Recording> = {}
-
+    const where: FindOptionsWhere<Recording> = {};
 
     where.callRecordId = {
       guestConnectionId: {
-        folio
-      }
-    }
-  
+        folio,
+      },
+    };
+
     const data = await this.recordingRepository.find({
       select: {
         uri: true,
@@ -147,32 +151,31 @@ export class RecordingsService {
           sessionFinishedAt: true,
           guestConnectionId: {
             folio: true,
-          }
-        }
+          },
+        },
       },
       relations: {
         callRecordId: {
-          guestConnectionId: true
-        }
+          guestConnectionId: true,
+        },
       },
-      where
+      where,
     });
 
     const _data = [];
 
-    for(let recording of data) {
+    for (const recording of data) {
       try {
-  
-        if(!recording.deleteAt){
-          recording['url'] = await this.awsService.getSignedURL(`${recording.uri}.mp4`);
+        if (!recording.deleteAt) {
+          recording['url'] = await this.awsService.getSignedURL(
+            `${recording.uri}.mp4`,
+          );
         }
       } catch (err) {
-        
         console.warn(err);
       } finally {
-        _data.push(recording)
+        _data.push(recording);
       }
-
     }
 
     return _data;
@@ -182,14 +185,15 @@ export class RecordingsService {
     const recording = await this.recordingRepository.findOne({
       where: { id },
       relations: {
-        recordingMarks: true
-      }
+        recordingMarks: true,
+      },
     });
 
     try {
-
-      if(!recording.deleteAt){
-        recording.uri = await this.awsService.getSignedURL(`${recording.uri}.mp4`);
+      if (!recording.deleteAt) {
+        recording.uri = await this.awsService.getSignedURL(
+          `${recording.uri}.mp4`,
+        );
       }
     } catch (err) {
       console.warn(err);
@@ -201,34 +205,50 @@ export class RecordingsService {
     return this.recordingRepository.find({ where: { sessionId } });
   }
 
-  async updateURI(sessionId: string, updateUriRecordingDto: UpdateUriRecordingDto) {
-    let recording = await this.recordingRepository.findOne({ where: { sessionId } })
-    
-    return this.recordingRepository.save({ ...recording, uri: updateUriRecordingDto.s3Key });
+  async updateURI(
+    sessionId: string,
+    updateUriRecordingDto: UpdateUriRecordingDto,
+  ) {
+    const recording = await this.recordingRepository.findOne({
+      where: { sessionId },
+    });
+
+    return this.recordingRepository.save({
+      ...recording,
+      uri: updateUriRecordingDto.s3Key,
+    });
   }
 
-  async insertDuration(sessionId: string, updateRecordingDto: UpdateRecordingDto) {
-    const recording = await this.recordingRepository.findOne({ where: { sessionId: sessionId } });
-    
-    const record = await this.recordingRepository.save({ ...recording, uri: sessionId, duration: updateRecordingDto.duration });
-    
+  async insertDuration(
+    sessionId: string,
+    updateRecordingDto: UpdateRecordingDto,
+  ) {
+    const recording = await this.recordingRepository.findOne({
+      where: { sessionId: sessionId },
+    });
+
+    await this.recordingRepository.save({
+      ...recording,
+      uri: sessionId,
+      duration: updateRecordingDto.duration,
+    });
+
     return recording;
   }
 
   async remove(id: string) {
     const recording = await this.recordingRepository.findOne({
-      where: { id: id }
+      where: { id: id },
     });
 
-
-    if(recording) {
+    if (recording) {
       const result = await this.awsService.deleteObject(recording.uri);
 
-      if(result.$metadata.httpStatusCode === 204) {
+      if (result.$metadata.httpStatusCode === 204) {
         const response = await this.recordingRepository.softDelete(id);
-        
+
         return parseAffeceRowToHttpResponse(response.affected);
-      }  
+      }
     }
   }
 }

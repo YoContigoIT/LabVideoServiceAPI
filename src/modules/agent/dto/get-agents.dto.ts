@@ -1,20 +1,18 @@
-import { Expose } from "class-transformer";
-import { IsOptional } from "class-validator";
-import { Role } from "src/modules/roles/entities/role.entity";
+import { IsOptional } from 'class-validator';
 
 export class GetAgentsDto {
-    @IsOptional()
-    search?: string
+  @IsOptional()
+  search?: string;
 
-    @IsOptional()
-    pageIndex?: number
+  @IsOptional()
+  pageIndex?: number;
 
-    @IsOptional()
-    pageSize?: number
+  @IsOptional()
+  pageSize?: number;
 
-    @IsOptional()
-    paginate?: boolean = true;
+  @IsOptional()
+  paginate?: boolean = true;
 
-    @IsOptional()
-    roleId: string
+  @IsOptional()
+  roleId: string;
 }

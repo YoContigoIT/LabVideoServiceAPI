@@ -2,8 +2,7 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { User } from './modules/users/entities/user.entity';
 import { CallRecord } from './modules/call_records/entities/call_record.entity';
@@ -51,10 +50,9 @@ import { MySQLConnection } from './utilities/env/env.interface';
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async ( configService: ConfigService ) => {
-        
-        let config: any = {        
-          type: "mysql",
+      useFactory: async (configService: ConfigService) => {
+        let config: any = {
+          type: 'mysql',
           entities: [
             User,
             CallRecord,
@@ -74,12 +72,15 @@ import { MySQLConnection } from './utilities/env/env.interface';
           synchronize: true,
         };
 
-        if (configService.get<boolean>("db.mysql.useReplication")) {
-          config.replication = configService.get<string>("db.mysql.replication")
+        if (configService.get<boolean>('db.mysql.useReplication')) {
+          config.replication = configService.get<string>(
+            'db.mysql.replication',
+          );
         } else {
-          config = { ...config,
-            ...configService.get<MySQLConnection>("db.mysql.unique")
-          }
+          config = {
+            ...config,
+            ...configService.get<MySQLConnection>('db.mysql.unique'),
+          };
         }
 
         return config;
@@ -105,12 +106,11 @@ import { MySQLConnection } from './utilities/env/env.interface';
     ApiKeyModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AwsService,],
+  providers: [AppService, AwsService],
   exports: [ConfigModule],
 })
-
 export class AppModule {
-  constructor(private dataSource: DataSource){}
+  constructor() {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer

@@ -1,10 +1,10 @@
 export interface HttpResponse {
-    status: HttpStatusResponse;
-    message?: string;
-    [key : string] : any;
+  status: HttpStatusResponse;
+  message?: string;
+  [key: string]: any;
 }
 
 export enum HttpStatusResponse {
-    SUCCESS = 'sucess',
-    FAIL = 'fail',
+  SUCCESS = 'sucess',
+  FAIL = 'fail',
 }

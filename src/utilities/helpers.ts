@@ -15,12 +15,15 @@ export async function getUuidv4(): Promise<string> {
   return uuidv4();
 }
 
-
-export function paginatorResponse(data: [any[], number], page: number, limit: number) {
+export function paginatorResponse(
+  data: [any[], number],
+  page: number,
+  limit: number,
+) {
   const [result, total] = data;
-  const lastPage = Math.ceil(total/limit);
-  const nextPage = page+1 > lastPage ? null : page+1;
-  const prevPage = page-1 < 1 ? null : page-1;
+  const lastPage = Math.ceil(total / limit);
+  const nextPage = page + 1 > lastPage ? null : page + 1;
+  const prevPage = page - 1 < 1 ? null : page - 1;
   return {
     statusCode: 'success',
     data: [...result],
@@ -30,18 +33,22 @@ export function paginatorResponse(data: [any[], number], page: number, limit: nu
     prevPage: prevPage,
     lastPage: lastPage,
     pageIndex: parseInt(page as any),
-    pageSize: parseInt(limit as any)
-  }
+    pageSize: parseInt(limit as any),
+  };
 }
 
 export function shuffleArray(array: any[]) {
-  let currentIndex = array.length, randomIndex;
+  let currentIndex = array.length,
+    randomIndex: number;
 
-  while(currentIndex != 0){
+  while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-    
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
   }
 
   return array;

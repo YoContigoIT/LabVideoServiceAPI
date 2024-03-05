@@ -1,10 +1,10 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateRecordingsMarkTypeDto {
-    @IsString()
-    @IsOptional()
-    type?: string;
-    
-    @IsString()
-    typeTitle: string;
+  @IsString()
+  @IsOptional()
+  type?: string;
+
+  @IsString()
+  typeTitle: string;
 }

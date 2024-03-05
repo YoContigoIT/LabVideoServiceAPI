@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
-import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { Roles } from 'src/utilities/decorators/roles.decorator';
 import { AuthJWTGuard } from '../auth/guard/auth.guard';
@@ -19,7 +18,7 @@ export class SettingsController {
   }
 
   @Patch()
-  update(@Body() updateSettingDto: UpdateSettingDto) {    
+  update(@Body() updateSettingDto: UpdateSettingDto) {
     return this.settingsService.update(updateSettingDto);
   }
 }

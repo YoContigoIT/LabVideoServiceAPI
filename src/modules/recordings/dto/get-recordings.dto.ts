@@ -1,47 +1,46 @@
-import { IsOptional } from "class-validator";
-import { Agent } from "src/modules/agent/entities/agent.entity";
-import { Guest } from "src/modules/guests/entities/guest.entity";
+import { IsOptional } from 'class-validator';
+import { Guest } from 'src/modules/guests/entities/guest.entity';
 
 export class GetRecordingsDto {
-    @IsOptional()
-    guestUuid?: Guest;
+  @IsOptional()
+  guestUuid?: Guest;
 
-    @IsOptional()
-    agentUuid?: string;
+  @IsOptional()
+  agentUuid?: string;
 
-    @IsOptional()
-    fromDate?: Date
+  @IsOptional()
+  fromDate?: Date;
 
-    @IsOptional()
-    toDate?: Date
+  @IsOptional()
+  toDate?: Date;
 
-    @IsOptional()
-    id?: string
+  @IsOptional()
+  id?: string;
 
-    @IsOptional()
-    callRecordId?: number
+  @IsOptional()
+  callRecordId?: number;
 
-    @IsOptional()
-    search?: string;
+  @IsOptional()
+  search?: string;
 
-    @IsOptional()
-    agentConnectionId?: string
+  @IsOptional()
+  agentConnectionId?: string;
 
-    @IsOptional()
-    guestConnectionId?: string
+  @IsOptional()
+  guestConnectionId?: string;
 
-    @IsOptional()
-    pageIndex?: number
+  @IsOptional()
+  pageIndex?: number;
 
-    @IsOptional()
-    pageSize?: number
+  @IsOptional()
+  pageSize?: number;
 
-    @IsOptional()
-    direction?: string
+  @IsOptional()
+  direction?: string;
 
-    @IsOptional()
-    folio?: string
+  @IsOptional()
+  folio?: string;
 
-    @IsOptional()
-    active?: string
+  @IsOptional()
+  active?: string;
 }

@@ -9,10 +9,10 @@ import { AgentsConnectionModule } from '../agents-connection/agents-connection.m
 
 @Module({
   imports: [
-    RecordingMarkModule, 
+    RecordingMarkModule,
     SettingsModule,
     AuthModule,
-    forwardRef(() => AgentsConnectionModule)
+    forwardRef(() => AgentsConnectionModule),
   ],
   controllers: [VideoServiceController],
   providers: [VideoServiceGateway, VideoServiceService],

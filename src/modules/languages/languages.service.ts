@@ -9,7 +9,8 @@ import { Language } from './entities/language.entity';
 @Injectable()
 export class LanguagesService {
   constructor(
-    @InjectRepository(Language) private languageRepository: Repository<Language>
+    @InjectRepository(Language)
+    private languageRepository: Repository<Language>,
   ) {}
 
   create(createLanguageDto: CreateLanguageDto) {
@@ -22,7 +23,7 @@ export class LanguagesService {
 
   findOne(id: string) {
     return this.languageRepository.findOne({
-      where: {id}
+      where: { id },
     });
   }
 
@@ -31,10 +32,10 @@ export class LanguagesService {
       .createQueryBuilder()
       .update(Language)
       .set(updateLanguageDto)
-      .where('id=:id', {id})
+      .where('id=:id', { id })
       .execute();
 
-      return parseAffeceRowToHttpResponse(response.affected);
+    return parseAffeceRowToHttpResponse(response.affected);
   }
 
   async remove(id: string) {

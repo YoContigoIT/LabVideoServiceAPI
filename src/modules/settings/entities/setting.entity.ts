@@ -1,25 +1,25 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Setting {
-    @PrimaryGeneratedColumn()
-    id?: string
+  @PrimaryGeneratedColumn()
+  id?: string;
 
-    @Column({ nullable: true })
-    openViduRecord?: boolean
+  @Column({ nullable: true })
+  openViduRecord?: boolean;
 
-    @Column({ nullable: true })
-    openViduRecordingMode?: string
+  @Column({ nullable: true })
+  openViduRecordingMode?: string;
 
-    @Column({ nullable: true })
-    openViduRecordingWidth?: number
+  @Column({ nullable: true })
+  openViduRecordingWidth?: number;
 
-    @Column({ nullable: true })
-    openViduRecordingHeight?: number
+  @Column({ nullable: true })
+  openViduRecordingHeight?: number;
 
-    @Column({ nullable: true })
-    openViduRecordingLayout?: string
+  @Column({ nullable: true })
+  openViduRecordingLayout?: string;
 
-    @Column({ nullable: true })
-    openViduRecordingFrameRate: number
+  @Column({ nullable: true })
+  openViduRecordingFrameRate: number;
 }

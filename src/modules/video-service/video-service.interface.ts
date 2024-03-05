@@ -1,3 +1,1 @@
-export interface MarkProperties {
-
-}
+// export interface MarkProperties {}

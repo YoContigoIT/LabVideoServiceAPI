@@ -5,11 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiKey } from './entities/api-key.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ApiKey]),
-  ],
+  imports: [TypeOrmModule.forFeature([ApiKey])],
   controllers: [ApiKeyController],
   providers: [ApiKeyService],
-  exports: [ApiKeyService]
+  exports: [ApiKeyService],
 })
 export class ApiKeyModule {}

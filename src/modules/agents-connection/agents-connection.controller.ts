@@ -1,17 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AgentsConnectionService } from './agents-connection.service';
-import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
-import { UpdateAgentsConnectionDto } from './dto/update-agents-connection.dto';
 import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
 
 @Controller('agentsconnection')
 export class AgentsConnectionController {
-  constructor(private readonly agentsConnectionService: AgentsConnectionService) {}
+  constructor(
+    private readonly agentsConnectionService: AgentsConnectionService,
+  ) {}
 
-  @Post(':uuid')
-  connectAgent(@Param('uuid') uuid: string) {
-    // return this.agentsConnectionService.connection(uuid);
-  }
+  // @Post(':uuid')
+  // connectAgent(@Param('uuid') uuid: string) {
+  //   return this.agentsConnectionService.connection(uuid);
+  // }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -21,7 +27,7 @@ export class AgentsConnectionController {
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
-    // return this.agentsConnectionService.findOne(+id);
+  // return this.agentsConnectionService.findOne(+id);
   // }
 
   // @Patch(':id')

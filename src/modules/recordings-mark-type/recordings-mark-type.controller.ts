@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { RecordingsMarkTypeService } from './recordings-mark-type.service';
 import { CreateRecordingsMarkTypeDto } from './dto/create-recordings-mark-type.dto';
 import { UpdateRecordingsMarkTypeDto } from './dto/update-recordings-mark-type.dto';
@@ -13,7 +22,9 @@ import { MultipleAuthorizeGuard } from '../auth/guard/multiple-authorize.guard';
 @UseGuards(MultipleAuthorizeGuard)
 @Controller('recordings-mark-type')
 export class RecordingsMarkTypeController {
-  constructor(private readonly recordingsMarkTypeService: RecordingsMarkTypeService) {}
+  constructor(
+    private readonly recordingsMarkTypeService: RecordingsMarkTypeService,
+  ) {}
 
   @Post()
   create(@Body() createRecordingsMarkTypeDto: CreateRecordingsMarkTypeDto) {
@@ -31,7 +42,7 @@ export class RecordingsMarkTypeController {
 
     const marks = await this.recordingsMarkTypeService.findAll();
 
-    return marks.filter(i => parseInt(i.id) > 4);
+    return marks.filter((i) => parseInt(i.id) > 4);
   }
 
   @Get(':id')
@@ -40,18 +51,21 @@ export class RecordingsMarkTypeController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto) {
-    if(+id > 4)
-      return this.recordingsMarkTypeService.update(id, updateRecordingsMarkTypeDto);
-    else 
-      return HttpStatusResponse.FAIL;
+  update(
+    @Param('id') id: string,
+    @Body() updateRecordingsMarkTypeDto: UpdateRecordingsMarkTypeDto,
+  ) {
+    if (+id > 4)
+      return this.recordingsMarkTypeService.update(
+        id,
+        updateRecordingsMarkTypeDto,
+      );
+    else return HttpStatusResponse.FAIL;
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    if(+id > 4)
-      return this.recordingsMarkTypeService.remove(id);
-    else
-      return HttpStatusResponse.FAIL;
+    if (+id > 4) return this.recordingsMarkTypeService.remove(id);
+    else return HttpStatusResponse.FAIL;
   }
 }

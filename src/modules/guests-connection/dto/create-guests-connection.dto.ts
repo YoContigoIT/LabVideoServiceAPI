@@ -1,39 +1,38 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { Guest } from "src/modules/guests/entities/guest.entity";
-import { Column } from "typeorm";
+import { IsOptional, IsString } from 'class-validator';
+import { Guest } from 'src/modules/guests/entities/guest.entity';
 
 export class CreateGuestsConnectionDto {
-    @IsOptional()
-    uuid: Guest
+  @IsOptional()
+  uuid: Guest;
 
-    @IsOptional()
-    ip?: string;
+  @IsOptional()
+  ip?: string;
 
-    @IsOptional()
-    typeClientBrowser: string;
+  @IsOptional()
+  typeClientBrowser: string;
 
-    @IsString()
-    @IsOptional()
-    priority: string
+  @IsString()
+  @IsOptional()
+  priority: string;
 
-    @IsOptional()
-    latitude
+  @IsOptional()
+  latitude;
 
-    @IsOptional()
-    longitude
+  @IsOptional()
+  longitude;
 
-    @IsOptional()
-    altitude
+  @IsOptional()
+  altitude;
 
-    @IsOptional()
-    folio: string
+  @IsOptional()
+  folio: string;
 
-    @IsOptional()
-    endTimeConnection: Date
+  @IsOptional()
+  endTimeConnection: Date;
 
-    @IsOptional()
-    details: JSON
+  @IsOptional()
+  details: JSON;
 
-    @IsOptional()
-    sessionId?: string;
+  @IsOptional()
+  sessionId?: string;
 }

@@ -11,11 +11,7 @@ import { RoleGuard } from '../auth/guard/role.guard';
 import { AwsService } from 'src/services/aws/aws.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Guest]),
-    LanguagesModule,
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Guest]), LanguagesModule, AuthModule],
   controllers: [GuestsController],
   providers: [GuestsService, RoleGuard, AuthJWTGuard, ApiKeyGuard, AwsService],
   exports: [GuestsService],

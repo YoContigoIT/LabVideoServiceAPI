@@ -5,52 +5,56 @@ import { Room, Agent as RoomAgents } from './agents-connection.interface';
 import { CreateAgentsConnectionDto } from './dto/create-agents-connection.dto';
 import { AgentsConnection } from './entities/agents-connection.entity';
 import { ListAgentsConnectionsDto } from './dto/list-agents-conections.dto';
-import { HttpResponse, HttpStatusResponse } from 'src/common/interfaces/http-responses.interface';
+import {
+  HttpResponse,
+  HttpStatusResponse,
+} from 'src/common/interfaces/http-responses.interface';
 import { parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
 import { BehaviorSubject, Observable, take } from 'rxjs';
 
 @Injectable()
 export class AgentsConnectionService {
   private _rooms: BehaviorSubject<Room[]> = new BehaviorSubject<Room[]>([]);
-  rooms$: Observable<Room[]> =  this._rooms.asObservable();
+  rooms$: Observable<Room[]> = this._rooms.asObservable();
 
   constructor(
-    @InjectRepository(AgentsConnection) private agentsConnectionRepository: Repository<AgentsConnection>,
+    @InjectRepository(AgentsConnection)
+    private agentsConnectionRepository: Repository<AgentsConnection>,
   ) {}
 
-  public get rooms() : Room[] {
+  public get rooms(): Room[] {
     return this._rooms.value;
   }
 
   async addRoom(roomName: string, host: RoomAgents): Promise<void> {
-    const room = this.getRoomByName(roomName)
+    const room = this.getRoomByName(roomName);
     if (room === -1) {
-      this.pushToRoom({ 
+      this.pushToRoom({
         name: roomName,
         host,
         users: [],
         available: true,
-        createdAt: new Date()
-      })
+        createdAt: new Date(),
+      });
     }
   }
 
   getRoomHost(hostName: string) {
-    const roomIndex = this.getRoomByName(hostName)
+    const roomIndex = this.getRoomByName(hostName);
     return this.rooms[roomIndex].host;
   }
 
   getRoomByName(roomName: string) {
-    return this.rooms.findIndex((room) => room?.name === roomName)
+    return this.rooms.findIndex((room) => room?.name === roomName);
   }
 
   addUserToRoom(roomName: any, user: RoomAgents) {
-    this.addRoom(roomName, user)
+    this.addRoom(roomName, user);
   }
 
   updateSessionIdOnRoom(sessionId: string, roomName: string) {
     const roomIndex = this.getRoomByName(roomName);
-    if (roomIndex != -1) {
+    if (roomIndex !== -1) {
       const room = this.rooms[roomIndex];
       room.sessionId = sessionId;
 
@@ -60,14 +64,14 @@ export class AgentsConnectionService {
 
   updateRoom(roomName: string, room: Room) {
     const idx = this.getRoomByName(roomName);
-    if (idx == -1) return;
-    
+    if (idx === -1) return;
+
     const rooms = this.rooms;
     rooms[idx] = room;
     this.updateRoomsList(rooms);
   }
 
-  updateRoomsList(rooms : Room[]) {
+  updateRoomsList(rooms: Room[]) {
     this._rooms.next(rooms);
   }
 
@@ -77,7 +81,7 @@ export class AgentsConnectionService {
 
   removeRoom(roomName: string): Room | HttpResponse {
     const roomIndex = this.getRoomByName(roomName);
-    
+
     if (roomIndex !== -1) {
       const rooms = this.rooms;
       const removedRoom = rooms.splice(roomIndex, 1)[0];
@@ -88,12 +92,12 @@ export class AgentsConnectionService {
 
     return {
       status: HttpStatusResponse.FAIL,
-      message: `The roome name: ${roomName} not exist`
-    }
+      message: `The roome name: ${roomName} not exist`,
+    };
   }
 
   pushToRoom(room: Room) {
-    this.rooms$.pipe(take(1)).subscribe(val => {
+    this.rooms$.pipe(take(1)).subscribe((val) => {
       const newArr = [...val, room];
       this._rooms.next(newArr);
     });
@@ -101,8 +105,8 @@ export class AgentsConnectionService {
 
   async saveAgentDisconnection(id: string) {
     const agentConnectionData = {
-      endTimeConnection: new Date()
-    }
+      endTimeConnection: new Date(),
+    };
 
     const response = await this.agentsConnectionRepository
       .createQueryBuilder()
@@ -115,7 +119,10 @@ export class AgentsConnectionService {
   }
 
   getRoomByGuestSocket(socketId: string) {
-    return this.rooms.find((room) => room.users.findIndex((user) => user.socketId === socketId) !== -1);
+    return this.rooms.find(
+      (room) =>
+        room.users.findIndex((user) => user.socketId === socketId) !== -1,
+    );
   }
 
   getRoomByAgentUUID(uuid: string) {
@@ -146,27 +153,26 @@ export class AgentsConnectionService {
     return this.agentsConnectionRepository.save(createAgentsConnectionDto);
   }
 
-
   findAll(query: ListAgentsConnectionsDto) {
     const where: FindOptionsWhere<AgentsConnection> = {};
 
     if (query.uuid) {
       where.agent = {
-        uuid: query.uuid
+        uuid: query.uuid,
       };
     }
 
     return this.agentsConnectionRepository.find({
       relations: {
-        agent: true
+        agent: true,
       },
-      where
+      where,
     });
   }
 
-  // Utilities  
-  
+  // Utilities
+
   findRoomBySessionId(sessionId: string) {
-    return this.rooms.find(room => room.sessionId === sessionId);
+    return this.rooms.find((room) => room.sessionId === sessionId);
   }
 }

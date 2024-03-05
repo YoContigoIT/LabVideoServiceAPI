@@ -1,21 +1,21 @@
-import { IsOptional, IsNumber, IsString } from "class-validator"
+import { IsOptional } from 'class-validator';
 
 export class CreateSettingDto {
-    @IsOptional()
-    openViduRecord?: boolean
+  @IsOptional()
+  openViduRecord?: boolean;
 
-    @IsOptional()
-    openViduRecordingMode?: string
+  @IsOptional()
+  openViduRecordingMode?: string;
 
-    @IsOptional()
-    openViduRecordingHeight?: number
+  @IsOptional()
+  openViduRecordingHeight?: number;
 
-    @IsOptional()
-    openViduRecordingWidth?: number
+  @IsOptional()
+  openViduRecordingWidth?: number;
 
-    @IsOptional()
-    openViduRecordingLayout?: string
+  @IsOptional()
+  openViduRecordingLayout?: string;
 
-    @IsOptional()
-    openViduRecordingFrameRate?: number
+  @IsOptional()
+  openViduRecordingFrameRate?: number;
 }

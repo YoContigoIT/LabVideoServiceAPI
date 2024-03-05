@@ -1,29 +1,35 @@
-import { IsJSON } from "class-validator";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { Exclude } from "class-transformer";
+import { IsJSON } from 'class-validator';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class ApiKey {
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    @Exclude()
-    apikey: string
+  @Column()
+  @Exclude()
+  apikey: string;
 
-    @Column({ type: 'enum', enum: ['secret', 'public'] })
-    type: string
+  @Column({ type: 'enum', enum: ['secret', 'public'] })
+  type: string;
 
-    @DeleteDateColumn()
-    deleteAt: Date
+  @DeleteDateColumn()
+  deleteAt: Date;
 
-    @Column()
-    clientId: string
+  @Column()
+  clientId: string;
 
-    @CreateDateColumn()
-    createAt: Date
+  @CreateDateColumn()
+  createAt: Date;
 
-    @Column('json', { nullable: true })
-    @IsJSON()
-    details?: any
+  @Column('json', { nullable: true })
+  @IsJSON()
+  details?: any;
 }

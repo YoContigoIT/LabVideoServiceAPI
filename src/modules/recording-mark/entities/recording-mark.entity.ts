@@ -1,27 +1,37 @@
-import { RecordingsMarkType } from "src/modules/recordings-mark-type/entities/recordings-mark-type.entity";
-import { Recording } from "src/modules/recordings/entities/recording.entity";
-import { Column, JoinColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, JoinTable } from "typeorm";
+import { RecordingsMarkType } from 'src/modules/recordings-mark-type/entities/recordings-mark-type.entity';
+import { Recording } from 'src/modules/recordings/entities/recording.entity';
+import {
+  Column,
+  JoinColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class RecordingMark {
-    @PrimaryGeneratedColumn()
-    id: string
+  @PrimaryGeneratedColumn()
+  id: string;
 
-    @ManyToOne(() => RecordingsMarkType, (recordingMarkType) => recordingMarkType.id,
-    { eager: true })
-    @JoinColumn({ name: "recordingMarkTypeId" })
-    recordingMarkTypeId: string
+  @ManyToOne(
+    () => RecordingsMarkType,
+    (recordingMarkType) => recordingMarkType.id,
+    { eager: true },
+  )
+  @JoinColumn({ name: 'recordingMarkTypeId' })
+  recordingMarkTypeId: string;
 
-    @Column()
-    markTime: string
+  @Column()
+  markTime: string;
 
-    @Column({ nullable: true })
-    messageText: string
+  @Column({ nullable: true })
+  messageText: string;
 
-    @ManyToOne(() => Recording, (recordings) => recordings.id)
-    @JoinColumn({ name: "recordingId" })
-    recordingId: string
+  @ManyToOne(() => Recording, (recordings) => recordings.id)
+  @JoinColumn({ name: 'recordingId' })
+  recordingId: string;
 
-    @DeleteDateColumn()
-    deleteAt: Date
+  @DeleteDateColumn()
+  deleteAt: Date;
 }

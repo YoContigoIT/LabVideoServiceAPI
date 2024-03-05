@@ -1,14 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, Scope } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
-    constructor(
-        private reflector: Reflector,
-    ) {
-      
-    }
+  constructor(private reflector: Reflector) {}
 
   matchRoles(roles: string[], userRole: string) {
     return roles.some((role) => role === userRole);
@@ -22,7 +17,7 @@ export class RoleGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    
+
     return this.matchRoles(roles, user.role);
   }
 }

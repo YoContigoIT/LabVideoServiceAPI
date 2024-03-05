@@ -4,9 +4,8 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { JwtStrategy } from 'src/utilities/jwt.strategy';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ApiKey } from '../api-key/entities/api-key.entity';
 import { ApiKeyModule } from '../api-key/api-key.module';
 import { AuthJWTGuard } from './guard/auth.guard';
 import { RoleGuard } from './guard/role.guard';
@@ -18,16 +17,25 @@ import { ApiKeyGuard } from './guard/apikey.guard';
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: ( configService: ConfigService ) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('jwt.secret_key'),
-        signOptions: { expiresIn: configService.get<string>('jwt.expiration_time') },
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.expiration_time'),
+        },
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     ApiKeyModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, ConfigService, AuthJWTGuard, RoleGuard, ApiKeyGuard],
-  exports: [JwtModule, ApiKeyModule]
+  providers: [
+    AuthService,
+    JwtStrategy,
+    ConfigService,
+    AuthJWTGuard,
+    RoleGuard,
+    ApiKeyGuard,
+  ],
+  exports: [JwtModule, ApiKeyModule],
 })
 export class AuthModule {}

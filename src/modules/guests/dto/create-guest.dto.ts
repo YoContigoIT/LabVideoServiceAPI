@@ -1,19 +1,18 @@
-import { IsArray, IsJSON, IsNotEmpty, IsObject, IsString } from "class-validator";
-import { Language } from "src/modules/languages/entities/language.entity";
+import { IsArray, IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { Language } from 'src/modules/languages/entities/language.entity';
 
 export class CreateGuestDto {
+  @IsNotEmpty()
+  @IsString()
+  name?: string;
 
-    @IsNotEmpty()
-    @IsString()
-    name?: string
+  @IsObject()
+  details?: any;
 
-    @IsObject()
-    details?: any
+  @IsNotEmpty()
+  gender?: string;
 
-    @IsNotEmpty()
-    gender?: string
-
-    @IsNotEmpty()
-    @IsArray()
-    languages?: Language[]
+  @IsNotEmpty()
+  @IsArray()
+  languages?: Language[];
 }

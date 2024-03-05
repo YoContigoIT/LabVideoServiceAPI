@@ -12,13 +12,13 @@ import { Room } from 'src/modules/agents-connection/agents-connection.interface'
 import { Language } from '../languages/entities/language.entity';
 import { shuffleArray } from 'src/utilities/helpers';
 import { VideoServiceService } from '../video-service/video-service.service';
-import { UUIDVersion } from 'class-validator';
+import { UUID } from 'crypto';
 
 type PriorityLineList = {
   gender: string;
   language: string;
-  priorityLine: BehaviorSubject<Guest[]>
-}
+  priorityLine: BehaviorSubject<Guest[]>;
+};
 
 @Injectable()
 export class GuestsConnectionService {
@@ -29,32 +29,45 @@ export class GuestsConnectionService {
 
   private languages: Language[];
 
-  private _priorityLine: BehaviorSubject<PriorityLineList[]> = new BehaviorSubject<PriorityLineList[]>([]);
-  priorityLine$: Observable<PriorityLineList[]> = this._priorityLine.asObservable();
+  private _priorityLine: BehaviorSubject<PriorityLineList[]> =
+    new BehaviorSubject<PriorityLineList[]>([]);
+  priorityLine$: Observable<PriorityLineList[]> =
+    this._priorityLine.asObservable();
 
   constructor(
-    @InjectRepository(GuestsConnection) private guestConnectionRepository: Repository<GuestsConnection>,
-    @Inject(forwardRef(() => AgentsConnectionService)) private agentsConnectionService: AgentsConnectionService,
-    @Inject(forwardRef(() => AgentsConnectionGateway)) private agentsConnectionGateway: AgentsConnectionGateway,
+    @InjectRepository(GuestsConnection)
+    private guestConnectionRepository: Repository<GuestsConnection>,
+    @Inject(forwardRef(() => AgentsConnectionService))
+    private agentsConnectionService: AgentsConnectionService,
+    @Inject(forwardRef(() => AgentsConnectionGateway))
+    private agentsConnectionGateway: AgentsConnectionGateway,
     private videoService: VideoServiceService,
   ) {
     this.checkRoomsAvailability();
   }
-  
+
   checkRoomsAvailability() {
-
     setInterval(() => {
-
       // console.log('checkRoomsAvailability');
-      
-      const lines = shuffleArray(this.priorityLine)
-      lines.forEach(i => console.log('Lista: ---->>>',{...i, list: i.priorityLine.value.map(j => j.guest)}))
 
-      for(let [index, line] of lines.entries()) {
+      const lines = shuffleArray(this.priorityLine);
+      // lines.forEach((i) => {
 
-        let availableRooms = this.agentsConnectionService.rooms.filter(room => room.available);      
+      // console.log('---------- PRIORITYLINE ----------');
+      // console.log(i.priorityLine.value.map((j) => j.guest));
+      // console.log('---------- PRIORITYLINE ----------');
+      // });
+
+      console.log('---------- LISTA ----------');
+      console.log(lines);
+      console.log('---------------------------');
+
+      for (const [index, line] of lines.entries()) {
+        let availableRooms = this.agentsConnectionService.rooms.filter(
+          (room) => room.available,
+        );
         // console.log(availableRooms, '----------Rooms-available----------');
-        
+
         if (!availableRooms.length) break;
         //FIXME: validar si se tiene que hacer el shuffle otra vez
         availableRooms = shuffleArray(availableRooms);
@@ -63,65 +76,74 @@ export class GuestsConnectionService {
         // console.log('line.priorityLine.value', line.priorityLine.value);
         if (!line.priorityLine.value.length) continue;
 
-
-
         const guest = this.removeGuestFromAssertivePriorityLine(0, line);
 
-        // CHECK: 
+        // CHECK:
         if (!guest) continue;
-        
-        // let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender 
-        //   && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority) 
+
+        // let availableRoom = availableRooms.find((room) => (room.host.agent.sex === line.gender
+        //   && room.host.agent.languages[0]?.title === line.language && room.host.agent.role.lowerLimitPriority >= +guest.priority)
         //   || (room.host.agent.sex === line.gender && room.host.agent.role.lowerLimitPriority >= +guest.priority))
-          
+
         // if (!availableRoom) {
         //   availableRoom = availableRooms[0];
         // }
 
-        let availableRoom = availableRooms[0];
+        const availableRoom = availableRooms[0];
 
         availableRoom.users.push(guest);
         availableRoom.available = false;
-        
 
         const pl = this.priorityLine;
-        
+
         pl[index] = line;
         this._priorityLine.next(pl);
 
         //TODO: Conecta con sockets
         this.agentsConnectionGateway.guestInRoom(availableRoom, guest);
       }
-        
-      this.agentsConnectionService.updateRoomsList(this.agentsConnectionService.rooms);
+
+      this.agentsConnectionService.updateRoomsList(
+        this.agentsConnectionService.rooms,
+      );
     }, 4000);
   }
 
-  existsInPriorityLine(guestUUID: UUIDVersion) {
-    for(let line of this.priorityLine) {
-      const guest = line.priorityLine.value.find((guest) => guest.guest.uuid === guestUUID )
-      if (guest){
+  existsInPriorityLine(guestUUID: UUID) {
+    for (const line of this.priorityLine) {
+      const guest = line.priorityLine.value.find(
+        (guest) => guest.guest.uuid === guestUUID,
+      );
+      if (guest) {
         return true;
-      } 
+      }
     }
 
     return false;
   }
 
-  pushToAssertivePriorityLine(guest: Guest, priorityLine: BehaviorSubject<Guest[]>) {
-    priorityLine.pipe(take(1)).subscribe(previusVal => {
+  pushToAssertivePriorityLine(
+    guest: Guest,
+    priorityLine: BehaviorSubject<Guest[]>,
+  ) {
+    priorityLine.pipe(take(1)).subscribe((previusVal) => {
       const newArr = [...previusVal, guest];
-      const sortedArray = newArr.sort((a, b) => parseInt(a.priority) - parseInt(b.priority));
-      
+      const sortedArray = newArr.sort(
+        (a, b) => parseInt(a.priority) - parseInt(b.priority),
+      );
+
       priorityLine.next(sortedArray);
     });
   }
 
-  create(createGuestsConnectionDto: CreateGuestsConnectionDto) {    
-    return this.guestConnectionRepository.save(createGuestsConnectionDto); 
+  create(createGuestsConnectionDto: CreateGuestsConnectionDto) {
+    return this.guestConnectionRepository.save(createGuestsConnectionDto);
   }
 
-  updateGuestConnection(id: string, guestConnectionData: Partial<GuestsConnection>) {
+  updateGuestConnection(
+    id: string,
+    guestConnectionData: Partial<GuestsConnection>,
+  ) {
     return this.guestConnectionRepository
       .createQueryBuilder()
       .update(GuestsConnection)
@@ -130,13 +152,20 @@ export class GuestsConnectionService {
       .execute();
   }
 
-  removeGuestFromAssertivePriorityLine(idx: number, priorityLine: PriorityLineList): Guest {
+  removeGuestFromAssertivePriorityLine(
+    idx: number,
+    priorityLine: PriorityLineList,
+  ): Guest {
     const line = priorityLine.priorityLine.value;
     const removedGuest = line.splice(idx, 1)[0];
-    
-    if(line.length === 0) {
-      const listIndex = this._priorityLine.value.findIndex((list) => priorityLine.gender === list.gender && priorityLine.language === list.language)
-      if(listIndex !== -1) {
+
+    if (line.length === 0) {
+      const listIndex = this._priorityLine.value.findIndex(
+        (list) =>
+          priorityLine.gender === list.gender &&
+          priorityLine.language === list.language,
+      );
+      if (listIndex !== -1) {
         const mainPL = this._priorityLine.value;
         mainPL.splice(listIndex, 1);
         this._priorityLine.next(mainPL);
@@ -149,8 +178,10 @@ export class GuestsConnectionService {
   }
 
   getGuestIdxBySocketId(socketId: string) {
-    for(let line of this.priorityLine) {
-      const guest = line.priorityLine.value.findIndex((guest) => guest.socketId === socketId )
+    for (const line of this.priorityLine) {
+      const guest = line.priorityLine.value.findIndex(
+        (guest) => guest.socketId === socketId,
+      );
 
       if (guest >= 0) return { guest, priorityLine: line };
     }
@@ -159,40 +190,44 @@ export class GuestsConnectionService {
   }
 
   getGuestBySocketId(socketId: string) {
-    for(let line of this.priorityLine) {
-      const guest = line.priorityLine.value.find((guest) => guest.socketId === socketId )
+    for (const line of this.priorityLine) {
+      const guest = line.priorityLine.value.find(
+        (guest) => guest.socketId === socketId,
+      );
       if (guest) return guest;
     }
     return undefined;
   }
-  
+
   addGuestToPriorityLine(guest: Guest): any {
     const priorityLine = this.findProperPriorityList(guest);
-    
+
     this.pushToAssertivePriorityLine(guest, priorityLine.priorityLine);
   }
 
   findProperPriorityList(guest: Guest) {
     const _$guest = guest.guest;
-    
+
     let priorityLine = this._priorityLine.value.find((list) => {
-      return _$guest.gender === list.gender && _$guest.languages[0]?.title === list.language;
+      return (
+        _$guest.gender === list.gender &&
+        _$guest.languages[0]?.title === list.language
+      );
     });
 
-    if(priorityLine){
+    if (priorityLine) {
       // console.log('Lista de prioridad encontrada', priorityLine);
       return priorityLine;
-    } 
+    }
 
     priorityLine = {
       gender: _$guest.gender,
       language: _$guest.languages[0]?.title,
-      priorityLine: new BehaviorSubject<Guest[]>([])
-    }
+      priorityLine: new BehaviorSubject<Guest[]>([]),
+    };
 
     // console.log("Creando lista de prioridad --------------------------------")
     // console.log(priorityLine);
-    
 
     this._priorityLine.next([...this._priorityLine.value, priorityLine]);
 
@@ -202,38 +237,42 @@ export class GuestsConnectionService {
   }
 
   getRoomByGuestSocket(socketId: string) {
-    return this.agentsConnectionService.rooms.find(room => room.users.find(user => user.socketId === socketId));
+    return this.agentsConnectionService.rooms.find((room) =>
+      room.users.find((user) => user.socketId === socketId),
+    );
   }
-  
+
   updateRoomGuest(room: Room) {
     if (!room) return;
-  
+
     room.users = [];
     room.available = true;
-  
+
     this.agentsConnectionService.updateRoom(room.name, room);
   }
 
-  public get priorityLine() : PriorityLineList[] {
+  public get priorityLine(): PriorityLineList[] {
     return this._priorityLine.value;
   }
-  
+
   async getSessionToReconnect(sessionId: string) {
     const room = this.agentsConnectionService.findRoomBySessionId(sessionId);
     if (!room) return false;
 
-    return { session : await this.videoService.getSessionById(sessionId), room };
+    return { session: await this.videoService.getSessionById(sessionId), room };
   }
 
   findGuestConnectionBySessionId(sessionId: string) {
     return this.guestConnectionRepository.findOne({
       where: {
-        sessionId
-      }
-    })
+        sessionId,
+      },
+    });
   }
 
   findGuestInPriorityLineByUuid(uuid: string) {
-    return this._priorityLine.value.find(pl => pl.priorityLine.value.find(guest => guest.guest.uuid === uuid));
+    return this._priorityLine.value.find((pl) =>
+      pl.priorityLine.value.find((guest) => guest.guest.uuid === uuid),
+    );
   }
 }

@@ -2,16 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateCallRecordDto } from './dto/create-call_record.dto';
-import { UpdateCallRecordDto } from './dto/update-call_record.dto';
 import { CallRecord } from './entities/call_record.entity';
 import { FindAllCallRecordDto } from './dto/find-all-call_record.dto';
 import { DashboardGraphCallRecordQueryDto } from './dto/dashboard-graph-call_record.dto';
-import { paginatorResponse, parseAffeceRowToHttpResponse } from 'src/utilities/helpers';
+import {
+  paginatorResponse,
+  parseAffeceRowToHttpResponse,
+} from 'src/utilities/helpers';
 
 @Injectable()
 export class CallRecordsService {
   constructor(
-    @InjectRepository(CallRecord) private callRecordRepository: Repository<CallRecord>
+    @InjectRepository(CallRecord)
+    private callRecordRepository: Repository<CallRecord>,
   ) {}
   async create(createCallRecordDto: CreateCallRecordDto) {
     return await this.callRecordRepository.save(createCallRecordDto);
@@ -22,62 +25,62 @@ export class CallRecordsService {
 
     const take = query.pageSize || 10;
     const page = query.pageIndex || 0;
-    const skip = page*take;
+    const skip = page * take;
 
     if (query.agentConnectionId) {
       where.agentConnectionId = {
-        id : query.agentConnectionId
-      }
+        id: query.agentConnectionId,
+      };
     }
 
-    if(query.guestConnectionId) {
+    if (query.guestConnectionId) {
       where.guestConnectionId = {
-        id : query.guestConnectionId
-      }
+        id: query.guestConnectionId,
+      };
     }
 
     if (query.agentUuid) {
       where.agentConnectionId = {
         agent: {
-          uuid: query.agentUuid
-        }
-      }
+          uuid: query.agentUuid,
+        },
+      };
     }
 
     if (query.guestUuid) {
       where.guestConnectionId = {
         uuid: {
-          uuid: query.guestUuid
-        }
-      }
+          uuid: query.guestUuid,
+        },
+      };
     }
 
-    if(query.sessionStartedFrom) {
+    if (query.sessionStartedFrom) {
       where.sessionStartedAt = Between(
         query.sessionStartedFrom,
-        query.sessionStartedTo || new Date()
-      )
+        query.sessionStartedTo || new Date(),
+      );
     }
 
-    if(query.sessionFinishedFrom) {
+    if (query.sessionFinishedFrom) {
       where.sessionFinishedAt = Between(
         query.sessionFinishedFrom,
-        query.sessionFinishedTo || new Date()
-      )
+        query.sessionFinishedTo || new Date(),
+      );
     }
 
     const data = await this.callRecordRepository.findAndCount({
       relations: {
         agentConnectionId: {
-          agent: true
+          agent: true,
         },
         guestConnectionId: {
-          uuid: true
-        }
+          uuid: true,
+        },
       },
       take: query.paginate ? take : 0,
       skip: query.paginate ? skip : 0,
-      where
+      where,
     });
 
     return paginatorResponse(data, page, take);
@@ -88,11 +91,13 @@ export class CallRecordsService {
 
     if (query.agentConnectionId) {
       where.agentConnectionId = {
-        id : query.agentConnectionId
-      }
+        id: query.agentConnectionId,
+      };
     }
 
-    return this.callRecordRepository.query('SELECT COUNT(*) as calls, DATE(sessionStartedAt) as date FROM `call_record` GROUP BY date ORDER BY date ASC')
+    return this.callRecordRepository.query(
+      'SELECT COUNT(*) as calls, DATE(sessionStartedAt) as date FROM `call_record` GROUP BY date ORDER BY date ASC',
+    );
   }
 
   findOne(id: number) {
@@ -101,16 +106,16 @@ export class CallRecordsService {
 
   async update(id: number) {
     const callRecordData = {
-      sessionFinishedAt: new Date()
-    }
+      sessionFinishedAt: new Date(),
+    };
 
     const response = await this.callRecordRepository
       .createQueryBuilder()
       .update(CallRecord)
       .set(callRecordData)
       .where('id = :id', { id })
-      .execute();    
-      
+      .execute();
+
     return parseAffeceRowToHttpResponse(response.affected);
   }
 
@@ -122,9 +127,9 @@ export class CallRecordsService {
     return this.callRecordRepository.findOne({
       where: {
         guestConnectionId: {
-          id
-        }
-      }
-    })
+          id,
+        },
+      },
+    });
   }
 }

@@ -9,10 +9,7 @@ import { RoleGuard } from '../auth/guard/role.guard';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([CallRecord]),
-    AuthModule
-  ],
+  imports: [TypeOrmModule.forFeature([CallRecord]), AuthModule],
   controllers: [CallRecordsController],
   providers: [CallRecordsService, RoleGuard, AuthJWTGuard, ApiKeyGuard],
   exports: [CallRecordsService],
