@@ -12,7 +12,6 @@ import { Room } from 'src/modules/agents-connection/agents-connection.interface'
 import { Language } from '../languages/entities/language.entity';
 import { shuffleArray } from 'src/utilities/helpers';
 import { VideoServiceService } from '../video-service/video-service.service';
-import { UUID } from 'crypto';
 
 type PriorityLineList = {
   gender: string;
@@ -109,7 +108,7 @@ export class GuestsConnectionService {
     }, 4000);
   }
 
-  existsInPriorityLine(guestUUID: UUID) {
+  existsInPriorityLine(guestUUID: string) {
     for (const line of this.priorityLine) {
       const guest = line.priorityLine.value.find(
         (guest) => guest.guest.uuid === guestUUID,

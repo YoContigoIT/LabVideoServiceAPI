@@ -32,6 +32,9 @@ export class VideoServiceService {
   }
 
   async createSession(sessionProperties: SessionProperties) {
+    console.log('---------- createSession ----------');
+    console.log({ sessionProperties });
+
     const settings = await this.settingsService.getSettings();
     this.sessionProperties = {
       recordingMode: settings.openViduRecordingMode as RecordingMode, // RecordingMode.ALWAYS for automatic recording or MANUAL
@@ -50,8 +53,13 @@ export class VideoServiceService {
         ...sessionProperties,
       });
     } catch (error) {
-      console.warn(error);
+      console.log('---------- CreateSessionError ----------');
+      console.log({ error });
+      console.log('----------------------------------------');
     }
+
+    console.log({ createSession });
+    console.log('-----------------------------------');
     return createSession;
   }
 
@@ -59,6 +67,8 @@ export class VideoServiceService {
     session: Session,
     connectionProperties: ConnectionProperties,
   ) {
+    console.log('---------- createConnection ----------');
+
     const settings = await this.settingsService.getSettings();
     this.connectionProperties = {
       record: settings.openViduRecord,
@@ -67,12 +77,17 @@ export class VideoServiceService {
     try {
       if (!this.validateIfSessionExists(session)) return null;
 
-      return await session.createConnection({
+      const connection = await session.createConnection({
         ...this.connectionProperties,
         ...connectionProperties,
       });
+      console.log({ connection });
+      console.log('-----------------------------------');
+      return connection;
     } catch (error) {
-      return null;
+      console.log('--------- CreateConnectionError ---------');
+      console.log({ error });
+      console.log('-----------------------------------------');
     }
   }
 
@@ -83,17 +98,27 @@ export class VideoServiceService {
   }
 
   getSessions() {
-    return this.openVidu.activeSessions;
+    console.log('---------- getSessions ----------');
+    const sessionsActives = this.openVidu.activeSessions;
+    console.log({ sessionsActives });
+    console.log('---------------------------------');
+    return sessionsActives;
   }
 
   async getSessionById(sessionId: string) {
     try {
-      await this.openVidu.fetch();
+      console.log('---------- getSessionById ----------');
+      const fecthSessions = await this.openVidu.fetch();
+      console.log({ fecthSessions });
+      console.log('------------------------------------');
+
       return this.openVidu?.activeSessions.find(
         (session) => session.sessionId === sessionId,
       );
     } catch (error) {
-      console.warn(error);
+      console.log('--------- getSessionByIdError ---------');
+      console.log({ error });
+      console.log('-----------------------------------------');
     }
   }
 }

@@ -152,5 +152,11 @@ const enviroment = process.env.NODE_ENV || 'development';
 const env =
   enviroment !== 'production' ? settingsDevelopment : settingsProduction;
 
-console.log({ enviroment, env });
+console.log('---------- Enviroment ----------');
+console.log({
+  enviroment,
+  database: settings.db.mysql,
+  openvidu: settings.openVidu,
+});
+
 export default settings;

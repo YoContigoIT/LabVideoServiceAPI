@@ -1,24 +1,23 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  # api:
-  #   container_name: video_service_api
-  #   image: video_service_api
-  #   build:
-  #     context: .
-  #     target: production
-  #     dockerfile: ./Dockerfile
-  #   command: npm run start
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     - video_service_network
-  #   restart: unless-stopped
-  #   volumes:
-  #     - .:/api
-  db:
-    image: mysql
-    container_name: mysql-video_service
+  video_sevice_api_openvidu_pro:
+    container_name: video_sevice_api_openvidu_pro
+    image: video_sevice_api_openvidu_pro
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 80:80
+    environment:
+      DB_MYSQL_HOST: mysql-video_sevice_api_openvidu_pro
+    networks:
+      - laboratorio-api
+    restart: unless-stopped
+
+  mysql-video_sevice_api_openvidu_pro:
+    image: mysql:latest
+    container_name: mysql-video_sevice_api_openvidu_pro
     ports:
       - 3306:3306
     environment:
@@ -26,3 +25,11 @@ services:
       MYSQL_DATABASE: service
       MYSQL_USER: service
       MYSQL_PASSWORD: password
+    volumes:
+      - ./init_database.sql:/docker-entrypoint-initdb.d/init_database.sql
+    networks:
+      - laboratorio-api
+
+networks:
+  laboratorio-api:
+    name: laboratorio-api

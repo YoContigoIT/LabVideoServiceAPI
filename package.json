@@ -38,7 +38,6 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "file-system": "^2.2.2",
     "joi": "^17.12.2",
     "js-yaml": "^4.1.0",
     "mysql2": "^3.9.2",
@@ -63,7 +62,7 @@
     "@types/express": "^4.17.21",
     "@types/jest": "29.5.12",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.11.25",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/ssh2": "^1.11.19",
@@ -86,7 +85,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   },
   "jest": {
     "moduleFileExtensions": [

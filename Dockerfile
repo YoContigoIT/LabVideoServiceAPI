@@ -1,25 +1,24 @@
-##############
-# PRODUCTION #
-##############
+FROM node:20-alpine as base
 
-FROM --platform=linux/amd64 node:18-alpine As PRODUCTION
+RUN mkdir /app
+WORKDIR /app
 
-RUN apk add dumb-init
-
-RUN npm install -g ts-node @nestjs/cli 
-
-WORKDIR /usr/src/api
-
-COPY package*.json ./
-
-COPY . .
-
+COPY package.json .
 RUN npm install
 
-ARG NODE_ENV=production
+FROM base as build
 
-RUN npm run build 
+COPY . .
+RUN npm run build
 
-COPY ./src/utilities/env ./dist/env
+FROM --platform=linux/amd64 node:20-alpine as production
 
-CMD [ "dumb-init", "npm", "run", "start:prod" ]
+COPY --from=build /app/dist /dist
+COPY tsconfig.json /dist
+COPY package.json /dist
+WORKDIR /dist
+
+RUN npm install --omit=dev
+EXPOSE 80
+
+CMD [ "node", "main.js" ]
